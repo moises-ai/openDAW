@@ -295,9 +295,12 @@ export class BoxGraph<BoxMap = any> {
 
     #rollback(): void {
         this.#rollingBack = true
+        for (const {update} of this.#deferredPointerUpdates) {
+            this.#transactionUpdates.push(update)
+        }
+        this.#deferredPointerUpdates.length = 0
         const updates = this.#transactionUpdates.splice(0)
         for (let i = updates.length - 1; i >= 0; i--) {updates[i].inverse(this)}
-        this.#deferredPointerUpdates.length = 0
         this.#pendingDeferredNotifications.length = 0
         this.#edges.clearAffected()
         this.#pointerTransactionState.clear()
