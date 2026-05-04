@@ -572,6 +572,20 @@ describe("transaction validation & rollback", () => {
             expect(trackedValue).false
             expect(mandatory.value.getValue()).false
         })
+
+        it("rolls back a box whose pointer is set inside its constructor", () => {
+            const graph = createGraphWithFactory()
+            graph.beginTransaction()
+            const mandatory = MandatoryBox.create(graph, UUID.generate())
+            RefBox.create(graph, UUID.generate(), box => box.target.refer(mandatory))
+            graph.endTransaction()
+            expect(graph.boxes().length).toBe(2)
+            graph.beginTransaction()
+            RefBox.create(graph, UUID.generate(), box => box.target.refer(mandatory))
+            expect(graph.boxes().length).toBe(3)
+            graph.abortTransaction()
+            expect(graph.boxes().length).toBe(2)
+        })
     })
 
     describe("deferred pointer notifications", () => {

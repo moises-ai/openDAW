@@ -71,6 +71,7 @@ export class VertexSelection implements Selection<SelectableVertex> {
         this.editing.modify(() => {
             const selection = this.#target.unwrap()
             for (const selectable of selectables) {
+                if (!selectable.isAttached()) {continue}
                 if (!this.#selectableMap.hasKey(selectable.address)) {
                     SelectionBox.create(this.boxGraph, UUID.generate(), box => {
                         box.selectable.refer(selectable)

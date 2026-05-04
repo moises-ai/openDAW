@@ -15,9 +15,9 @@ import {
     Terminable,
     Terminator,
     UUID
-} from "@moises-ai/lib-std"
-import {BoxGraph, createSyncTarget, DeleteUpdate, NewUpdate} from "@moises-ai/lib-box"
-import {AudioFileBox, BoxIO, BoxVisitor} from "@moises-ai/studio-boxes"
+} from "@opendaw/lib-std"
+import {BoxGraph, createSyncTarget, DeleteUpdate, NewUpdate} from "@opendaw/lib-box"
+import {AudioFileBox, BoxIO, BoxVisitor, SoundfontFileBox} from "@opendaw/studio-boxes"
 import {EngineContext} from "./EngineContext"
 import {TimeInfo} from "./TimeInfo"
 import {
@@ -46,24 +46,24 @@ import {
     TimelineBoxAdapter,
     TrackBoxAdapter,
     VaryingTempoMap
-} from "@moises-ai/studio-adapters"
+} from "@opendaw/studio-adapters"
 import {AudioUnit} from "./AudioUnit"
 import {Processor, ProcessPhase} from "./processing"
 import {Mixer} from "./Mixer"
-import {LiveStreamBroadcaster} from "@moises-ai/lib-fusion"
+import {LiveStreamBroadcaster} from "@opendaw/lib-fusion"
 import {UpdateClock} from "./UpdateClock"
 import {PeakBroadcaster} from "./PeakBroadcaster"
 import {Metronome} from "./Metronome"
 import {AudioOutputBufferRegistry} from "./AudioOutputBufferRegistry"
 import {BlockRenderer} from "./BlockRenderer"
-import {AudioAnalyser, AudioData, Graph, PPQN, ppqn, RenderQuantum, TempoMap, TopologicalSort} from "@moises-ai/lib-dsp"
+import {AudioAnalyser, AudioData, Graph, PPQN, ppqn, RenderQuantum, TempoMap, TopologicalSort} from "@opendaw/lib-dsp"
 import {SampleManagerWorklet} from "./SampleManagerWorklet"
 import {ClipSequencingAudioContext} from "./ClipSequencingAudioContext"
-import {Communicator, Messenger} from "@moises-ai/lib-runtime"
+import {Communicator, Messenger} from "@opendaw/lib-runtime"
 import {AudioUnitOptions} from "./AudioUnitOptions"
 import type {SoundFont2} from "soundfont2"
 import {SoundfontManagerWorklet} from "./SoundfontManagerWorklet"
-import {MidiData} from "@moises-ai/lib-midi"
+import {MidiData} from "@opendaw/lib-midi"
 import {MIDITransportClock} from "./MIDITransportClock"
 import {MIDISender} from "./MIDISender"
 import {HRClock} from "./HRClock"
@@ -228,7 +228,9 @@ export class EngineProcessor extends AudioWorkletProcessor implements EngineCont
                     Promise.all(this.#pendingResources).then(() =>
                         this.#boxGraph.boxes().every(box => box.accept<BoxVisitor<boolean>>({
                             visitAudioFileBox: (box: AudioFileBox) =>
-                                this.#sampleManager.getOrCreate(box.address.uuid).data.nonEmpty() && box.pointerHub.nonEmpty()
+                                this.#sampleManager.getOrCreate(box.address.uuid).data.nonEmpty() && box.pointerHub.nonEmpty(),
+                            visitSoundfontFileBox: (box: SoundfontFileBox) =>
+                                this.#soundfontManager.getOrCreate(box.address.uuid).soundfont.nonEmpty() && box.pointerHub.nonEmpty()
                         }) ?? true)),
                 panic: () => this.#panic = true,
                 loadClickSound: (index: 0 | 1, data: AudioData): void => this.#metronome.loadClickSound(index, data),

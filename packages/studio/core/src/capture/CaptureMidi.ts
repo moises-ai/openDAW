@@ -1,9 +1,7 @@
 import {
     byte,
-    Errors,
     Func,
     isDefined,
-    isUndefined,
     Notifier,
     Observer,
     Option,
@@ -86,35 +84,24 @@ export class CaptureMidi extends Capture<CaptureMidiBox> {
                 .map(device => device.name))
     }
 
-    async prepareRecording(): Promise<void> {
-        if (MidiDevices.get().isEmpty()) {
-            if (MidiDevices.canRequestMidiAccess()) {
-                await MidiDevices.requestPermission()
-            } else {
-                return Errors.warn("MIDI not available")
-            }
-        }
-        const inputs = MidiDevices.inputDevices()
-        if (inputs.length === 0) {return}
-        const option = this.deviceId.getValue()
-        if (option.nonEmpty()) {
-            const deviceId = option.unwrap()
-            if (isUndefined(inputs.find(device => deviceId === device.id))) {
-                return Errors.warn(`Could not find MIDI device with id: '${deviceId}'`)
-            }
-        }
-    }
+    async prepareRecording(): Promise<void> {}
 
     startRecording(): Terminable {
         return RecordMidi.start({notifier: this.#notifier, project: this.manager.project, capture: this})
     }
 
     async #updateStream() {
-        if (MidiDevices.get().isEmpty() && MidiDevices.canRequestMidiAccess()) {await MidiDevices.requestPermission()}
         const inputs = MidiDevices.inputDevices()
         const explicit = this.deviceId.getValue().match({
             none: () => inputs,
-            some: id => inputs.filter(device => id === device.id)
+            some: id => {
+                const filtered = inputs.filter(device => id === device.id)
+                if (filtered.length === 0 && inputs.length > 0) {
+                    console.warn(`Requested MIDI device '${id}' unavailable, listening to all devices`)
+                    return inputs
+                }
+                return filtered
+            }
         })
         const activeNotes = new Int8Array(128)
         this.#stream.ifSome(terminable => terminable.terminate())

@@ -111,6 +111,8 @@ export namespace RegionRenderer {
                         }
                     },
                     visitAudioRegionBoxAdapter: (region: AudioRegionBoxAdapter): void => {
+                        if (region.optFile.isEmpty()) {return}
+                        const file = region.optFile.unwrap()
                         for (const pass of LoopableRegion.locateLoops({
                             position, complete,
                             loopOffset: strategy.readLoopOffset(region),
@@ -122,14 +124,14 @@ export namespace RegionRenderer {
                                 context.fillRect(x, labelHeight, 1, height - labelHeight)
                             }
                             const tempoMap = region.trackBoxAdapter.unwrap().context.tempoMap
-                            AudioRenderer.render(context, range, region.file, tempoMap,
+                            AudioRenderer.render(context, range, file, tempoMap,
                                 region.observableOptPlayMode, region.waveformOffset.getValue(),
                                 region.gain.getValue(), bound, contentColor, pass,
                                 true, audioRenderStrategy
                             )
                         }
                         AudioFadingRenderer.render(context, range, region.fading, bound, position, complete, labelBackground)
-                        const isRecording = region.file.getOrCreateLoader().state.type === "record"
+                        const isRecording = file.getOrCreateLoader().state.type === "record"
                         if (isRecording) {}
                     },
                     visitValueRegionBoxAdapter: (region: ValueRegionBoxAdapter) => {
