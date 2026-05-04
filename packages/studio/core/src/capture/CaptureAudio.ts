@@ -1,5 +1,4 @@
 import {
-    Errors,
     Func,
     isDefined,
     isUndefined,
@@ -233,7 +232,7 @@ export class CaptureAudio extends Capture<CaptureAudioBox> {
         const deviceId = this.deviceId.getValue().unwrapOrUndefined() ?? AudioDevices.defaultInput?.deviceId
         const channelCount = this.#requestChannels.unwrapOrElse(2)
         return AudioDevices.requestStream({
-            deviceId: isDefined(deviceId) ? {exact: deviceId} : undefined,
+            deviceId: isDefined(deviceId) ? {ideal: deviceId} : undefined,
             echoCancellation: false,
             noiseSuppression: false,
             autoGainControl: false,
@@ -244,13 +243,11 @@ export class CaptureAudio extends Capture<CaptureAudioBox> {
             const settings = track?.getSettings()
             const gotDeviceId = settings?.deviceId
             console.debug(`new stream. device requested: ${deviceId ?? "default"}, got: ${gotDeviceId ?? "unknown"}. channelCount requested: ${channelCount}, got: ${settings?.channelCount}`)
-            if (isUndefined(deviceId) || deviceId === gotDeviceId) {
-                this.#rebuildAudioChain(stream)
-                this.#stream.wrap(stream)
-            } else {
-                stream.getAudioTracks().forEach(track => track.stop())
-                return Errors.warn(`Could not find audio device with id: '${deviceId}' (got: '${gotDeviceId}')`)
+            if (isDefined(deviceId) && deviceId !== gotDeviceId) {
+                console.warn(`Requested audio device '${deviceId}' unavailable, using fallback '${gotDeviceId ?? "unknown"}'`)
             }
+            this.#rebuildAudioChain(stream)
+            this.#stream.wrap(stream)
         })
     }
 

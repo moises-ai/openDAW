@@ -178,6 +178,7 @@ export class AudioRegionBoxAdapter implements AudioContentBoxAdapter, LoopableRe
     get gain(): MutableObservableValue<number> {return this.#box.gain}
     get fading(): FadingAdapter {return this.#fadingAdapter}
     get file(): AudioFileBoxAdapter {return this.#fileAdapter.unwrap("Cannot access file.")}
+    get optFile(): Option<AudioFileBoxAdapter> {return this.#fileAdapter}
     get observableOptPlayMode(): ObservableOption<AudioPlayMode> {return this.#playMode}
     get timeBase(): TimeBase {return asEnumValue(this.#box.timeBase.getValue(), TimeBase)}
     get waveformOffset(): MutableObservableValue<number> {return this.#box.waveformOffset}

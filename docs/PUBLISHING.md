@@ -118,7 +118,9 @@ This fork is designed to stay in sync with [andremichelle/openDAW](https://githu
 ### Sync Process
 
 ```bash
-# 1. Create a branch for the sync
+# 1. Update main and branch off it
+git checkout main
+git pull origin main
 git checkout -b sync-upstream-YYYY-MM-DD
 
 # 2. Fetch and merge upstream
@@ -150,7 +152,12 @@ npm test
 git add -A
 git commit -m "chore: sync with upstream, reapply scope transformation"
 git push -u origin sync-upstream-YYYY-MM-DD
+
+# 9. Open a PR against the moises-ai fork (NOT upstream andremichelle/openDAW)
+gh pr create --title "Sync upstream YYYY-MM-DD" --body "..."
 ```
+
+> **PR target:** Sync PRs are merged into `moises-ai/openDAW`'s `main`. Upstream (`andremichelle/openDAW`) is only a fetch source, never a PR target.
 
 ### Handling Merge Conflicts
 

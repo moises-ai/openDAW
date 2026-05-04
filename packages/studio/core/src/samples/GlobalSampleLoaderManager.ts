@@ -134,16 +134,14 @@ export class GlobalSampleLoaderManager implements SampleLoaderManager, SamplePro
         }
         const promise = SampleStorage.get().load(uuid).then(
             ([data, peaks, meta]) => {
-                this.#pending.removeByKey(uuid)
                 this.#cache.add({uuid, data, peaks, meta})
                 loader.setLoaded(data, peaks, meta)
             },
-            () => this.#fetchFromApi(loader).finally(() => this.#pending.removeByKey(uuid))
+            () => this.#fetchFromApi(loader)
         ).catch((error: unknown) => {
-            this.#pending.removeByKey(uuid)
             console.warn("Unexpected error loading sample:", error)
             loader.setError(error instanceof Error ? error.message : String(error))
-        })
+        }).finally(() => this.#pending.removeByKey(uuid))
         this.#pending.add({uuid, promise})
     }
 
