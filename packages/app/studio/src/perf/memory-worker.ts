@@ -1,4 +1,4 @@
-import {tryCatch} from "@opendaw/lib-std"
+import {tryCatch} from "@moises-ai/lib-std"
 import {MemoryTest, runMemoryTest} from "./MemoryBenchmark"
 
 type IncomingMessage = { readonly kind: "run", readonly tests: ReadonlyArray<MemoryTest> }

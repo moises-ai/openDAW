@@ -1,4 +1,4 @@
-import {tryCatch} from "@opendaw/lib-std"
+import {tryCatch} from "@moises-ai/lib-std"
 import MemoryWorker from "./memory-worker.ts?worker"
 import {MEMORY_TESTS, MemoryResult, runMemoryTest} from "./MemoryBenchmark"
 

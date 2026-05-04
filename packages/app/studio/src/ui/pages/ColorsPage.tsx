@@ -1,6 +1,6 @@
-import {createElement} from "@opendaw/lib-jsx"
-import {Color} from "@opendaw/lib-std"
-import {Colors} from "@opendaw/studio-enums"
+import {createElement} from "@moises-ai/lib-jsx"
+import {Color} from "@moises-ai/lib-std"
+import {Colors} from "@moises-ai/studio-enums"
 
 export const ColorsPage = () => {
     return (

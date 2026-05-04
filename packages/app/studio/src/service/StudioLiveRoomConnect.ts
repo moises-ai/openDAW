@@ -1,14 +1,14 @@
-import {Errors, Optional, RuntimeNotifier, Terminator, TimeSpan, UUID} from "@opendaw/lib-std"
-import {Promises, Wait} from "@opendaw/lib-runtime"
-import {SampleStorage, SoundfontStorage, Workers, YService} from "@opendaw/studio-core"
-import {P2PSession, type SignalingSocket} from "@opendaw/studio-p2p"
+import {Errors, Optional, RuntimeNotifier, Terminator, TimeSpan, UUID} from "@moises-ai/lib-std"
+import {Promises, Wait} from "@moises-ai/lib-runtime"
+import {SampleStorage, SoundfontStorage, Workers, YService} from "@moises-ai/studio-core"
+import {P2PSession, type SignalingSocket} from "@moises-ai/studio-p2p"
 import {StudioService} from "@/service/StudioService"
 import {showConnectRoomDialog} from "@/service/StudioLiveRoomDialog.tsx"
 import {RoomAwareness, writeIdentity} from "@/service/RoomAwareness"
 import {newRoomSessionId, reportRoomResult, RoomResultStatus, startRoomDurationHeartbeat} from "@/service/RoomStatsReporter"
 import {ChatService} from "@/chat/ChatService"
-import {Events} from "@opendaw/lib-dom"
-import {RouteLocation} from "@opendaw/lib-jsx"
+import {Events} from "@moises-ai/lib-dom"
+import {RouteLocation} from "@moises-ai/lib-jsx"
 
 const classifyConnectError = (error: unknown): RoomResultStatus => {
     if (Errors.isAbort(error)) {return "abort"}

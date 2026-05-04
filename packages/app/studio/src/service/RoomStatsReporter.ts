@@ -1,4 +1,4 @@
-import {UUID} from "@opendaw/lib-std"
+import {UUID} from "@moises-ai/lib-std"
 
 export type RoomResultStatus = "success" | "sync_timeout" | "socket_error" | "abort" | "unknown"
 

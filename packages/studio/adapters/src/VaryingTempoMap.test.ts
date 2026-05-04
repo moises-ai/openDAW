@@ -1,5 +1,5 @@
 import {describe, expect, it} from "vitest"
-import {ConstantTempoMap, PPQN} from "@opendaw/lib-dsp"
+import {ConstantTempoMap, PPQN} from "@moises-ai/lib-dsp"
 
 describe("intervalToSeconds across ppqn=0", () => {
     const barPpqn = 4 * PPQN.Quarter

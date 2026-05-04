@@ -1,5 +1,5 @@
 import {afterEach, beforeEach, describe, expect, it, vi} from "vitest"
-import {UUID} from "@opendaw/lib-std"
+import {UUID} from "@moises-ai/lib-std"
 import {AssetSignaling, type SignalingSocket} from "../AssetSignaling"
 import {AssetServer, type AssetReader} from "../AssetServer"
 import {AssetPeerConnection} from "../AssetPeerConnection"

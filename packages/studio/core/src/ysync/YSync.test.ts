@@ -1,6 +1,6 @@
 import {beforeEach, describe, expect, it, vi} from "vitest"
 import * as Y from "yjs"
-import {Maybe, Option, panic, Procedure, safeExecute, UUID} from "@opendaw/lib-std"
+import {Maybe, Option, panic, Procedure, safeExecute, UUID} from "@moises-ai/lib-std"
 import {
     Box,
     BoxConstruct,
@@ -12,7 +12,7 @@ import {
     StringField,
     UnreferenceableType,
     VertexVisitor
-} from "@opendaw/lib-box"
+} from "@moises-ai/lib-box"
 import {YSync} from "./YSync"
 
 // --- Minimal box fixtures ------------------------------------------------
