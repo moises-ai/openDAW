@@ -67,6 +67,38 @@ export namespace MidiImport {
                     console.debug(`Importing ${midiEvents.length} events of channel #${channel}.`)
                     if (midiEvents.length === 0) {continue}
                     if (midiEvents.every(event => event.type !== ControlType.NOTE_ON && event.type !== ControlType.NOTE_OFF)) {continue}
+                    const map = new Map<byte, { position: ppqn, note: byte, velocity: unitValue }>
+                    const notes: Array<{ position: ppqn, duration: ppqn, pitch: byte, velocity: unitValue }> = []
+                    let duration = 0 | 0
+                    for (const midiEvent of midiEvents) {
+                        const index = midiEvents.indexOf(midiEvent)
+                        const position = PPQN.fromSignature(midiEvent.ticks / format.timeDivision, 4) | 0
+                        midiEvent.accept({
+                            noteOn: (note: byte, velocity: number) => map.set(note, {position, note, velocity}),
+                            noteOff: (note: byte) => {
+                                const data = map.get(note)
+                                map.delete(note)
+                                if (!isDefined(data)) {return}
+                                notes.push({
+                                    position: data.position,
+                                    duration: position - data.position,
+                                    pitch: data.note,
+                                    velocity: data.velocity
+                                })
+                                duration = Math.max(duration, position)
+                            }
+                        })
+                        progress.setValue(index / midiEvents.length)
+                        if (Date.now() - lastTime > 16.0) {
+                            lastTime = Date.now()
+                            yield
+                        }
+                    }
+                    duration = quantizeCeil(duration, PPQN.Bar)
+                    if (duration === 0) {
+                        console.warn(`Channel #${channel}: no playable notes, skipping region.`)
+                        continue
+                    }
                     let trackBox: TrackBox
                     if (isDefined(reuseTrackBox)) {
                         trackBox = reuseTrackBox
@@ -81,34 +113,15 @@ export namespace MidiImport {
                         })
                     }
                     const collection = NoteEventCollectionBox.create(boxGraph, UUID.generate())
-                    const map = new Map<byte, { position: ppqn, note: byte, velocity: unitValue }>
-                    let duration = 0 | 0
-                    for (const midiEvent of midiEvents) {
-                        const index = midiEvents.indexOf(midiEvent)
-                        const position = PPQN.fromSignature(midiEvent.ticks / format.timeDivision, 4) | 0
-                        midiEvent.accept({
-                            noteOn: (note: byte, velocity: number) => map.set(note, {position, note, velocity}),
-                            noteOff: (note: byte) => {
-                                const data = map.get(note)
-                                map.delete(note)
-                                if (!isDefined(data)) {return}
-                                NoteEventBox.create(boxGraph, UUID.generate(), box => {
-                                    box.position.setValue(data.position)
-                                    box.duration.setValue(position - data.position)
-                                    box.pitch.setValue(data.note)
-                                    box.velocity.setValue(data.velocity)
-                                    box.events.refer(collection.events)
-                                })
-                                duration = Math.max(duration, position)
-                            }
+                    notes.forEach(({position, duration: noteDuration, pitch, velocity}) => {
+                        NoteEventBox.create(boxGraph, UUID.generate(), box => {
+                            box.position.setValue(position)
+                            box.duration.setValue(noteDuration)
+                            box.pitch.setValue(pitch)
+                            box.velocity.setValue(velocity)
+                            box.events.refer(collection.events)
                         })
-                        progress.setValue(index / midiEvents.length)
-                        if (Date.now() - lastTime > 16.0) {
-                            lastTime = Date.now()
-                            yield
-                        }
-                    }
-                    duration = quantizeCeil(duration, PPQN.Bar)
+                    })
                     NoteRegionBox.create(boxGraph, UUID.generate(), box => {
                         box.position.setValue(0)
                         box.duration.setValue(duration)
