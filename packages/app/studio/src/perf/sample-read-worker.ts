@@ -1,4 +1,4 @@
-import {tryCatch} from "@opendaw/lib-std"
+import {tryCatch} from "@moises-ai/lib-std"
 import {SampleReadTest, runSampleReadTest} from "./SampleReadBenchmark"
 
 type IncomingMessage = { readonly kind: "run", readonly tests: ReadonlyArray<SampleReadTest> }

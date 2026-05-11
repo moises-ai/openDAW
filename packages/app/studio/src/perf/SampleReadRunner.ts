@@ -1,4 +1,4 @@
-import {tryCatch} from "@opendaw/lib-std"
+import {tryCatch} from "@moises-ai/lib-std"
 import SampleReadWorker from "./sample-read-worker.ts?worker"
 import {SAMPLE_READ_TESTS, SampleReadResult, runSampleReadTest} from "./SampleReadBenchmark"
 
