@@ -122,7 +122,7 @@ export const CodeEditorPage: PageFactory<StudioService> = ({lifecycle, service}:
                         }
                     }
                     return (
-                        <div>
+                        <div className="content">
                             <header>
                                 <Button lifecycle={lifecycle}
                                         onClick={() => RouteLocation.get().navigateTo("/")}

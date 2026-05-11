@@ -12,6 +12,7 @@ import {
     BuildInfo,
     DailySeries,
     DiscordStats,
+    dropPartialDay,
     ErrorStats,
     fetchBuildInfo,
     fetchDiscordStats,
@@ -67,7 +68,12 @@ type StatsBodyProps = {
     tiles: LiveTiles
 }
 
-const StatsBody = ({lifecycle, data, tiles}: StatsBodyProps) => {
+const StatsBody = ({lifecycle, data: rawData, tiles}: StatsBodyProps) => {
+    const data: DashboardData = {
+        rooms: {count: dropPartialDay(rawData.rooms.count), duration: dropPartialDay(rawData.rooms.duration)},
+        users: dropPartialDay(rawData.users),
+        visitors: dropPartialDay(rawData.visitors)
+    }
     const dates = unionDates(data)
     if (dates.length === 0) {
         return <div className="loading">No statistics available yet.</div>

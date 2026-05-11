@@ -1,9 +1,9 @@
 {
-    "name": "@opendaw/eslint-config",
-    "version": "0.0.27",
-    "private": true,
-    "main": "index.js",
-    "publishConfig": {
-        "access": "public"
-    }
+  "name": "@opendaw/eslint-config",
+  "version": "0.0.28",
+  "private": true,
+  "main": "index.js",
+  "publishConfig": {
+    "access": "public"
+  }
 }

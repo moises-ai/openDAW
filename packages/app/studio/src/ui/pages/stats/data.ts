@@ -245,6 +245,12 @@ export const sumValues = (series: DailySeries): number =>
 export const lastValue = (series: DailySeries): number =>
     series.length === 0 ? 0 : series[series.length - 1][1]
 
+// The most recent day in any DailySeries is still being written to, so its
+// value is always partial. Drop it before charting/trending — otherwise the
+// last point sits below the trend and skews any visual reading.
+export const dropPartialDay = (series: DailySeries): DailySeries =>
+    series.length > 0 ? series.slice(0, -1) : series
+
 export const minutesToHours = (series: DailySeries): DailySeries =>
     series.map(([date, minutes]) => [date, minutes / 60] as const)
 

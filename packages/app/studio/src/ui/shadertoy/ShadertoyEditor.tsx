@@ -147,7 +147,7 @@ export const ShadertoyEditor = ({service, lifecycle}: Construct) => {
                         }, {capture: true}),
                     )
                     return (
-                        <div>
+                        <div className="content">
                             <header>
                                 <Button lifecycle={lifecycle}
                                         onClick={compileAndRun}

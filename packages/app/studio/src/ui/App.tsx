@@ -23,6 +23,7 @@ import {PreferencesPage} from "@/ui/pages/PreferencesPage"
 import {TestPage} from "@/ui/pages/TestPage"
 import {JoinRoomPage} from "@/ui/pages/JoinRoomPage"
 import {PerformancePage} from "@/ui/pages/PerformancePage"
+import {SampleReadPage} from "@/ui/pages/SampleReadPage"
 
 export const App = (service: StudioService) => {
     const terminator = new Terminator()
@@ -67,6 +68,7 @@ export const App = (service: StudioService) => {
                     {path: "/open-bundle/*", factory: OpenBundlePage},
                     {path: "/test", factory: TestPage},
                     {path: "/performance", factory: PerformancePage},
+                    {path: "/performance/sample-read", factory: SampleReadPage},
                     {path: "/join/*", factory: JoinRoomPage}
                 ]}
             />

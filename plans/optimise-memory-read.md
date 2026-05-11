@@ -2,7 +2,35 @@
 
 ## Status
 
-Plan only. Justified by the `/performance` data captured 2026-04-30 across Mac (Apple Silicon Chrome 147), Linux/Chromium 147, and Linux/Firefox 149 on a single test machine. No code changes yet.
+Superseded 2026-05-06 by the cross-platform data captured via `/performance/sample-read`. Block-copy regresses on Mac, Linux/Chromium, and Linux/Firefox. **Do not implement.**
+
+The original "Plan only" rationale (drafted 2026-05-01 from `/performance` data captured 2026-04-30) is preserved below for historical context.
+
+## Findings (cross-platform bench, 2026-05-05)
+
+A self-contained benchmark page (`/performance/sample-read`, source on `main` from commit `a67dcd17 adds optimisation test`) runs both kernels — `direct` (the current `SampleVoice.processAdd` shape) and `blockcopy` (the proposal below) — across a sweep of sample sizes (50 KB / 3.84 MB / 16 MB), pitch rates (0.5× / 1× / 2× / 4×), and voice counts (1 / 2 / 4), on the main thread and inside a Web Worker. Each measurement is best-of-7 after warmup, calibrated to ~50 ms per timed run.
+
+Block-copy regresses on every platform tested, including Linux/Chromium — the platform this plan was meant to help.
+
+| Platform | main thread Δ time % (geomean) | worker thread Δ time % (geomean) | wins / losses |
+|---|---|---|---|
+| Mac M-series, Chrome 147 | **+27.6 %** | **+27.8 %** | 0 / 13 each |
+| Linux x86_64, Firefox 149 | **+4.4 %** | **+6.1 %** | 0 / 3 each |
+| Linux x86_64, Chromium 147 | **+23.8 %** | **+26.0 %** | 0 / 13 each |
+
+Direct-read cost is essentially flat across sample sizes. If reads were dominated by cache misses, ns/sample would scale with working-set size; it does not:
+
+| Platform | direct ns/sample (range across 50 KB → 16 MB) |
+|---|---|
+| Mac M-series | 1.80 – 1.94 |
+| Linux Firefox 149 | 9.08 – 10.08 |
+| Linux Chromium 147 | 8.08 – 9.35 |
+
+### Interpretation
+
+The hot loop is **compute-bound on every platform**, not memory-bound. The Linux/Chromium ~4.6× gap vs Mac is engine cost (FMA + interpolation + envelope + branches), not DRAM traffic. Block-copy adds ~1–2 ns/sample of memcpy + bookkeeping overhead and removes nothing useful. Higher pitch rates (4×, larger windows) make the regression worse, not better — opposite of what this plan predicted.
+
+The Linux/Chromium glitch report that motivated this investigation is therefore **not** a memory-bandwidth problem. A separate plan, driven by separate evidence (profiling the non-read parts of `processAdd`, scheduler/RT-priority on Linux, etc.), is needed to address it.
 
 ## Background
 
@@ -58,7 +86,9 @@ The per-voice working set is roughly 80x larger for Playfield. SoundFont's voice
 
 The "memory access pattern is similar" claim is true at a high level. The constants differ by factors of 2 (channel count, bytes per element) and 38 (sample size), and they multiply.
 
-## Plan: Block-Copy Optimisation for Playfield
+## Original proposal (obsolete — see Findings)
+
+The block-copy proposal below was drafted before the bench data arrived. It was rejected by `/performance/sample-read` on three platforms; the text remains so the historical reasoning is on record.
 
 ### Idea
 
@@ -125,7 +155,7 @@ SoundfontVoice already runs against small `Int16Array` zones that fit in L1/L2. 
 
 Switching Playfield's sample storage from `Float32Array` to `Int16Array` (matching SoundFont) would halve the working set on top of the block-copy gain. Bigger refactor: storage paths, sample loading, possibly the AudioData type. Defer until block-copy is merged and we have updated numbers from the user's hardware.
 
-## Implementation steps
+## Original implementation steps (do not implement — see Findings)
 
 1. Add a `MAX_QUANTUM_SPAN` constant in `Playfield/SampleVoice.ts` sized for typical max pitch ratios, with a runtime check for safety.
 2. Allocate `#localL` and `#localR` as `Float32Array(MAX_QUANTUM_SPAN)` lazily on first call (or eagerly in constructor).
@@ -135,11 +165,11 @@ Switching Playfield's sample storage from `Float32Array` to `Int16Array` (matchi
 6. Handle Loop case: if the read window crosses `#end`, do two `set()` calls or fall back to direct reads.
 7. Verify with `/performance` on Mac (should be ~unchanged) and on the Linux user's box (should drop substantially).
 
-## Open questions
+## Open questions (resolved)
 
-- **Predicted Linux gain assumes random reads are the bottleneck.** If Playfield's per-quantum cost has other major contributors (envelope branches, parameter smoothing, `outL[i] += l * env` writes hitting the output buffer), the gain will be smaller. Worth profiling on his box before assuming the full 10x.
-- **Source slicing creates a new typed-array view per `subarray()` call.** That's a tiny allocation per voice per quantum. V8 generally elides these for short-lived views, but worth checking that we're not introducing GC pressure that erases the win.
-- **The user's actual project is the truth, not the benchmark.** Once shipped, ask him to rerun his glitchy 3-SoundFont session and see if perceived stability improves. The benchmark's single-instance, single-voice workload is necessary but not sufficient.
+- **"Predicted Linux gain assumes random reads are the bottleneck."** → **Empirically false.** Direct-read ns/sample is flat across sample sizes from 50 KB to 16 MB on every platform tested. The hot loop is compute-bound. The "other major contributors" the question hedges against are in fact the dominant cost — `processAdd`'s envelope state, the three `Gate` branches, parameter smoothing, and the output-buffer writes are where Playfield's 28 µs/quantum lives, not in the read path.
+- **"Source slicing creates a new typed-array view per `subarray()` call."** → **Moot.** The proposal isn't shipping; the question is academic. The bench did not isolate this overhead, but it's plausibly part of the ~1–2 ns/sample of bookkeeping that `blockcopy` paid on top of `direct` and never recouped.
+- **"The user's actual project is the truth, not the benchmark."** → **Still true, but doesn't apply here.** The benchmark cleanly disproved the memory-bound hypothesis on three platforms; running the user's project would not have rescued a kernel that regresses by +24% on the very target hardware. The user's glitch report stands and needs a fresh investigation in a separate plan.
 
 ## What this plan does not address
 
