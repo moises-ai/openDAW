@@ -9,10 +9,10 @@ import {
     Terminable,
     Terminator,
     UUID
-} from "@moises-ai/lib-std"
-import {appendChildren, createElement} from "@moises-ai/lib-jsx"
+} from "@opendaw/lib-std"
+import {appendChildren, createElement} from "@opendaw/lib-jsx"
 import {StudioService} from "@/service/StudioService"
-import {AudioUnitBox, BoxVisitor, PlayfieldSampleBox} from "@moises-ai/studio-boxes"
+import {AudioUnitBox, BoxVisitor, PlayfieldSampleBox} from "@opendaw/studio-boxes"
 import {
     AudioEffectDeviceAdapter,
     AudioUnitInputAdapter,
@@ -21,20 +21,21 @@ import {
     IndexedBoxAdapterCollection,
     MidiEffectDeviceAdapter,
     PlayfieldSampleBoxAdapter
-} from "@moises-ai/studio-adapters"
+} from "@opendaw/studio-adapters"
 import {ScrollModel} from "@/ui/components/ScrollModel.ts"
 import {Orientation, Scroller} from "@/ui/components/Scroller"
 import {DeviceMidiMeter} from "@/ui/devices/panel/DeviceMidiMeter.tsx"
 import {ChannelStrip} from "@/ui/mixer/ChannelStrip"
 import {installAutoScroll} from "@/ui/AutoScroll"
-import {deferNextFrame, Events, Html, Keyboard} from "@moises-ai/lib-dom"
+import {deferNextFrame, Events, Html, Keyboard, ShortcutManager} from "@opendaw/lib-dom"
+import {DevicePanelShortcuts} from "@/ui/shortcuts/DevicePanelShortcuts"
 import {DevicePanelDragAndDrop} from "@/ui/devices/DevicePanelDragAndDrop"
 import {NoAudioUnitSelectedPlaceholder} from "@/ui/devices/panel/NoAudioUnitSelectedPlaceholder"
 import {NoEffectPlaceholder} from "@/ui/devices/panel/NoEffectPlaceholder"
 import {DeviceMount} from "@/ui/devices/panel/DeviceMount"
-import {Box} from "@moises-ai/lib-box"
-import {Pointers} from "@moises-ai/studio-enums"
-import {Project, ProjectProfile} from "@moises-ai/studio-core"
+import {Box} from "@opendaw/lib-box"
+import {Pointers} from "@opendaw/studio-enums"
+import {Project, ProjectProfile} from "@opendaw/studio-core"
 import {ShadertoyPreview} from "@/ui/devices/panel/ShadertoyPreview"
 
 const className = Html.adoptStyleSheet(css, "DevicePanel")
@@ -247,7 +248,21 @@ export const DevicePanel = ({lifecycle, service}: Construct) => {
         if (optEditing.isEmpty()) {return Option.None}
         return Option.wrap(project.boxAdapters.adapterFor(optEditing.unwrap().box, Devices.isHost))
     }
+    // Element-scoped shortcut context: active only while focus is inside
+    // the instrument container, so Delete on the focused instrument removes
+    // the whole audio unit without competing with global Delete handling.
+    const instrumentShortcuts = ShortcutManager.get().createContext(instrumentContainer, "DevicePanel/Instrument")
     lifecycle.ownAll(
+        instrumentShortcuts,
+        instrumentShortcuts.register(DevicePanelShortcuts["delete-audio-unit"].shortcut, () => {
+            const optHost = getCurrentDeviceHost()
+            if (optHost.isEmpty()) {return false}
+            const audioUnit = optHost.unwrap().audioUnitBoxAdapter()
+            if (audioUnit.isOutput) {return false}
+            const {editing, api} = service.project
+            editing.modify(() => api.deleteAudioUnit(audioUnit.box))
+            return true
+        }),
         Html.watchResize(element, updateScroller),
         scrollModel.subscribe(() => devices.scrollLeft = scrollModel.position),
         Events.subscribe(element, "wheel", (event: WheelEvent) => scrollModel.moveBy(event.deltaX), {passive: true}),

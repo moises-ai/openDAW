@@ -1,8 +1,8 @@
 import {RegionBound} from "./env"
-import {Option} from "@moises-ai/lib-std"
-import {dbToGain, LoopableRegion, PPQN, TempoChangeGrid, TempoMap} from "@moises-ai/lib-dsp"
-import {Peaks, PeaksPainter} from "@moises-ai/lib-fusion"
-import {AudioFileBoxAdapter, AudioPlayMode} from "@moises-ai/studio-adapters"
+import {Option, quantizeCeil} from "@opendaw/lib-std"
+import {dbToGain, LoopableRegion, PPQN, TempoChangeGrid, TempoMap} from "@opendaw/lib-dsp"
+import {Peaks, PeaksPainter} from "@opendaw/lib-fusion"
+import {AudioFileBoxAdapter, AudioPlayMode} from "@opendaw/studio-adapters"
 import {TimelineRange} from "../timeline/TimelineRange"
 
 export namespace AudioRenderer {
@@ -353,10 +353,7 @@ export namespace AudioRenderer {
 
             // Dynamic step size: ensure each step is at least 1 device pixel wide
             const minStepSize = range.unitsPerPixel * devicePixelRatio
-            const stepSize = Math.max(
-                TempoChangeGrid,
-                Math.ceil(minStepSize / TempoChangeGrid) * TempoChangeGrid
-            )
+            const stepSize = Math.max(TempoChangeGrid, quantizeCeil(minStepSize, TempoChangeGrid))
 
             // Align to grid for consistent rendering across zoom levels
             let currentPPQN = Math.floor(iterStart / stepSize) * stepSize

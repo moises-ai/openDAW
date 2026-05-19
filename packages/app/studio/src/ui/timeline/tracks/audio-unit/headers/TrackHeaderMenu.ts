@@ -1,16 +1,17 @@
-import {CaptureAudio, MenuItem, Project} from "@moises-ai/studio-core"
+import {CaptureAudio, MenuItem, Project} from "@opendaw/studio-core"
 import {MonitoringDialog} from "@/ui/monitoring/MonitoringDialog"
-import {isInstanceOf, Procedure, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
+import {Browser} from "@opendaw/lib-dom"
+import {isInstanceOf, Procedure, RuntimeNotifier, UUID} from "@opendaw/lib-std"
 import {
     AudioUnitBoxAdapter,
     DeviceAccepts,
     TrackBoxAdapter,
     TrackType,
     TransferAudioUnits
-} from "@moises-ai/studio-adapters"
+} from "@opendaw/studio-adapters"
 import {DebugMenus} from "@/ui/menu/debug"
 import {MidiImport} from "@/ui/timeline/MidiImport.ts"
-import {CaptureMidiBox, TrackBox} from "@moises-ai/studio-boxes"
+import {CaptureMidiBox, TrackBox} from "@opendaw/studio-boxes"
 import {StudioService} from "@/service/StudioService"
 import {MenuCapture} from "@/ui/timeline/tracks/audio-unit/menu/capture"
 import {GlobalShortcuts} from "@/ui/shortcuts/GlobalShortcuts"
@@ -135,6 +136,13 @@ export const installTrackHeaderMenu = (service: StudioService,
             selectable: !trackBoxAdapter.regions.collection.isEmpty() && !isFrozen
         }).setTriggerProcedure(() => trackBoxAdapter.regions.collection.asArray()
             .forEach(region => selection.select(region.box))),
+        MenuItem.default({
+            label: "Compact Tracks",
+            hidden: !Browser.isLocalHost(),
+            selectable: !isFrozen,
+            separatorBefore: true
+        }).setTriggerProcedure(() => editing.modify(() =>
+            project.api.compactTracks(audioUnitBoxAdapter.box))),
         MenuItem.default({
             label: "Import MIDI File...",
             hidden: !acceptMidi,

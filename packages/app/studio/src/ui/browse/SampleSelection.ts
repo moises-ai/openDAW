@@ -1,11 +1,11 @@
-import {asDefined, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
-import {AudioFileBox} from "@moises-ai/studio-boxes"
-import {InstrumentFactories, Sample} from "@moises-ai/studio-adapters"
-import {AudioContentFactory, OpenSampleAPI, ProjectStorage, SampleStorage} from "@moises-ai/studio-core"
+import {asDefined, RuntimeNotifier, UUID} from "@opendaw/lib-std"
+import {AudioFileBox} from "@opendaw/studio-boxes"
+import {InstrumentFactories, Sample} from "@opendaw/studio-adapters"
+import {AudioContentFactory, OpenSampleAPI, PresetStorage, ProjectStorage, SampleStorage} from "@opendaw/studio-core"
 import {HTMLSelection} from "@/ui/HTMLSelection"
 import {StudioService} from "@/service/StudioService"
 import {Dialogs} from "../components/dialogs"
-import {ResourceSelection} from "@/ui/browse/ResourceSelection"
+import {ResourceSelection, truncateList} from "@/ui/browse/ResourceSelection"
 
 export class SampleSelection implements ResourceSelection {
     readonly #service: StudioService
@@ -59,23 +59,53 @@ export class SampleSelection implements ResourceSelection {
 
     async deleteSamples(...samples: ReadonlyArray<Sample>) {
         const dialog = RuntimeNotifier.progress({headline: "Checking Sample Usages"})
-        const used = await ProjectStorage.listUsedAssets(AudioFileBox)
-        const online = new Set<string>((await OpenSampleAPI.get().all()).map(({uuid}) => uuid))
+        const [usedByProjects, usedByPresets, onlineList] = await Promise.all([
+            ProjectStorage.listUsedAssets(AudioFileBox),
+            PresetStorage.listUsedAssets(AudioFileBox),
+            OpenSampleAPI.get().all()
+        ])
+        this.#service.projectProfileService.getValue().ifSome(profile => {
+            const projectName = profile.meta.name
+            for (const box of this.#service.project.boxGraph.boxes()) {
+                if (!(box instanceof AudioFileBox)) {continue}
+                const key = UUID.toString(box.address.uuid)
+                const list = usedByProjects.get(key) ?? []
+                if (!list.includes(projectName)) {list.push(projectName)}
+                usedByProjects.set(key, list)
+            }
+        })
+        const online = new Set<string>(onlineList.map(({uuid}) => uuid))
         dialog.terminate()
+        const deletable: Array<Sample> = []
+        for (const sample of samples) {
+            const isOnline = online.has(sample.uuid)
+            const projectRefs = usedByProjects.get(sample.uuid) ?? []
+            const presetRefs = usedByPresets.get(sample.uuid) ?? []
+            if (!isOnline && (projectRefs.length > 0 || presetRefs.length > 0)) {
+                const lines: Array<string> = []
+                if (projectRefs.length > 0) {
+                    lines.push(`Used by project(s): ${truncateList(projectRefs)}`)
+                }
+                if (presetRefs.length > 0) {
+                    lines.push(`Used by preset(s): ${truncateList(presetRefs)}`)
+                }
+                await Dialogs.info({
+                    headline: "Cannot Delete Sample",
+                    message: `${sample.name}\n${lines.join("\n")}`
+                })
+            } else {
+                deletable.push(sample)
+            }
+        }
+        if (deletable.length === 0) {return}
         const approved = await Dialogs.approve({
             headline: "Remove Sample(s)?",
             message: "This cannot be undone!",
             approveText: "Remove"
         })
         if (!approved) {return}
-        for (const {uuid, name} of samples) {
-            const isUsed = used.has(uuid)
-            const isOnline = online.has(uuid)
-            if (isUsed && !isOnline) {
-                await Dialogs.info({headline: "Cannot Delete Sample", message: `${name} is used by a project.`})
-            } else {
-                await SampleStorage.get().deleteItem(UUID.parse(uuid))
-            }
+        for (const {uuid} of deletable) {
+            await SampleStorage.get().deleteItem(UUID.parse(uuid))
         }
     }
 

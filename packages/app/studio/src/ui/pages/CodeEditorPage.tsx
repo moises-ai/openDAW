@@ -1,28 +1,29 @@
 import css from "./CodeEditorPage.sass?inline"
-import {Html} from "@moises-ai/lib-dom"
+import {Html} from "@opendaw/lib-dom"
 import {MonacoFactory} from "@/monaco/factory"
-import {Await, createElement, PageContext, PageFactory, RouteLocation} from "@moises-ai/lib-jsx"
+import {Await, createElement, PageContext, PageFactory, RouteLocation} from "@opendaw/lib-jsx"
 import {StudioService} from "@/service/StudioService.ts"
 import {ThreeDots} from "@/ui/spinner/ThreeDots"
 import {Button} from "@/ui/components/Button"
 import {Icon} from "@/ui/components/Icon"
-import {Colors, IconSymbol} from "@moises-ai/studio-enums"
-import {Option, panic, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
-import {ScriptHost} from "@moises-ai/studio-scripting"
+import {EditorLoadFailure} from "@/ui/components/EditorLoadFailure"
+import {Colors, IconSymbol} from "@opendaw/studio-enums"
+import {Option, panic, RuntimeNotifier, UUID} from "@opendaw/lib-std"
+import {ScriptHost} from "@opendaw/studio-scripting"
 import {MenuButton} from "@/ui/components/MenuButton"
-import {MenuItem, Project} from "@moises-ai/studio-core"
-import {WavFile} from "@moises-ai/lib-dsp"
-import scriptWorkerUrl from "@moises-ai/studio-scripting/ScriptWorker.js?worker&url"
+import {MenuItem, Project} from "@opendaw/studio-core"
+import {WavFile} from "@opendaw/lib-dsp"
+import scriptWorkerUrl from "@opendaw/studio-scripting/ScriptWorker.js?worker&url"
 import ScriptSimple from "./code-editor/examples/simple.ts?raw"
 import ScriptRetro from "./code-editor/examples/retro.ts?raw"
 import ScriptAudioRegion from "./code-editor/examples/create-sample.ts?raw"
 import ScriptNanoWavetable from "./code-editor/examples/nano-wavetable.ts?raw"
 import ScriptStressTest from "./code-editor/examples/stress-test.ts?raw"
-import {Promises} from "@moises-ai/lib-runtime"
-import {ProjectSkeleton, Sample} from "@moises-ai/studio-adapters"
-import {BoxGraph} from "@moises-ai/lib-box"
-import {BoxIO} from "@moises-ai/studio-boxes"
-import {AudioData} from "@moises-ai/lib-dsp"
+import {dynamicImportWithRetry} from "@/ui/components/dynamicImportWithRetry"
+import {ProjectSkeleton, Sample} from "@opendaw/studio-adapters"
+import {BoxGraph} from "@opendaw/lib-box"
+import {BoxIO} from "@opendaw/studio-boxes"
+import {AudioData} from "@opendaw/lib-dsp"
 
 const truncateImports = (script: string) => script.substring(script.indexOf("//"))
 const Examples = {
@@ -34,6 +35,8 @@ const Examples = {
 }
 
 const className = Html.adoptStyleSheet(css, "CodeEditorPage")
+
+const loadMonacoSetup = dynamicImportWithRetry(() => import("./code-editor/monaco-setup"))
 
 export const CodeEditorPage: PageFactory<StudioService> = ({lifecycle, service}: PageContext<StudioService>) => {
     const pendingSamples = UUID.newSet<UUID.Bytes>(uuid => uuid)
@@ -72,11 +75,8 @@ export const CodeEditorPage: PageFactory<StudioService> = ({lifecycle, service}:
     return (
         <div className={className}>
             <Await
-                factory={() => Promise.all([
-                    Promises.guardedRetry(() => import("./code-editor/monaco-setup"), (_error, count) => count < 10)
-                        .then(({monaco}) => monaco)
-                ])}
-                failure={({retry, reason}) => (<p onclick={retry}>{reason}</p>)}
+                factory={() => Promise.all([loadMonacoSetup().then(({monaco}) => monaco)])}
+                failure={(props) => EditorLoadFailure(props)}
                 loading={() => ThreeDots()}
                 success={([monaco]) => {
                     const {model, container} = MonacoFactory.create({

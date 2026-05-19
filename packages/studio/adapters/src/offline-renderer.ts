@@ -1,4 +1,4 @@
-import {ExportStemsConfiguration} from "./EngineProcessorAttachment"
+import {ExportConfiguration} from "./EngineProcessorAttachment"
 
 export interface OfflineEngineInitializeConfig {
     sampleRate: number
@@ -7,7 +7,7 @@ export interface OfflineEngineInitializeConfig {
     syncStreamBuffer: SharedArrayBuffer
     controlFlagsBuffer: SharedArrayBuffer
     project: ArrayBufferLike
-    exportConfiguration?: ExportStemsConfiguration
+    exportConfiguration?: ExportConfiguration
 }
 
 export interface OfflineEngineRenderConfig {

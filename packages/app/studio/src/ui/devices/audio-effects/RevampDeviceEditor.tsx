@@ -53,7 +53,7 @@ export const RevampDeviceEditor = ({adapter, service, lifecycle, deviceHost}: Co
     const {highPass, lowShelf, lowBell, midBell, highBell, highShelf, lowPass} = adapter.namedParameter
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forEffectDevice(parent, service, deviceHost, adapter)}
                       populateControls={() => (

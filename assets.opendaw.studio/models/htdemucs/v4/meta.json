@@ -1,0 +1,13 @@
+{
+  "task": "stem-separation",
+  "model": "htdemucs",
+  "version": "v4",
+  "bytes": 304321552,
+  "sha256": "d2b401f322558cd57d67a752ed7be3fa55178a0626011eda8ac7bb74e17280c0",
+  "license": "MIT",
+  "upstream": {
+    "project": "https://github.com/facebookresearch/demucs",
+    "onnx_export": "https://huggingface.co/smank/htdemucs-onnx",
+    "onnx_commit": "469b019bf7ac20e03dc68a8fa791323434862390"
+  }
+}

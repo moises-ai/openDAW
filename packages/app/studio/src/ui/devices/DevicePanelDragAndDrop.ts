@@ -1,4 +1,5 @@
-import {asDefined, panic, Terminable} from "@moises-ai/lib-std"
+import {asDefined, isAbsent, isDefined, panic, RuntimeNotifier, Terminable, UUID} from "@opendaw/lib-std"
+import {Promises} from "@opendaw/lib-runtime"
 import {DragAndDrop} from "@/ui/DragAndDrop"
 import {AnyDragData} from "@/ui/AnyDragData"
 import {
@@ -7,11 +8,15 @@ import {
     Devices,
     InstrumentBox,
     InstrumentFactories,
-    InstrumentFactory
-} from "@moises-ai/studio-adapters"
+    InstrumentFactory,
+    PresetDecoder,
+    PresetHeader
+} from "@opendaw/studio-adapters"
 import {InsertMarker} from "@/ui/components/InsertMarker"
-import {EffectFactories, Project} from "@moises-ai/studio-core"
-import {IndexedBox} from "@moises-ai/lib-box"
+import {EffectFactories, PresetSource, Project} from "@opendaw/studio-core"
+import {PresetApplication} from "@/ui/browse/PresetApplication"
+import {IndexedBox} from "@opendaw/lib-box"
+import {AudioUnitBox} from "@opendaw/studio-boxes"
 
 export namespace DevicePanelDragAndDrop {
     export const install = (project: Project,
@@ -28,6 +33,29 @@ export namespace DevicePanelDragAndDrop {
                 if (editingDeviceChain.isEmpty()) {return false}
                 const deviceHost = boxAdapters.adapterFor(editingDeviceChain.unwrap().box, Devices.isHost)
                 const {type} = dragData
+                if (type === "preset") {
+                    if (dragData.category === "audio-unit" && deviceHost.isAudioUnit) {
+                        instrumentContainer.style.opacity = "0.5"
+                        return true
+                    }
+                    if (dragData.category === "instrument" && deviceHost.isAudioUnit
+                        && !deviceHost.inputAdapter.mapOr(input => input instanceof AudioBusBoxAdapter, false)) {
+                        instrumentContainer.style.opacity = "0.5"
+                        return true
+                    }
+                    if (dragData.category === "audio-effect" || dragData.category === "audio-effect-chain") {
+                        const [_index, successor] = DragAndDrop.findInsertLocation(event, audioEffectsContainer)
+                        audioEffectsContainer.insertBefore(insertMarker, successor)
+                        return true
+                    }
+                    if (dragData.category === "midi-effect" || dragData.category === "midi-effect-chain") {
+                        if (deviceHost.inputAdapter.mapOr(input => input.accepts !== "midi", true)) {return false}
+                        const [_index, successor] = DragAndDrop.findInsertLocation(event, midiEffectsContainer)
+                        midiEffectsContainer.insertBefore(insertMarker, successor)
+                        return true
+                    }
+                    return false
+                }
                 let container: HTMLElement
                 if (type === "audio-effect") {
                     container = audioEffectsContainer
@@ -37,6 +65,7 @@ export namespace DevicePanelDragAndDrop {
                     }
                     container = midiEffectsContainer
                 } else if (type === "instrument" && deviceHost.isAudioUnit) {
+                    if (dragData.device === null) {return false}
                     if (deviceHost.inputAdapter.mapOr(input => input instanceof AudioBusBoxAdapter, false)) {
                         return false
                     }
@@ -45,28 +74,31 @@ export namespace DevicePanelDragAndDrop {
                 } else {
                     return false
                 }
-                const [index, successor] = DragAndDrop.findInsertLocation(event, container)
-                if (dragData.start_index === null) {
-                    container.insertBefore(insertMarker, successor)
-                } else {
-                    const delta = index - dragData.start_index
-                    if (delta < 0 || delta > 1) {
-                        container.insertBefore(insertMarker, successor)
-                    } else if (insertMarker.isConnected) {insertMarker.remove()}
-                }
+                const [_index, successor] = DragAndDrop.findInsertLocation(event, container)
+                container.insertBefore(insertMarker, successor)
                 return true
             },
             drop: (event: DragEvent, dragData: AnyDragData): void => {
                 instrumentContainer.style.opacity = "1.0"
                 if (insertMarker.isConnected) {insertMarker.remove()}
                 const {type} = dragData
+                if (type === "preset") {
+                    const dropIndex = dragData.category === "audio-effect" || dragData.category === "audio-effect-chain"
+                        ? DragAndDrop.findInsertLocation(event, audioEffectsContainer)[0]
+                        : dragData.category === "midi-effect" || dragData.category === "midi-effect-chain"
+                            ? DragAndDrop.findInsertLocation(event, midiEffectsContainer)[0]
+                            : 0
+                    handlePresetDrop(project, dragData, dropIndex).catch(console.warn)
+                    return
+                }
                 if (type !== "midi-effect" && type !== "audio-effect" && type !== "instrument") {return}
                 const editingDeviceChain = userEditingManager.audioUnit.get()
                 if (editingDeviceChain.isEmpty()) {return}
                 const deviceHost = boxAdapters.adapterFor(editingDeviceChain.unwrap("editingDeviceChain isEmpty").box, Devices.isHost)
                 if (type === "instrument" && deviceHost instanceof AudioUnitBoxAdapter) {
+                    if (dragData.device === null) {return}
                     const inputBox = deviceHost.inputField.pointerHub.incoming().at(0)?.box
-                    if (inputBox === undefined) {
+                    if (isAbsent(inputBox)) {
                         console.warn("No instrument to replace")
                         return
                     }
@@ -90,16 +122,22 @@ export namespace DevicePanelDragAndDrop {
                     return panic(`Unknown type: ${type}`)
                 }
                 const [index] = DragAndDrop.findInsertLocation(event, container)
-                if (dragData.start_index === null) {
+                if (dragData.uuids === null) {
                     editing.modify(() => {
                         const factory = EffectFactories.MergedNamed[dragData.device]
                         project.api.insertEffect(field, factory, index)
                     })
                 } else {
-                    const delta = index - dragData.start_index
-                    if (delta < 0 || delta > 1) { // if delta is zero or one, it has no effect on the order
-                        editing.modify(() => IndexedBox.moveIndex(field, dragData.start_index, delta))
-                    }
+                    const uuids = dragData.uuids
+                    if (uuids.length === 0) {return}
+                    const startIndices = uuids
+                        .map(uuidStr => project.boxGraph.findBox(UUID.parse(uuidStr)).unwrapOrNull())
+                        .filter(isDefined)
+                        .filter(IndexedBox.isIndexedBox)
+                        .map(box => box.index.getValue())
+                        .toSorted((a, b) => a - b)
+                    if (startIndices.length === 0) {return}
+                    editing.modify(() => IndexedBox.moveIndices(field, startIndices, index))
                 }
             },
             enter: () => {},
@@ -108,5 +146,87 @@ export namespace DevicePanelDragAndDrop {
                 if (insertMarker.isConnected) {insertMarker.remove()}
             }
         })
+    }
+
+    const resolveKeepTimeline = async (bytes: ArrayBuffer, targetAudioUnit: AudioUnitBox): Promise<boolean | "abort"> => {
+        const sourceHasTimeline = PresetDecoder.peekHasTimeline(bytes)
+        const targetHasTimeline = targetAudioUnit.tracks.pointerHub.incoming().length > 0
+        if (!sourceHasTimeline) {return true}
+        if (!targetHasTimeline) {return false}
+        const replace = await Promises.tryCatch(RuntimeNotifier.approve({
+            headline: "Replace Timeline?",
+            message: "This preset includes timeline content (clips, regions, automation). "
+                + "Replace the existing timeline on this audio unit, or keep your current one?",
+            approveText: "Replace",
+            cancelText: "Keep"
+        }))
+        if (replace.status === "rejected") {return "abort"}
+        return !replace.value
+    }
+
+    const handlePresetDrop = async (project: Project,
+                                    dragData: { category: string, source: PresetSource, uuid: UUID.String },
+                                    dropIndex: number): Promise<void> => {
+        const editing = project.userEditingManager.audioUnit.get()
+        if (editing.isEmpty()) {return}
+        const targetAudioUnit = project.boxAdapters
+            .adapterFor(editing.unwrap().box, Devices.isHost).audioUnitBoxAdapter().box
+        const load = await Promises.tryCatch(PresetApplication.loadBytes(dragData.uuid, dragData.source))
+        if (load.status === "rejected") {
+            await RuntimeNotifier.info({
+                headline: "Could Not Load Preset",
+                message: String(load.error)
+            })
+            return
+        }
+        if (dragData.category === "audio-unit") {
+            const keepTimeline = await resolveKeepTimeline(load.value, targetAudioUnit)
+            if (keepTimeline === "abort") {return}
+            project.editing.modify(() => {
+                const attempt = PresetDecoder.replaceAudioUnit(load.value, targetAudioUnit, {keepTimeline})
+                if (attempt.isFailure()) {
+                    RuntimeNotifier.info({
+                        headline: "Can't Apply Preset",
+                        message: attempt.failureReason()
+                    }).then()
+                }
+            })
+            project.loadScriptDevices()
+            return
+        }
+        if (dragData.category === "instrument") {
+            const keepTimeline = await resolveKeepTimeline(load.value, targetAudioUnit)
+            if (keepTimeline === "abort") {return}
+            project.editing.modify(() => {
+                const attempt = PresetDecoder.replaceAudioUnit(load.value, targetAudioUnit,
+                    {keepMIDIEffects: true, keepAudioEffects: true, keepTimeline})
+                if (attempt.isFailure()) {
+                    RuntimeNotifier.info({
+                        headline: "Can't Apply Preset",
+                        message: attempt.failureReason()
+                    }).then()
+                }
+            })
+            project.loadScriptDevices()
+            return
+        }
+        if (dragData.category === "audio-effect" || dragData.category === "midi-effect"
+            || dragData.category === "audio-effect-chain" || dragData.category === "midi-effect-chain") {
+            const chainKind = dragData.category === "midi-effect" || dragData.category === "midi-effect-chain"
+                ? PresetHeader.ChainKind.Midi
+                : PresetHeader.ChainKind.Audio
+            project.editing.modify(() => {
+                const attempt = PresetDecoder.insertEffectChain(load.value, targetAudioUnit, dropIndex, chainKind)
+                if (attempt.isFailure()) {
+                    RuntimeNotifier.info({
+                        headline: "Can't Apply Preset",
+                        message: attempt.failureReason()
+                    }).then()
+                }
+            })
+            project.loadScriptDevices()
+            return
+        }
+        console.debug(`Preset drop for category '${dragData.category}' not yet implemented`)
     }
 }

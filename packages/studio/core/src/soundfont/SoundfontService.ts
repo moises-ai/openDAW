@@ -45,35 +45,40 @@ export class SoundfontService extends AssetService<Soundfont, void> {
             })
         }
         const updater = RuntimeNotifier.progress({headline: `Import ${this.nameSingular}`})
-        await Wait.frame()
-        console.debug(`importSoundfont (${arrayBuffer.byteLength >> 10}kb)`)
-        console.time("UUID.sha256")
-        uuid ??= await UUID.sha256(arrayBuffer)
-        console.timeEnd("UUID.sha256")
-        console.time("SoundFont2")
-        const {status, value: SoundFont2, error} = await ExternalLib.SoundFont2()
-        console.timeEnd("SoundFont2")
-        if (status === "rejected") {
+        // try/finally (no catch) guarantees the modal progress dialog is
+        // terminated on every exit, including failure paths like invalid
+        // .sf2 files (SoundFont2 throws synchronously), OPFS write errors,
+        // or SHA-256 computation errors. The error itself still propagates
+        // to the caller's tryCatch in AssetService.browseFiles.
+        try {
+            await Wait.frame()
+            console.debug(`importSoundfont (${arrayBuffer.byteLength >> 10}kb)`)
+            console.time("UUID.sha256")
+            uuid ??= await UUID.sha256(arrayBuffer)
+            console.timeEnd("UUID.sha256")
+            console.time("SoundFont2")
+            const {status, value: SoundFont2, error} = await ExternalLib.SoundFont2()
+            console.timeEnd("SoundFont2")
+            if (status === "rejected") {return panic(error)}
+            const soundFont2 = new SoundFont2(new Uint8Array(arrayBuffer))
+            const meta: SoundfontMetaData = {
+                name: soundFont2.metaData.name,
+                size: arrayBuffer.byteLength,
+                url: "unknown",
+                license: soundFont2.metaData.copyright ?? "No license provided",
+                origin: "import"
+            }
+            await SoundfontStorage.get().save({uuid, file: arrayBuffer, meta})
+            const soundfont = {uuid: UUID.toString(uuid), ...meta}
+            const list = this.#local.unwrap()
+            if (!list.some(other => other.uuid === soundfont.uuid)) {
+                list.push(soundfont)
+            }
+            this.notifier.notify([soundfont, undefined])
+            return soundfont
+        } finally {
             updater.terminate()
-            return panic(error)
         }
-        const soundFont2 = new SoundFont2(new Uint8Array(arrayBuffer))
-        const meta: SoundfontMetaData = {
-            name: soundFont2.metaData.name,
-            size: arrayBuffer.byteLength,
-            url: "unknown",
-            license: soundFont2.metaData.copyright ?? "No license provided",
-            origin: "import"
-        }
-        await SoundfontStorage.get().save({uuid, file: arrayBuffer, meta})
-        const soundfont = {uuid: UUID.toString(uuid), ...meta}
-        const list = this.#local.unwrap()
-        if (!list.some(other => other.uuid === soundfont.uuid)) {
-            list.push(soundfont)
-        }
-        this.notifier.notify([soundfont, undefined])
-        updater.terminate()
-        return soundfont
     }
 
     protected async collectAllFiles(): Promise<ReadonlyArray<Soundfont>> {

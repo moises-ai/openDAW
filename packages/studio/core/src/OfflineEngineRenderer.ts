@@ -21,7 +21,7 @@ import {
     EngineState,
     EngineStateSchema,
     EngineToClient,
-    ExportStemsConfiguration,
+    ExportConfiguration,
     MonitoringMapEntry,
     NoteSignal,
     OfflineEngineInitializeConfig,
@@ -46,10 +46,10 @@ export class OfflineEngineRenderer {
     }
 
     static async create(source: Project,
-                        optExportConfiguration: Option<ExportStemsConfiguration>,
+                        optExportConfiguration: Option<ExportConfiguration>,
                         sampleRate: int = 48_000
     ): Promise<OfflineEngineRenderer> {
-        const numStems = ExportStemsConfiguration.countStems(optExportConfiguration)
+        const numStems = ExportConfiguration.countStems(optExportConfiguration)
         if (numStems === 0) {return panic("Nothing to export")}
         const numberOfChannels = numStems * 2
         const worker = new Worker(this.getWorkerUrl(), {type: "module"})
@@ -209,7 +209,7 @@ export class OfflineEngineRenderer {
     }
 
     static async start(source: Project,
-                       optExportConfiguration: Option<ExportStemsConfiguration>,
+                       optExportConfiguration: Option<ExportConfiguration>,
                        progress: DefaultObservableValue<number>,
                        abortSignal?: AbortSignal,
                        sampleRate: int = 48_000
@@ -219,10 +219,17 @@ export class OfflineEngineRenderer {
         boxGraph.beginTransaction()
         enabled.setValue(false)
         boxGraph.endTransaction()
-        const endPosition = source.lastRegionAction()
-        const maxDurationSeconds = source.tempoMap.ppqnToSeconds(endPosition) + 30
+        const range = optExportConfiguration.flatMap(cfg => Option.wrap(cfg.range))
+        const {startPosition, endPosition} = range.match({
+            none: () => ({startPosition: 0 as ppqn, endPosition: source.lastRegionAction()}),
+            some: r => r === "full"
+                ? {startPosition: 0 as ppqn, endPosition: source.lastRegionAction()}
+                : {startPosition: r.start, endPosition: r.end}
+        })
+        const maxDurationSeconds = source.tempoMap.intervalToSeconds(startPosition, endPosition) + 30
         const renderer = await this.create(source, optExportConfiguration, sampleRate)
-        const result = await renderer.render({maxDurationSeconds}, endPosition, progress, abortSignal)
+        const result = await renderer.render(
+            {maxDurationSeconds}, startPosition, endPosition, progress, abortSignal)
         boxGraph.beginTransaction()
         enabled.setValue(wasEnabled)
         boxGraph.endTransaction()
@@ -295,18 +302,20 @@ export class OfflineEngineRenderer {
         return channels
     }
 
-    async render(
-        config: OfflineEngineRenderConfig,
-        endPosition: ppqn,
-        progress: DefaultObservableValue<number>,
-        abortSignal?: AbortSignal
+    async render(config: OfflineEngineRenderConfig,
+                 startPosition: ppqn,
+                 endPosition: ppqn,
+                 progress: DefaultObservableValue<number>,
+                 abortSignal?: AbortSignal
     ): Promise<AudioData> {
         const {promise, reject, resolve} = Promise.withResolvers<AudioData>()
         let cancelled = false
-        const polling = endPosition > 0
+        const span = endPosition - startPosition
+        const polling = span > 0
             ? AnimationFrame.add(() => {
                 this.#reader.tryRead()
-                progress.setValue(Math.min(1.0, this.#engineStateIO.object.position / endPosition))
+                progress.setValue(Math.min(1.0,
+                    Math.max(0, this.#engineStateIO.object.position - startPosition) / span))
             })
             : Terminable.Empty
         if (isDefined(abortSignal)) {
@@ -321,6 +330,7 @@ export class OfflineEngineRenderer {
         while (!await this.#engineCommands.queryLoadingComplete()) {
             await Wait.timeSpan(TimeSpan.millis(100))
         }
+        if (startPosition !== 0) {this.setPosition(startPosition)}
         await this.play()
         this.#protocol.render(config).then(channels => {
             polling.terminate()

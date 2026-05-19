@@ -1,18 +1,28 @@
 import css from "./DeviceEditor.sass?inline"
-import {Editing, Errors, Lifecycle, ObservableValue, Option, panic, Procedure, Provider} from "@moises-ai/lib-std"
-import {createElement, Group, JsxValue} from "@moises-ai/lib-jsx"
+import {
+    Editing,
+    Errors,
+    isNotNull,
+    Lifecycle,
+    ObservableValue,
+    Option,
+    panic,
+    Procedure,
+    Provider
+} from "@opendaw/lib-std"
+import {createElement, Group, JsxValue} from "@opendaw/lib-jsx"
 import {Icon} from "@/ui/components/Icon.tsx"
 import {MenuButton} from "@/ui/components/MenuButton.tsx"
-import {ClipboardManager, DevicesClipboard, MenuItem, Project} from "@moises-ai/studio-core"
-import {DeviceBoxAdapter, DeviceHost, Devices, DeviceType, EffectDeviceBoxAdapter} from "@moises-ai/studio-adapters"
+import {ClipboardManager, DevicesClipboard, MenuItem} from "@opendaw/studio-core"
+import {DeviceBoxAdapter, DeviceHost, Devices, DeviceType} from "@opendaw/studio-adapters"
+import {StudioService} from "@/service/StudioService"
 import {DebugMenus} from "@/ui/menu/debug.ts"
-import {DragDevice} from "@/ui/AnyDragData"
-import {DragAndDrop} from "@/ui/DragAndDrop"
-import {Events, Html} from "@moises-ai/lib-dom"
+import {DeviceDragging} from "@/ui/devices/DeviceDragging"
+import {Events, Html} from "@opendaw/lib-dom"
 import {TextScroller} from "@/ui/TextScroller"
-import {StringField} from "@moises-ai/lib-box"
-import {Colors, IconSymbol} from "@moises-ai/studio-enums"
-import {Promises} from "@moises-ai/lib-runtime"
+import {StringField} from "@opendaw/lib-box"
+import {Colors, IconSymbol} from "@opendaw/studio-enums"
+import {Promises} from "@opendaw/lib-runtime"
 import {Surface} from "@/ui/surface/Surface"
 
 const className = Html.adoptStyleSheet(css, "DeviceEditor")
@@ -31,7 +41,7 @@ const getColorFor = (type: DeviceType) => {
 
 type Construct = {
     lifecycle: Lifecycle
-    project: Project
+    service: StudioService
     adapter: DeviceBoxAdapter
     populateMenu: Procedure<MenuItem>
     populateControls: Provider<JsxValue>
@@ -62,12 +72,17 @@ const defaultLabelFactory = (lifecycle: Lifecycle, editing: Editing, labelField:
 
 export const DeviceEditor =
     ({
-         lifecycle, project, adapter, populateMenu, populateControls, populateMeter,
+         lifecycle, service, adapter, populateMenu, populateControls, populateMeter,
          createLabel, icon, className: customClassName
      }: Construct) => {
+        const {project} = service
         const {editing} = project
         const {box, type, enabledField, minimizedField, labelField} = adapter
         const color = getColorFor(type)
+        const deviceKey = box.name.replace(/DeviceBox$/, "")
+        const presetCategory = type === "instrument" || type === "audio-effect" || type === "midi-effect"
+            ? type
+            : null
         return (
             <div className={Html.buildClassList(className, customClassName)}
                  onInit={element => {
@@ -78,26 +93,44 @@ export const DeviceEditor =
                              element.classList.toggle("minimized", owner.getValue()))
                      )
                  }} data-drag>
-                <header tabIndex={0} onpointerdown={event => {
-                    const {deviceSelection} = project
-                    if (event.shiftKey) {
-                        if (deviceSelection.isSelected(adapter)) {
-                            deviceSelection.deselect(adapter)
-                        } else {
-                            deviceSelection.select(adapter)
-                        }
-                    } else {
-                        deviceSelection.deselectAll()
-                        deviceSelection.select(adapter)
-                    }
-                }} onInit={element => {
+                <header tabIndex={0} onInit={element => {
                     const updateSelected = () =>
                         element.classList.toggle("selected", project.deviceSelection.isSelected(adapter))
+                    let pendingCollapseSelection = false
+                    let dragStartedOnHeader = false
+                    const onPointerDown = (event: PointerEvent) => {
+                        const {deviceSelection} = project
+                        dragStartedOnHeader = false
+                        if (event.shiftKey || event.metaKey || event.ctrlKey) {
+                            if (deviceSelection.isSelected(adapter)) {
+                                deviceSelection.deselect(adapter)
+                            } else {
+                                deviceSelection.select(adapter)
+                            }
+                            pendingCollapseSelection = false
+                        } else if (deviceSelection.isSelected(adapter)) {
+                            pendingCollapseSelection = true
+                        } else {
+                            deviceSelection.deselectAll()
+                            deviceSelection.select(adapter)
+                            pendingCollapseSelection = false
+                        }
+                    }
+                    const onPointerUp = () => {
+                        if (pendingCollapseSelection && !dragStartedOnHeader) {
+                            project.deviceSelection.deselectAll()
+                            project.deviceSelection.select(adapter)
+                        }
+                        pendingCollapseSelection = false
+                        dragStartedOnHeader = false
+                    }
                     lifecycle.ownAll(
                         project.deviceSelection.catchupAndSubscribe({
                             onSelected: updateSelected,
                             onDeselected: updateSelected
                         }),
+                        Events.subscribe(element, "pointerdown", onPointerDown),
+                        Events.subscribe(element, "pointerup", onPointerUp),
                         ClipboardManager.install(element, DevicesClipboard.createHandler({
                             getEnabled: () => true,
                             editing: project.editing,
@@ -110,13 +143,8 @@ export const DeviceEditor =
                             }
                         }))
                     )
-                    if (type === "midi-effect" || type === "audio-effect") {
-                        const effect = adapter as EffectDeviceBoxAdapter
-                        lifecycle.own(DragAndDrop.installSource(element, () => ({
-                            type: effect.type,
-                            start_index: effect.indexField.getValue()
-                        } satisfies DragDevice), element))
-                    }
+                    lifecycle.own(DeviceDragging.install(project, element, adapter, color,
+                        () => {dragStartedOnHeader = true}))
                 }} style={{color: color.toString()}}>
                     <Icon symbol={icon} onInit={element =>
                         lifecycle.ownAll(
@@ -129,6 +157,55 @@ export const DeviceEditor =
                             Events.subscribe(element, "click", () => editing.modify(() => enabledField.toggle()))
                         )}/>
                     {(createLabel ?? defaultLabelFactory(lifecycle, editing, labelField))()}
+                    {isNotNull(presetCategory) && (() => {
+                        const category = presetCategory
+                        // Folder-icon dropdown showing every preset for this
+                        // device: user presets first (folder icon), then
+                        // stock presets (cloud icon), already sorted in this
+                        // order by `presetsFor`. A separator is inserted at
+                        // the first stock entry that follows any user entry.
+                        // The button is disabled when no presets exist.
+                        const availability = service.presets.observePresetAvailability(
+                            category, deviceKey, lifecycle)
+                        const button: HTMLButtonElement = (
+                            <MenuButton root={MenuItem.root().setRuntimeChildrenProcedure(parent => {
+                                let prevSource: "" | "user" | "stock" = ""
+                                const presets = service.presets.presetsFor(category, deviceKey)
+                                if (presets.length === 0) {
+                                    parent.addMenuItem(MenuItem.default({
+                                        label: "No presets available",
+                                        selectable: false
+                                    }))
+                                } else {
+                                    parent.addMenuItem(MenuItem.header({
+                                        label: "Presets",
+                                        icon: IconSymbol.Folder,
+                                        color
+                                    }))
+                                    presets.forEach(entry => {
+                                        const separatorBefore = prevSource === "user" && entry.source === "stock"
+                                        prevSource = entry.source
+                                        parent.addMenuItem(MenuItem.default({
+                                            label: entry.name,
+                                            icon: entry.source === "user"
+                                                ? IconSymbol.UserFolder
+                                                : IconSymbol.CloudFolder,
+                                            separatorBefore
+                                        }).setTriggerProcedure(() =>
+                                            service.presets.applyPresetTo(adapter, entry).catch(console.warn)))
+                                    })
+                                }
+                            })}
+                                        appearance={{tooltip: "Load preset"}}
+                                        style={{fontSize: "14px", color: "currentColor"}}>
+                                <Icon symbol={IconSymbol.Folder}/>
+                            </MenuButton>
+                        )
+                        const apply = () => {button.disabled = !availability.getValue()}
+                        apply()
+                        lifecycle.own(availability.subscribe(apply))
+                        return button
+                    })()}
                 </header>
                 <MenuButton root={MenuItem.root()
                     .setRuntimeChildrenProcedure(parent => {

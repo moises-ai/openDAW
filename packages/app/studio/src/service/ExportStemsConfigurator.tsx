@@ -1,16 +1,20 @@
 import css from "./ExportStemsConfigurator.sass?inline"
-import {Html} from "@moises-ai/lib-dom"
-import {createElement, Frag} from "@moises-ai/lib-jsx"
+import {Html} from "@opendaw/lib-dom"
+import {createElement, Frag} from "@opendaw/lib-jsx"
 import {Checkbox} from "@/ui/components/Checkbox"
-import {DefaultObservableValue, Lifecycle} from "@moises-ai/lib-std"
-import {ColorCodes, ExportStemsConfiguration} from "@moises-ai/studio-adapters"
-import {AudioUnitType, Colors, IconSymbol} from "@moises-ai/studio-enums"
+import {DefaultObservableValue, Lifecycle} from "@opendaw/lib-std"
+import {ColorCodes, ExportConfiguration, ExportStemConfiguration} from "@opendaw/studio-adapters"
+import {AudioUnitType, Colors, IconSymbol} from "@opendaw/studio-enums"
 import {Icon} from "@/ui/components/Icon"
 import {TextInput} from "@/ui/components/TextInput"
 
 const className = Html.adoptStyleSheet(css, "ExportStemsConfigurator")
 
-export type EditableExportStemsConfiguration = ExportStemsConfiguration & Record<string, {
+// Editable working copy of the per-unit stem rows. Once the user clicks
+// "Export" in the dialog, the included entries are stripped down to the
+// fields that belong to `ExportStemConfiguration` and packaged into a
+// `{stems}` payload of the final `ExportConfiguration`.
+export type EditableExportStemsConfiguration = Record<string, ExportStemConfiguration & {
     readonly type: AudioUnitType
     label: string
     include: boolean
@@ -54,7 +58,7 @@ export const ExportStemsConfigurator = ({lifecycle, configuration}: Construct) =
                     const include = new DefaultObservableValue(stem.include)
                     const includeAudioEffects = new DefaultObservableValue(stem.includeAudioEffects)
                     const includeSends = new DefaultObservableValue(stem.includeSends)
-                    const fileName = new DefaultObservableValue(ExportStemsConfiguration.sanitizeFileName(stem.label))
+                    const fileName = new DefaultObservableValue(ExportConfiguration.sanitizeFileName(stem.label))
                     lifecycle.ownAll(
                         include.subscribe(owner => stem.include = owner.getValue()),
                         includeAudioEffects.subscribe(owner => stem.includeAudioEffects = owner.getValue()),

@@ -1,14 +1,39 @@
 import css from "./ScriptDeviceEditor.sass?inline"
-import {DeclarationSection, DeviceBoxAdapter, DeviceHost, ParamDeclaration, ParameterAdapterSet, SampleDeclaration, ScriptCompiler, ScriptDeclaration} from "@moises-ai/studio-adapters"
-import {asInstanceOf, Color, Editing, EmptyExec, isDefined, Lifecycle, MutableObservableValue, Nullable, Observable, ObservableValue, Observer, Subscription, Terminator, UUID} from "@moises-ai/lib-std"
-import {AutomatableParameterFieldAdapter} from "@moises-ai/studio-adapters"
-import {Promises} from "@moises-ai/lib-runtime"
-import {createElement} from "@moises-ai/lib-jsx"
-import {Colors, IconSymbol} from "@moises-ai/studio-enums"
+import {
+    AutomatableParameterFieldAdapter,
+    DeclarationSection,
+    DeviceBoxAdapter,
+    DeviceHost,
+    GroupDeclaration,
+    ParamDeclaration,
+    ParameterAdapterSet,
+    SampleDeclaration,
+    ScriptCompiler,
+    ScriptDeclaration
+} from "@opendaw/studio-adapters"
+import {
+    asInstanceOf,
+    Color,
+    Editing,
+    EmptyExec,
+    isDefined,
+    Lifecycle,
+    MutableObservableValue,
+    Nullable,
+    Observable,
+    ObservableValue,
+    Observer,
+    Subscription,
+    Terminator,
+    UUID
+} from "@opendaw/lib-std"
+import {Promises} from "@opendaw/lib-runtime"
+import {createElement} from "@opendaw/lib-jsx"
+import {Colors, IconSymbol} from "@opendaw/studio-enums"
 import {DeviceEditor} from "@/ui/devices/DeviceEditor.tsx"
-import {Clipboard, Html} from "@moises-ai/lib-dom"
+import {Clipboard, Html} from "@opendaw/lib-dom"
 import {StudioService} from "@/service/StudioService"
-import {AudioFileBox, WerkstattParameterBox, WerkstattSampleBox} from "@moises-ai/studio-boxes"
+import {AudioFileBox, WerkstattParameterBox, WerkstattSampleBox} from "@opendaw/studio-boxes"
 import {ControlBuilder} from "@/ui/devices/ControlBuilder"
 import {Button} from "@/ui/components/Button"
 import {Checkbox} from "@/ui/components/Checkbox"
@@ -18,7 +43,7 @@ import {Column} from "@/ui/devices/Column"
 import {LKR} from "@/ui/devices/constants"
 import {CodeEditorExample} from "@/ui/code-editor/CodeEditorState"
 import {SampleSelector, SampleSelectStrategy} from "@/ui/devices/SampleSelector"
-import {MenuItem} from "@moises-ai/studio-core"
+import {MenuItem} from "@opendaw/studio-core"
 
 const className = Html.adoptStyleSheet(css, "ScriptDeviceEditor")
 
@@ -118,6 +143,15 @@ export const ScriptDeviceEditor = ({lifecycle, service, adapter, deviceHost, con
         const color = (Colors as Record<string, Color>)[colorName]
         return isDefined(color) ? color : Colors.dark
     }
+    const stripGroupPrefix = (group: Nullable<GroupDeclaration>, label: string): string => {
+        if (!isDefined(group) || group.label.length === 0) {return label}
+        const prefix = group.label
+        if (label.length <= prefix.length) {return label}
+        if (label.substring(0, prefix.length).toLowerCase() !== prefix.toLowerCase()) {return label}
+        const suffix = label.substring(prefix.length)
+        if (suffix.charAt(0) !== suffix.charAt(0).toUpperCase()) {return label}
+        return suffix
+    }
     const toggleEditorButton: HTMLElement = (
         <Button lifecycle={lifecycle}
                 onClick={toggleEditor}
@@ -138,13 +172,16 @@ export const ScriptDeviceEditor = ({lifecycle, service, adapter, deviceHost, con
     const controlsTerminator = lifecycle.own(new Terminator())
     const paramBoxesByLabel = new Map<string, WerkstattParameterBox>()
     const sampleBoxesByLabel = new Map<string, WerkstattSampleBox>()
-    const createParamElement = (terminator: Terminator, declaration: ParamDeclaration): HTMLElement => {
+    const createParamElement = (terminator: Terminator,
+                                declaration: ParamDeclaration,
+                                group: Nullable<GroupDeclaration>): HTMLElement => {
         const werkstattParam = paramBoxesByLabel.get(declaration.label)
         if (!isDefined(werkstattParam)) {return <div/>}
         const parameter = adapter.parameters.parameters()
             .find(param => param.address.equals(werkstattParam.value.address))
         if (!isDefined(parameter)) {return <div/>}
         const tracks = adapter.deviceHost().audioUnitBoxAdapter().tracks
+        const label = stripGroupPrefix(group, declaration.label)
         return declaration.mapping === "bool"
             ? (<AutomationControl lifecycle={terminator}
                                   editing={editing}
@@ -152,7 +189,7 @@ export const ScriptDeviceEditor = ({lifecycle, service, adapter, deviceHost, con
                                   tracks={tracks}
                                   parameter={parameter}>
                 <Column ems={LKR} color={Colors.cream}>
-                    <h5>{declaration.label}</h5>
+                    <h5>{label}</h5>
                     <Checkbox lifecycle={terminator}
                               model={boolModel(editing, parameter)}
                               style={{marginTop: "0.25em"}}
@@ -166,7 +203,7 @@ export const ScriptDeviceEditor = ({lifecycle, service, adapter, deviceHost, con
                     </Checkbox>
                 </Column>
             </AutomationControl>)
-            : ControlBuilder.createKnob({lifecycle: terminator, editing, midiLearning, adapter, parameter})
+            : ControlBuilder.createKnob({lifecycle: terminator, editing, midiLearning, adapter, parameter, label})
     }
     const createSampleElement = (terminator: Terminator, declaration: SampleDeclaration): HTMLElement => {
         const sample = sampleBoxesByLabel.get(declaration.label)
@@ -216,7 +253,7 @@ export const ScriptDeviceEditor = ({lifecycle, service, adapter, deviceHost, con
         const controls: HTMLElement = (<div className="controls"/>)
         for (const item of section.items) {
             controls.appendChild(item.type === "param"
-                ? createParamElement(terminator, item.declaration)
+                ? createParamElement(terminator, item.declaration, section.group)
                 : createSampleElement(terminator, item.declaration))
         }
         if (isDefined(section.group)) {
@@ -300,7 +337,7 @@ export const ScriptDeviceEditor = ({lifecycle, service, adapter, deviceHost, con
     scheduleRebuild()
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => config.populateMenu(parent, service, deviceHost, adapter)}
                       populateControls={() => controlsContainer}

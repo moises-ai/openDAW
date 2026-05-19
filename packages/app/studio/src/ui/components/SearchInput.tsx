@@ -25,7 +25,12 @@ export const SearchInput = ({lifecycle, model, placeholder, style}: Construct) =
                    }
                }}
                onConnect={element => {
-                   element.focus()
+                   // Intentionally NOT auto-focusing on mount: when the
+                   // browser panel becomes visible, grabbing focus prevents
+                   // Space from triggering transport play/pause until the
+                   // user clicks somewhere else. Callers that need the
+                   // input focused can call `element.focus()` on the
+                   // returned wrapper.
                    lifecycle.own(model.subscribe(owner => element.value = owner.getValue()))
                }}/>
     )

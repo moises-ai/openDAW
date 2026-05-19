@@ -1,16 +1,17 @@
 import {Snapping} from "@/ui/timeline/Snapping.ts"
-import {Editing, MutableObservableValue, Procedure, Selection} from "@moises-ai/lib-std"
-import {NoteEventBoxAdapter} from "@moises-ai/studio-adapters"
-import {EventCollection} from "@moises-ai/lib-dsp"
+import {Editing, MutableObservableValue, Procedure, Selection} from "@opendaw/lib-std"
+import {NoteEventBoxAdapter} from "@opendaw/studio-adapters"
+import {EventCollection} from "@opendaw/lib-dsp"
 import {NoteEditorShortcuts} from "@/ui/shortcuts/NoteEditorShortcuts"
-import {MenuCollector, MenuItem} from "@moises-ai/studio-core"
+import {MenuCollector, MenuItem, ProjectApi} from "@opendaw/studio-core"
 
-export const createPitchMenu = ({editing, snapping, selection, events, stepRecording}: {
+export const createPitchMenu = ({editing, snapping, selection, events, stepRecording, api}: {
     editing: Editing
     snapping: Snapping
     selection: Selection<NoteEventBoxAdapter>
     events: EventCollection<NoteEventBoxAdapter>
     stepRecording: MutableObservableValue<boolean>
+    api: ProjectApi
 }): Procedure<MenuCollector> => {
     const modify = (procedure: Procedure<ReadonlyArray<NoteEventBoxAdapter>>) => {
         const adapters: ReadonlyArray<NoteEventBoxAdapter> = selection.isEmpty() ? events.asArray() : selection.selected()
@@ -21,6 +22,18 @@ export const createPitchMenu = ({editing, snapping, selection, events, stepRecor
         MenuItem.default({label: "Delete", selectable: !selection.isEmpty()})
             .setTriggerProcedure(() => editing.modify(() => selection.selected()
                 .forEach(adapter => adapter.box.delete()))),
+        MenuItem.default({
+            label: "Duplicate",
+            selectable: !selection.isEmpty(),
+            shortcut: NoteEditorShortcuts["duplicate-notes"].shortcut.format()
+        }).setTriggerProcedure(() => {
+            const selected = selection.selected()
+            if (selected.length === 0) {return}
+            const copies = editing.modify(() => api.duplicateNotes(selected)).unwrap()
+            if (copies.length === 0) {return}
+            selection.deselectAll()
+            copies.forEach(adapter => selection.select(adapter))
+        }),
         MenuItem.default({
             label: "Step Recording",
             checked: stepRecording.getValue(),

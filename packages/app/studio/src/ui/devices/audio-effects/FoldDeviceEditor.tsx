@@ -30,7 +30,7 @@ export const FoldDeviceEditor = ({lifecycle, service, adapter, deviceHost}: Cons
     const {drive, volume} = adapter.namedParameter
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forEffectDevice(parent, service, deviceHost, adapter)}
                       populateControls={() => (

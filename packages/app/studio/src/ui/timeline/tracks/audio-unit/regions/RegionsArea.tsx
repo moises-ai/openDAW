@@ -112,6 +112,13 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
             if (target === null) {return}
             if (target.type === "region") {
                 timelineFocus.focusRegion(target.region)
+                // If the ContentEditor panel is open, clicking a region
+                // (whether already selected or not) brings it into
+                // edit-mode. No-op when that region is already the
+                // current edit target.
+                if (service.panelLayout.getByType(PanelType.ContentEditor).isVisible) {
+                    userEditingManager.timeline.editIfDifferent(target.region.box)
+                }
             } else if (target.type === "track") {
                 timelineFocus.focusTrack(target.track.trackBoxAdapter)
             }
@@ -177,7 +184,8 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
                                 axisToValue: y => clamp(y + scrollContainer.scrollTop,
                                     0, scrollContainer.scrollTop + element.scrollHeight),
                                 valueToAxis: value => value - scrollContainer.scrollTop
-                            }}/>
+                            }}
+                            />
     )
     lifecycle.ownAll(
         installAutoScroll(element, (deltaX, deltaY) => {

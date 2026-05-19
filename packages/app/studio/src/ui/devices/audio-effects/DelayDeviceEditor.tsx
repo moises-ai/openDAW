@@ -60,7 +60,7 @@ export const DelayDeviceEditor = ({lifecycle, service, adapter, deviceHost}: Con
     )
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forEffectDevice(parent, service, deviceHost, adapter)}
                       populateControls={() => (

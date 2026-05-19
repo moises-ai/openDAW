@@ -1,13 +1,11 @@
-import {DeviceHost, Devices, EffectDeviceBoxAdapter, PresetDecoder, PresetEncoder} from "@moises-ai/studio-adapters"
-import {EffectFactories, FilePickerAcceptTypes, MenuItem, Project} from "@moises-ai/studio-core"
-import {PrimitiveField, PrimitiveValues, StringField} from "@moises-ai/lib-box"
-import {Editing, EmptyExec, isInstanceOf, panic, RuntimeNotifier} from "@moises-ai/lib-std"
-import {Surface} from "@/ui/surface/Surface"
-import {FloatingTextInput} from "@/ui/components/FloatingTextInput"
+import {DeviceHost, Devices, EffectDeviceBoxAdapter, InstrumentFactories, PresetHeader} from "@opendaw/studio-adapters"
+import {EffectFactories, MenuItem} from "@opendaw/studio-core"
+import {IndexedBox, PrimitiveField, PrimitiveValues} from "@opendaw/lib-box"
+import {Editing, isDefined, panic, RuntimeNotifier, UUID} from "@opendaw/lib-std"
+import {Promises} from "@opendaw/lib-runtime"
 import {StudioService} from "@/service/StudioService"
-import {VaporisateurDeviceBox} from "@moises-ai/studio-boxes"
-import {Files} from "@moises-ai/lib-dom"
-import {RouteLocation} from "@moises-ai/lib-jsx"
+import {RouteLocation} from "@opendaw/lib-jsx"
+import {PresetService, PresetEffectKind} from "@/ui/browse/PresetService"
 
 export namespace MenuItems {
     export const forAudioUnitInput = (parent: MenuItem, service: StudioService, deviceHost: DeviceHost): void => {
@@ -21,11 +19,6 @@ export namespace MenuItems {
         }), {canProcessMidi: false, manualUrl: "manuals", name: "Unknown"})
         parent.addMenuItem(
             populateMenuItemToNavigateToManual(manualUrl, name),
-            MenuItem.default({
-                label: `Delete '${audioUnit.label}'`,
-                hidden: audioUnit.isOutput
-            }).setTriggerProcedure(() => editing.modify(() => project.api.deleteAudioUnit(audioUnit.box))),
-            populateMenuItemToRenameDevice(editing, audioUnit.inputAdapter.unwrap().labelField),
             MenuItem.default({label: "Add Midi-Effect", separatorBefore: true, selectable: canProcessMidi})
                 .setRuntimeChildrenProcedure(parent => parent.addMenuItem(...EffectFactories.MidiList
                     .map(entry => MenuItem.default({
@@ -43,62 +36,14 @@ export namespace MenuItems {
                         separatorBefore: entry.separatorBefore
                     }).setTriggerProcedure(() => editing.modify(() =>
                         api.insertEffect(deviceHost.audioEffects.field(), entry, 0))))
-                )),
-            MenuItem.default({label: "Save Preset..."})
-                .setTriggerProcedure(async () => {
-                    const presetBytes = PresetEncoder.encode(audioUnit.box)
-                    await Files.save(presetBytes as ArrayBuffer, {
-                        types: [FilePickerAcceptTypes.PresetFileType],
-                        suggestedName: `${audioUnit.label}.odp`
-                    }).catch(console.warn)
-                }),
-            MenuItem.default({label: "Load Preset..."})
-                .setTriggerProcedure(async () => {
-                    const keepEffects = !(await RuntimeNotifier.approve({
-                        headline: "Load Preset",
-                        message: "Replace current effects?",
-                        approveText: "Yes",
-                        cancelText: "No"
-                    }))
-                    const files = await Files.open({types: [FilePickerAcceptTypes.PresetFileType], multiple: false})
-                    if (files.length === 0) {return}
-                    const arrayBuffer = await files[0].arrayBuffer()
-                    editing.modify(() => {
-                        const attempt = PresetDecoder.replaceAudioUnit(arrayBuffer, audioUnit.box, {
-                            keepMIDIEffects: keepEffects,
-                            keepAudioEffects: keepEffects
-                        })
-                        if (attempt.isFailure()) {
-                            RuntimeNotifier.info({headline: "Can't do...", message: attempt.failureReason()}).then()
-                        }
-                    })
-                }),
-            MenuItem.default({
-                label: "Load Deprecated Preset...",
-                hidden: location.hash !== "#riffle"
-            }).setTriggerProcedure(async () => {
-                const files = await Files.open({types: [FilePickerAcceptTypes.JsonFileType]})
-                if (files.length === 0) {return}
-                const string = new TextDecoder().decode(await files[0].arrayBuffer())
-                const json = JSON.parse(string)
-                if (json["2"] !== "Vaporisateur") {
-                    await RuntimeNotifier.info({
-                        headline: "Cannot Load Preset",
-                        message: "This feature is deprecated (code: 0)."
-                    })
-                }
-                delete json["1"]
-                const input = audioUnit.box.input.pointerHub.incoming().at(0)?.box
-                if (!isInstanceOf(input, VaporisateurDeviceBox)) {
-                    await RuntimeNotifier.info({
-                        headline: "Cannot Load Preset",
-                        message: "This feature is deprecated (code: 1)."
-                    })
-                    return
-                }
-                editing.modify(() => input.fromJSON(json))
-            })
+                ))
         )
+        populatePresetSubmenu(parent, service, deviceHost, {kind: "instrument-context"})
+        parent.addMenuItem(MenuItem.default({
+            label: `Delete '${audioUnit.label}'`,
+            hidden: audioUnit.isOutput,
+            separatorBefore: true
+        }).setTriggerProcedure(() => editing.modify(() => project.api.deleteAudioUnit(audioUnit.box))))
     }
 
     export const createForValue = <V extends PrimitiveValues>(editing: Editing,
@@ -116,33 +61,149 @@ export namespace MenuItems {
         const {editing} = project
         parent.addMenuItem(
             populateMenuItemToNavigateToManual(device.manualUrl, device.labelField.getValue()),
-            populateMenuItemToDeleteDevice(editing, device),
-            populateMenuItemToCreateEffect(service, host, device),
-            populateMenuItemToMoveEffect(project, host, device)
+            populateMenuItemToCreateEffect(service, host, device)
         )
+        populatePresetSubmenu(parent, service, host, {kind: "effect-context", device})
+        parent.addMenuItem(populateMenuItemToDeleteDevice(editing, device, {separatorBefore: true}))
     }
-
-    const populateMenuItemToRenameDevice = (editing: Editing, labelField: StringField) =>
-        MenuItem.default({label: "Rename..."}).setTriggerProcedure(() => {
-            const resolvers = Promise.withResolvers<string>()
-            const surface = Surface.get()
-            surface.flyout.appendChild(FloatingTextInput({
-                position: surface.pointer,
-                value: labelField.getValue(),
-                resolvers
-            }))
-            resolvers.promise.then(newName => editing.modify(() => labelField.setValue(newName)), EmptyExec)
-        })
 
     const populateMenuItemToNavigateToManual = (path: string, name: string) => {
         return MenuItem.default({label: `Visit '${name}' Manual...`})
             .setTriggerProcedure(() => RouteLocation.get().navigateTo(path))
     }
 
-    const populateMenuItemToDeleteDevice = (editing: Editing, ...devices: ReadonlyArray<EffectDeviceBoxAdapter>) => {
-        const label = `Delete '${devices.map(device => device.labelField.getValue()).join(", ")}'`
-        return MenuItem.default({label})
-            .setTriggerProcedure(() => editing.modify(() => Devices.deleteEffectDevices(devices)))
+    const populateMenuItemToDeleteDevice = (editing: Editing,
+                                            device: EffectDeviceBoxAdapter,
+                                            options?: { separatorBefore?: boolean }) => {
+        const label = `Delete '${device.labelField.getValue()}'`
+        return MenuItem.default({label, separatorBefore: options?.separatorBefore})
+            .setTriggerProcedure(() => editing.modify(() => Devices.deleteEffectDevices([device])))
+    }
+
+    type PresetContext =
+        | { kind: "instrument-context" }
+        | { kind: "effect-context", device: EffectDeviceBoxAdapter }
+
+    const resolveInstrumentTarget = (host: DeviceHost): { key: InstrumentFactories.Keys, uuid: UUID.String } | null => {
+        const inputBox = host.audioUnitBoxAdapter().box.input.pointerHub.incoming().at(0)?.box
+        if (!isDefined(inputBox)) {return null}
+        const stripped = inputBox.name.replace(/DeviceBox$/, "")
+        if (!Object.hasOwn(InstrumentFactories.Named, stripped)) {return null}
+        return {key: stripped as InstrumentFactories.Keys, uuid: UUID.toString(inputBox.address.uuid)}
+    }
+
+    const sameKindEffectsInHost = (service: StudioService,
+                                   host: DeviceHost,
+                                   kind: PresetEffectKind): ReadonlyArray<EffectDeviceBoxAdapter> =>
+        service.project.deviceSelection.selected()
+            .filter((entry): entry is EffectDeviceBoxAdapter =>
+                entry.type === kind && entry.deviceHost() === host)
+            .toSorted((a, b) => a.indexField.getValue() - b.indexField.getValue())
+
+    const allEffectsInHost = (service: StudioService,
+                              host: DeviceHost,
+                              kind: PresetEffectKind): ReadonlyArray<EffectDeviceBoxAdapter> => {
+        const field = kind === "audio-effect" ? host.audioEffects.field() : host.midiEffects.field()
+        return field.pointerHub.incoming()
+            .map(({box}) => service.project.boxAdapters.adapterFor(box, Devices.isAny))
+            .filter((adapter): adapter is EffectDeviceBoxAdapter =>
+                adapter.type === "audio-effect" || adapter.type === "midi-effect")
+            .toSorted((a, b) => a.indexField.getValue() - b.indexField.getValue())
+    }
+
+    const saveSingleOrChain = async (actions: PresetService,
+                                     kind: PresetEffectKind,
+                                     chainKind: PresetHeader.ChainKind,
+                                     kindLabel: string,
+                                     effect: EffectDeviceBoxAdapter): Promise<void> => {
+        const choice = await Promises.tryCatch(RuntimeNotifier.approve({
+            headline: "Save as Effect Chain or Device Preset?",
+            message: `Only one ${kindLabel} effect on this audio unit. `
+                + `Save it as a single device preset or as an Effect Chain?`,
+            approveText: "Effect Chain",
+            cancelText: "Device Preset"
+        }))
+        if (choice.status === "rejected") {return}
+        const effectBox = effect.box as IndexedBox
+        if (choice.value) {
+            await actions.saveAsChainPreset(chainKind, [effectBox])
+        } else {
+            const deviceKey = effect.box.name.replace(/DeviceBox$/, "")
+            await actions.saveAsSingleEffectPreset(kind, deviceKey, effectBox)
+        }
+    }
+
+    const populatePresetSubmenu = (parent: MenuItem,
+                                   service: StudioService,
+                                   host: DeviceHost,
+                                   context: PresetContext): void => {
+        const presets = service.presets
+        const instrumentTarget = resolveInstrumentTarget(host)
+        parent.addMenuItem(
+            MenuItem.default({label: "Preset", separatorBefore: true})
+                .setRuntimeChildrenProcedure(submenu => {
+                    if (context.kind === "instrument-context" && isDefined(instrumentTarget)) {
+                        const labeled = host.inputAdapter.mapOr(input => input.labelField.getValue(), "")
+                        const deviceName = labeled.length > 0 ? labeled : instrumentTarget.key
+                        submenu.addMenuItem(MenuItem.default({label: `Save '${deviceName}' as Preset`})
+                            .setTriggerProcedure(() => presets.saveAsInstrumentPreset(
+                                instrumentTarget.key, instrumentTarget.uuid, {excludeEffects: true})
+                                .catch(console.warn)))
+                    } else if (context.kind === "effect-context") {
+                        const effectKind: PresetEffectKind = context.device.type === "audio-effect"
+                            ? "audio-effect" : "midi-effect"
+                        const deviceKey = context.device.box.name.replace(/DeviceBox$/, "")
+                        const effectBox = context.device.box as IndexedBox
+                        const labeled = context.device.labelField.getValue()
+                        const deviceName = labeled.length > 0 ? labeled : deviceKey
+                        submenu.addMenuItem(MenuItem.default({label: `Save '${deviceName}' as Preset`})
+                            .setTriggerProcedure(() => presets.saveAsSingleEffectPreset(
+                                effectKind, deviceKey, effectBox).catch(console.warn)))
+                    }
+                    if (isDefined(instrumentTarget)) {
+                        submenu.addMenuItem(MenuItem.default({label: "Save Entire Audio-Unit Chain"})
+                            .setTriggerProcedure(() => presets.saveAsRackPreset(instrumentTarget.uuid, [])
+                                .catch(console.warn)))
+                    }
+                    const chainKindCandidates: ReadonlyArray<PresetEffectKind> = context.kind === "effect-context"
+                        ? [context.device.type === "audio-effect" ? "audio-effect" : "midi-effect"]
+                        : ["audio-effect", "midi-effect"]
+                    for (const kind of chainKindCandidates) {
+                        const chainKind = kind === "audio-effect"
+                            ? PresetHeader.ChainKind.Audio
+                            : PresetHeader.ChainKind.Midi
+                        const kindLabel = kind === "audio-effect" ? "Audio" : "MIDI"
+                        if (context.kind === "effect-context") {
+                            const effects = sameKindEffectsInHost(service, host, kind)
+                            const selectable = effects.length >= 2
+                            const label = selectable
+                                ? `Save ${kindLabel} Effect Chain (${effects.length})`
+                                : `Save ${kindLabel} Effect Chain`
+                            submenu.addMenuItem(MenuItem.default({label, selectable})
+                                .setTriggerProcedure(() => presets.saveAsChainPreset(
+                                    chainKind, effects.map(adapter => adapter.box as IndexedBox))
+                                    .catch(console.warn)))
+                        } else {
+                            const effects = allEffectsInHost(service, host, kind)
+                            const selectable = effects.length >= 1
+                            const label = effects.length >= 2
+                                ? `Save ${kindLabel} Effect Chain (${effects.length})`
+                                : `Save ${kindLabel} Effect Chain`
+                            submenu.addMenuItem(MenuItem.default({label, selectable})
+                                .setTriggerProcedure(() => {
+                                    if (effects.length === 1) {
+                                        saveSingleOrChain(presets, kind, chainKind, kindLabel, effects[0])
+                                            .catch(console.warn)
+                                    } else {
+                                        presets.saveAsChainPreset(chainKind,
+                                            effects.map(adapter => adapter.box as IndexedBox))
+                                            .catch(console.warn)
+                                    }
+                                }))
+                        }
+                    }
+                })
+        )
     }
 
     const populateMenuItemToCreateEffect = (service: StudioService, host: DeviceHost, adapter: EffectDeviceBoxAdapter) => {
@@ -170,31 +231,5 @@ export namespace MenuItems {
                             }).setTriggerProcedure(() => editing.modify(() => api
                                 .insertEffect(host.midiEffects.field(), factory, adapter.indexField.getValue() + 1))))
                         )) : panic(`Unknown accepts value: ${adapter.accepts}`)
-    }
-
-    const populateMenuItemToMoveEffect = ({editing}: Project, host: DeviceHost, adapter: EffectDeviceBoxAdapter) => {
-        const adapters: ReadonlyArray<EffectDeviceBoxAdapter> =
-            adapter.accepts === "audio"
-                ? host.audioEffects.adapters()
-                : adapter.accepts === "midi"
-                    ? host.midiEffects.adapters()
-                    : panic(`Unknown accept type: ${adapter.accepts}`)
-        const index = adapter.indexField.getValue()
-        return MenuItem.default({label: "Move Effect", selectable: index > 0 || index < adapters.length - 1})
-            .setRuntimeChildrenProcedure(parent => {
-                    return parent.addMenuItem(
-                        MenuItem.default({label: "Left", selectable: index > 0})
-                            .setTriggerProcedure(() => editing.modify(() => {
-                                adapter.indexField.setValue(index - 1)
-                                adapters[index - 1].indexField.setValue(index)
-                            })),
-                        MenuItem.default({label: "Right", selectable: index < adapters.length - 1})
-                            .setTriggerProcedure(() => editing.modify(() => {
-                                adapter.indexField.setValue(index + 1)
-                                adapters[index + 1].indexField.setValue(index)
-                            }))
-                    )
-                }
-            )
     }
 }

@@ -25,7 +25,7 @@ export const PitchDeviceEditor = ({lifecycle, service, adapter, deviceHost}: Con
     const {editing, liveStreamReceiver, midiLearning} = project
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forEffectDevice(parent, service, deviceHost, adapter)}
                       populateControls={() => (

@@ -49,7 +49,7 @@ export const VocoderDeviceEditor = ({lifecycle, service, adapter, deviceHost}: C
     lifecycle.own(displayMode.catchupAndSubscribe(updateSpectrumSubscription))
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forEffectDevice(parent, service, deviceHost, adapter)}
                       populateControls={() => (

@@ -1,9 +1,9 @@
-import {ByteArrayInput, EmptyExec, Lazy, UUID} from "@moises-ai/lib-std"
-import {Peaks, SamplePeaks} from "@moises-ai/lib-fusion"
-import {Sample, SampleMetaData} from "@moises-ai/studio-adapters"
+import {ByteArrayInput, EmptyExec, Lazy, Progress, tryCatch, UUID} from "@opendaw/lib-std"
+import {Peaks, SamplePeaks} from "@opendaw/lib-fusion"
+import {Sample, SampleMetaData} from "@opendaw/studio-adapters"
 import {Workers} from "../Workers"
 import {Storage} from "../Storage"
-import {AudioData, WavFile} from "@moises-ai/lib-dsp"
+import {AudioData, WavFile} from "@opendaw/lib-dsp"
 
 export namespace SampleStorage {
     export type NewSample = {
@@ -48,20 +48,48 @@ export class SampleStorage extends Storage<Sample, SampleMetaData, SampleStorage
         return Workers.Opfs.write(`${path}/meta.json`, new TextEncoder().encode(JSON.stringify(meta)))
     }
 
+    async loadMeta(uuid: UUID.Bytes): Promise<SampleMetaData> {
+        const path = `${this.folder}/${UUID.toString(uuid)}`
+        const bytes = await Workers.Opfs.read(`${path}/meta.json`)
+        return JSON.parse(new TextDecoder().decode(bytes))
+    }
+
     async load(uuid: UUID.Bytes): Promise<[AudioData, Peaks, SampleMetaData]> {
         const path = `${this.folder}/${UUID.toString(uuid)}`
-        return Promise.all([
-            Workers.Opfs.read(`${path}/audio.wav`)
-                .then(bytes => WavFile.decodeFloats(bytes.buffer as ArrayBuffer)),
-            Workers.Opfs.read(`${path}/peaks.bin`)
-                .then(bytes => SamplePeaks.from(new ByteArrayInput(bytes.buffer))),
+        const exactBuffer = (bytes: Uint8Array): ArrayBuffer =>
+            bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength) as ArrayBuffer
+        const [audioBytes, peaksBytes, metaBytes] = await Promise.all([
+            Workers.Opfs.read(`${path}/audio.wav`),
+            Workers.Opfs.read(`${path}/peaks.bin`),
             Workers.Opfs.read(`${path}/meta.json`)
-                .then(bytes => JSON.parse(new TextDecoder().decode(bytes)))
-        ]).then(([buffer, peaks, meta]) => [{
-            sampleRate: buffer.sampleRate,
-            numberOfFrames: buffer.numberOfFrames,
-            numberOfChannels: buffer.frames.length,
-            frames: buffer.frames
-        }, peaks, meta])
+        ])
+        const decoded = WavFile.decodeFloats(exactBuffer(audioBytes))
+        const audio: AudioData = {
+            sampleRate: decoded.sampleRate,
+            numberOfFrames: decoded.numberOfFrames,
+            numberOfChannels: decoded.frames.length,
+            frames: decoded.frames
+        }
+        const peaks = await this.#readOrRegeneratePeaks(path, peaksBytes, audio, exactBuffer)
+        const meta: SampleMetaData = JSON.parse(new TextDecoder().decode(metaBytes))
+        return [audio, peaks, meta]
+    }
+
+    async #readOrRegeneratePeaks(path: string,
+                                 bytes: Uint8Array,
+                                 audio: AudioData,
+                                 exactBuffer: (bytes: Uint8Array) => ArrayBuffer): Promise<Peaks> {
+        if (bytes.byteLength > 0) {
+            const attempt = tryCatch(() => SamplePeaks.from(new ByteArrayInput(exactBuffer(bytes))))
+            if (attempt.status === "success") {return attempt.value}
+            console.warn(`peaks.bin is corrupted for '${path}' — regenerating`, attempt.error)
+        } else {
+            console.warn(`peaks.bin is empty for '${path}' — regenerating`)
+        }
+        const shifts = SamplePeaks.findBestFit(audio.numberOfFrames)
+        const regenerated = await Workers.Peak.generateAsync(
+            Progress.Empty, shifts, audio.frames, audio.numberOfFrames, audio.numberOfChannels) as ArrayBuffer
+        await Workers.Opfs.write(`${path}/peaks.bin`, new Uint8Array(regenerated))
+        return SamplePeaks.from(new ByteArrayInput(regenerated))
     }
 }

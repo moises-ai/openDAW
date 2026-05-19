@@ -29,7 +29,7 @@ export const VelocityDeviceEditor = ({lifecycle, service, adapter, deviceHost}: 
     const velocities: Array<{ original: unitValue, computed: unitValue, lifeTime: int }> = []
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forEffectDevice(parent, service, deviceHost, adapter)}
                       populateControls={() => (

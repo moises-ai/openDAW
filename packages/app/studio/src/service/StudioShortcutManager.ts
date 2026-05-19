@@ -17,6 +17,7 @@ import {PanelType} from "@/ui/workspace/PanelType"
 import {Workspace} from "@/ui/workspace/Workspace"
 import {DeviceHost, Devices, TransferAudioUnits} from "@moises-ai/studio-adapters"
 import {ContentEditorShortcuts, ContentEditorShortcutsFactory} from "@/ui/shortcuts/ContentEditorShortcuts"
+import {DevicePanelShortcuts, DevicePanelShortcutsFactory} from "@/ui/shortcuts/DevicePanelShortcuts"
 import {PianoPanelShortcuts, PianoPanelShortcutsFactory} from "@/ui/shortcuts/PianoPanelShortcuts"
 import {RegionsShortcuts, RegionsShortcutsFactory} from "@/ui/shortcuts/RegionsShortcuts"
 import {NoteEditorShortcuts, NoteEditorShortcutsFactory} from "@/ui/shortcuts/NoteEditorShortcuts"
@@ -33,6 +34,7 @@ export namespace StudioShortcutManager {
         "regions": {factory: RegionsShortcutsFactory, workingDefinition: RegionsShortcuts},
         "note-editor": {factory: NoteEditorShortcutsFactory, workingDefinition: NoteEditorShortcuts},
         "content-editor": {factory: ContentEditorShortcutsFactory, workingDefinition: ContentEditorShortcuts},
+        "device-panel": {factory: DevicePanelShortcutsFactory, workingDefinition: DevicePanelShortcuts},
         "software-midi": {factory: SoftwareMIDIShortcutsFactory, workingDefinition: SoftwareMIDIShortcuts},
         "piano-panel": {factory: PianoPanelShortcutsFactory, workingDefinition: PianoPanelShortcuts}
     } as const satisfies Record<string, { factory: ShortcutDefinitions, workingDefinition: ShortcutDefinitions }>
@@ -130,6 +132,7 @@ export namespace StudioShortcutManager {
                     document.querySelector<HTMLElement>("[data-scope=\"regions\"]")?.focus()
                 }
             }),
+            gc.register(gs["capture-midi"].shortcut, () => service.runIfProject(project => project.commitMidiCapture())),
             gc.register(gs["toggle-software-keyboard"].shortcut, () => service.toggleSoftwareKeyboard()),
             gc.register(gs["toggle-device-panel"].shortcut, () => panelLayout.getByType(PanelType.DevicePanel).toggleMinimize()),
             gc.register(gs["toggle-content-editor-panel"].shortcut, () => panelLayout.getByType(PanelType.ContentEditor).toggleMinimize()),

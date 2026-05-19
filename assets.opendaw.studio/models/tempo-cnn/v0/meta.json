@@ -1,0 +1,21 @@
+{
+  "task": "tempo-detection",
+  "model": "tempo-cnn",
+  "version": "v0-cnn",
+  "bytes": 11705795,
+  "sha256": "38b4915b35c46f72e072a7c93ab4b7e280404133e2ca94f9cbcf5ace15c7a321",
+  "license": "AGPL-3.0",
+  "upstream": {
+    "project": "https://github.com/hendriks73/tempo-cnn",
+    "checkpoint": "tempocnn/models/cnn.h5",
+    "conversion": "tf2onnx 1.17.0 / opset 13 / TensorFlow 2.21.0"
+  },
+  "io": {
+    "input": "[batch, 40 mel bands, 256 frames, 1] float32",
+    "output": "[batch, 256] softmax over BPM bins 30..285 (1 BPM resolution)",
+    "expected_audio_rate": 11025,
+    "frame_size": 1024,
+    "hop_size": 512,
+    "mel_bands": 40
+  }
+}

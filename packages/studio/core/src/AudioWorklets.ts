@@ -1,5 +1,5 @@
-import {asDefined, int, Option} from "@moises-ai/lib-std"
-import {ExportStemsConfiguration, ProcessorOptions, RingBuffer} from "@moises-ai/studio-adapters"
+import {asDefined, int, Option} from "@opendaw/lib-std"
+import {ExportConfiguration, ProcessorOptions, RingBuffer} from "@opendaw/studio-adapters"
 import {Project} from "./project"
 import {EngineWorklet} from "./EngineWorklet"
 import {MeterWorklet} from "./MeterWorklet"
@@ -42,7 +42,7 @@ export class AudioWorklets {
 
     createEngine({project, exportConfiguration, options}: {
         project: Project,
-        exportConfiguration?: ExportStemsConfiguration,
+        exportConfiguration?: ExportConfiguration,
         options?: ProcessorOptions
     }): EngineWorklet {
         return new EngineWorklet(this.#context, project, exportConfiguration, options)

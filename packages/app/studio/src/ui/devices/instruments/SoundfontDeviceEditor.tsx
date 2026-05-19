@@ -89,7 +89,7 @@ export const SoundfontDeviceEditor = ({lifecycle, service, adapter, deviceHost}:
     }
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forAudioUnitInput(parent, service, deviceHost)}
                       populateControls={() => (

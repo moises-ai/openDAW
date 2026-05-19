@@ -29,7 +29,7 @@ export const PlayfieldSampleEditor = ({lifecycle, service, adapter, deviceHost}:
     const goDevice = () => userEditingManager.audioUnit.edit(deviceHost.audioUnitBoxAdapter().box.editing)
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forAudioUnitInput(parent, service, deviceHost)}
                       populateControls={() => (

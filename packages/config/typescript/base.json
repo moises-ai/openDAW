@@ -13,6 +13,7 @@
     "moduleResolution": "Bundler",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "noFallthroughCasesInSwitch": true,
     "lib": [
       "ESNext"
     ],

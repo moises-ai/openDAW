@@ -64,6 +64,12 @@ export class PanelContent {
 
     get isPopout(): boolean {return Surface.getById(this.#id).nonEmpty()}
     get panelState(): Option<PanelState> {return this.#placeholder.map(placeholder => placeholder.panelState)}
+    // True when the panel is popped-out in its own window, or embedded and
+    // not minimized.
+    get isVisible(): boolean {
+        if (this.isPopout) {return true}
+        return this.panelState.mapOr(state => !state.isMinimized, false)
+    }
 
     togglePopout(): void {
         if (this.#placeholder.isEmpty()) {

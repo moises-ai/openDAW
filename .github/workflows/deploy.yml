@@ -24,6 +24,11 @@ jobs:
       - name: 📦 Install dependencies
         run: npm ci
 
+      - name: ⭐ Fetch sponsors via GraphQL
+        env:
+          GH_TOKEN: ${{ secrets.SPONSORS_TOKEN }}
+        run: node scripts/fetch-sponsors.mjs
+
       - name: 🏗️ Build project
         shell: bash
         env:

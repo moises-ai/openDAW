@@ -1,5 +1,5 @@
-import {DefaultObservableValue, Errors, Option, panic, RuntimeNotifier} from "@moises-ai/lib-std"
-import {AudioData, WavFile} from "@moises-ai/lib-dsp"
+import {DefaultObservableValue, Errors, Option, panic, RuntimeNotifier} from "@opendaw/lib-std"
+import {AudioData, WavFile} from "@opendaw/lib-dsp"
 import {
     ExternalLib,
     FFmpegConverter,
@@ -7,10 +7,10 @@ import {
     OfflineEngineRenderer,
     ProjectMeta,
     ProjectProfile
-} from "@moises-ai/studio-core"
-import {Files} from "@moises-ai/lib-dom"
-import {Promises} from "@moises-ai/lib-runtime"
-import {ExportStemsConfiguration} from "@moises-ai/studio-adapters"
+} from "@opendaw/studio-core"
+import {Files} from "@opendaw/lib-dom"
+import {Promises} from "@opendaw/lib-runtime"
+import {ExportConfiguration} from "@opendaw/studio-adapters"
 import {Dialogs} from "@/ui/components/dialogs"
 
 export namespace Mixdowns {
@@ -65,7 +65,7 @@ export namespace Mixdowns {
     }
 
     export const exportStems = async ({project: source, meta}: ProjectProfile,
-                                      config: ExportStemsConfiguration): Promise<void> => {
+                                      config: ExportConfiguration): Promise<void> => {
         const project = source.copy()
         const abortController = new AbortController()
         const progress = new DefaultObservableValue(0.0)
@@ -83,7 +83,7 @@ export namespace Mixdowns {
             return
         }
         const {status: zipStatus, error: zipError} = await Promises.tryCatch(
-            saveZipFile(value, meta, Object.values(config).map(({fileName}) => fileName)))
+            saveZipFile(value, meta, Object.values(config.stems ?? {}).map(({fileName}) => fileName)))
         if (zipStatus === "rejected") {
             await RuntimeNotifier.info({headline: "Export Failed", message: String(zipError)})
             return
@@ -183,7 +183,7 @@ export namespace Mixdowns {
 
     const loadFFmepg = async (): Promise<FFmpegWorker> => {
         const {FFmpegWorker} = await Promises.guardedRetry(() =>
-            import("@moises-ai/studio-core/FFmpegWorker"), (_, count) => count < 60)
+            import("@opendaw/studio-core/FFmpegWorker"), (_, count) => count < 60)
         const progress = new DefaultObservableValue(0.0)
         const progressDialog = RuntimeNotifier.progress({headline: "Loading FFmpeg...", progress})
         const {status, value, error} = await Promises.tryCatch(FFmpegWorker.load(value => progress.setValue(value)))

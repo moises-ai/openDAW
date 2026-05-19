@@ -274,7 +274,8 @@ export const PitchEditor = ({
             capturing,
             editing,
             events: reader.content.events,
-            stepRecording
+            stepRecording,
+            api: project.api
         }),
         positioner.subscribe(renderer.requestUpdate),
         range.subscribe(renderer.requestUpdate),

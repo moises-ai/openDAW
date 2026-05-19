@@ -1,13 +1,13 @@
 import {Dialog} from "@/ui/components/Dialog"
-import {ExportStemsConfiguration} from "@moises-ai/studio-adapters"
-import {IconSymbol} from "@moises-ai/studio-enums"
+import {ExportConfiguration, ExportStemConfiguration} from "@opendaw/studio-adapters"
+import {IconSymbol} from "@opendaw/studio-enums"
 import {Surface} from "@/ui/surface/Surface"
-import {createElement} from "@moises-ai/lib-jsx"
-import {Errors, isDefined, Objects, Terminator, UUID} from "@moises-ai/lib-std"
+import {createElement} from "@opendaw/lib-jsx"
+import {Errors, isDefined, Objects, Terminator, UUID} from "@opendaw/lib-std"
 import {StudioService} from "@/service/StudioService"
 import {ProjectBrowser} from "@/project/ProjectBrowser"
 import {EditableExportStemsConfiguration, ExportStemsConfigurator} from "@/service/ExportStemsConfigurator"
-import {Project, ProjectMeta} from "@moises-ai/studio-core"
+import {Project, ProjectMeta} from "@opendaw/studio-core"
 
 export namespace ProjectDialogs {
     export const showSaveDialog = async ({headline, meta}: {
@@ -84,8 +84,8 @@ export namespace ProjectDialogs {
         return promise.finally(() => lifecycle.terminate())
     }
 
-    export const showExportStemsDialog = async (project: Project): Promise<ExportStemsConfiguration> => {
-        const {resolve, reject, promise} = Promise.withResolvers<ExportStemsConfiguration>()
+    export const showExportStemsDialog = async (project: Project): Promise<ExportConfiguration> => {
+        const {resolve, reject, promise} = Promise.withResolvers<ExportConfiguration>()
         const terminator = new Terminator()
         const configuration: EditableExportStemsConfiguration = Object
             .fromEntries(project.rootBoxAdapter.audioUnits.adapters()
@@ -98,7 +98,7 @@ export namespace ProjectDialogs {
                         includeAudioEffects: true,
                         includeSends: true,
                         useInstrumentOutput: false,
-                        fileName: ExportStemsConfiguration.sanitizeFileName(unit.input.label.unwrap())
+                        fileName: ExportConfiguration.sanitizeFileName(unit.input.label.unwrap())
                     }
                 ])))
         const dialog: HTMLDialogElement = (
@@ -115,7 +115,9 @@ export namespace ProjectDialogs {
                         },
                         {
                             text: "Export", onClick: () => {
-                                resolve(Object.fromEntries(
+                                // Keep the exact field set the original code shipped (no
+                                // `useInstrumentOutput`) so the rendered output is identical.
+                                const stems = Object.fromEntries(
                                     Object.entries(configuration)
                                         .filter(([_, value]) => value.include)
                                         .map(([key, value]) => [key,
@@ -123,7 +125,8 @@ export namespace ProjectDialogs {
                                                 "includeAudioEffects",
                                                 "includeSends",
                                                 "fileName"
-                                            ] as const))])) as ExportStemsConfiguration)
+                                            ] as const))])) as Record<string, ExportStemConfiguration>
+                                resolve({stems})
                                 dialog.close()
                             },
                             primary: true
