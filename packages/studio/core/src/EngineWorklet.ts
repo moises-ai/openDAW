@@ -27,7 +27,7 @@ import {
     EngineState,
     EngineStateSchema,
     EngineToClient,
-    ExportStemsConfiguration,
+    ExportConfiguration,
     MonitoringMapEntry,
     NoteSignal,
     PERF_BUFFER_SIZE,
@@ -81,9 +81,9 @@ export class EngineWorklet extends AudioWorkletNode implements Engine {
 
     constructor(context: BaseAudioContext,
                 project: Project,
-                exportConfiguration?: ExportStemsConfiguration,
+                exportConfiguration?: ExportConfiguration,
                 options?: ProcessorOptions) {
-        const numberOfChannels = ExportStemsConfiguration.countStems(Option.wrap(exportConfiguration)) * 2
+        const numberOfChannels = ExportConfiguration.countStems(Option.wrap(exportConfiguration)) * 2
         const budgetMs = (RenderQuantum / context.sampleRate) * 1000
         const reader = SyncStream.reader<EngineState>(EngineStateSchema(), state => {
             this.#isPlaying.setValue(state.isPlaying)
@@ -241,10 +241,7 @@ export class EngineWorklet extends AudioWorkletNode implements Engine {
         this.wake()
         this.#commands.play()
     }
-    stop(reset: boolean = false): void {
-        this.#isPlaying.setValue(false)
-        this.#commands.stop(reset)
-    }
+    stop(reset: boolean = false): void {this.#commands.stop(reset)}
     setPosition(position: ppqn): void {this.#commands.setPosition(position)}
     prepareRecordingState(countIn: boolean): void {this.#commands.prepareRecordingState(countIn)}
     stopRecording(): void {this.#commands.stopRecording()}

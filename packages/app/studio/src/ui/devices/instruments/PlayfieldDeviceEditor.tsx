@@ -21,7 +21,7 @@ export const PlayfieldDeviceEditor = ({lifecycle, service, adapter, deviceHost}:
     const {project} = service
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => {
                           parent.addMenuItem(MenuItem.default({label: "Reset All"})

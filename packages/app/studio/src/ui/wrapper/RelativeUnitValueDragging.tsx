@@ -74,6 +74,7 @@ export const RelativeUnitValueDragging = ({
         }),
         ValueDragging.installUnitValueRelativeDragging((_event: PointerEvent) => Option.wrap({
             start: (): unitValue => {
+                editing.mark()
                 element.classList.add("modifying")
                 return parameter.getUnitValue()
             },

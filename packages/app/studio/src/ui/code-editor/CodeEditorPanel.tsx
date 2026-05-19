@@ -4,7 +4,6 @@ import {isDefined, Lifecycle, Nullable} from "@moises-ai/lib-std"
 import {Await, createElement} from "@moises-ai/lib-jsx"
 import {Clipboard, Events, Html, Keyboard, Shortcut} from "@moises-ai/lib-dom"
 import {MonacoFactory} from "@/monaco/factory"
-import {Promises} from "@moises-ai/lib-runtime"
 import {Colors, IconSymbol} from "@moises-ai/studio-enums"
 import {MenuItem} from "@moises-ai/studio-core"
 import {StudioService} from "@/service/StudioService"
@@ -13,10 +12,14 @@ import {Button} from "@/ui/components/Button"
 import {Icon} from "@/ui/components/Icon"
 import {MenuButton} from "@/ui/components/MenuButton"
 import {Dialogs} from "@/ui/components/dialogs"
+import {EditorLoadFailure} from "@/ui/components/EditorLoadFailure"
+import {dynamicImportWithRetry} from "@/ui/components/dynamicImportWithRetry"
 import {CodeEditorHandler} from "./CodeEditorHandler"
 import {CodeEditorExample} from "./CodeEditorState"
 
 const className = Html.adoptStyleSheet(css, "CodeEditorPanel")
+
+const loadMonacoSetup = dynamicImportWithRetry(() => import("./monaco-setup"))
 
 type Construct = {
     lifecycle: Lifecycle
@@ -41,12 +44,9 @@ export const CodeEditorPanel = ({lifecycle, service}: Construct) => {
     return (
         <div className={className}>
             <Await
-                factory={() => Promise.all([
-                    Promises.guardedRetry(() => import("./monaco-setup"), (_error, count) => count < 10)
-                        .then(({monaco}) => monaco)
-                ])}
-                failure={({retry, reason}) => (<p onclick={retry}>{reason}</p>)}
-                loading={() => ThreeDots()}
+                factory={() => Promise.all([loadMonacoSetup().then(({monaco}) => monaco)])}
+                failure={(props) => EditorLoadFailure(props)}
+                loading={() => ThreeDots({style: {color: Colors.orange.toString()}})}
                 success={([monaco]) => {
                     const {editor, model, container} = MonacoFactory.create({
                         monaco, lifecycle, language: "javascript",

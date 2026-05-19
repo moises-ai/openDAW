@@ -25,7 +25,7 @@ export const MIDIOutputDeviceEditor = ({lifecycle, service, adapter, deviceHost}
     const {editing} = project
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forAudioUnitInput(parent, service, deviceHost)}
                       populateControls={() => (

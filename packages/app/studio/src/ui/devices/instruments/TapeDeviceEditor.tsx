@@ -25,7 +25,7 @@ export const TapeDeviceEditor = ({lifecycle, service, adapter, deviceHost}: Cons
     const tracks: AudioUnitTracks = deviceHost.audioUnitBoxAdapter().tracks
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forAudioUnitInput(parent, service, deviceHost)}
                       populateControls={() => (

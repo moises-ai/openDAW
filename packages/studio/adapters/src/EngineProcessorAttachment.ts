@@ -1,4 +1,5 @@
-import {int, Option} from "@moises-ai/lib-std"
+import {int, isDefined, Option} from "@moises-ai/lib-std"
+import {ppqn} from "@moises-ai/lib-dsp"
 
 export type ProcessorOptions = {}
 
@@ -8,7 +9,7 @@ export type EngineProcessorAttachment = {
     controlFlagsBuffer: SharedArrayBuffer // Control flags SharedArrayBuffer (e.g., for sleep)
     hrClockBuffer: SharedArrayBuffer // High-res clock SharedArrayBuffer
     project: ArrayBufferLike
-    exportConfiguration?: ExportStemsConfiguration
+    exportConfiguration?: ExportConfiguration
     options?: ProcessorOptions
 }
 
@@ -20,18 +21,25 @@ export type ExportStemConfiguration = {
     fileName: string
 }
 
-export type ExportStemsConfiguration = Record<string, ExportStemConfiguration>
+export type ExportRange = "full" | { start: ppqn, end: ppqn }
 
-export namespace ExportStemsConfiguration {
-    export const countStems = (config: Option<ExportStemsConfiguration>): int =>
+export type ExportConfiguration = {
+    stems?: Record<string, ExportStemConfiguration>
+    range?: ExportRange
+}
+
+export namespace ExportConfiguration {
+    export const countStems = (config: Option<ExportConfiguration>): int =>
         config.match({
             none: () => 1,
-            some: (configuration) => Object.keys(configuration).length
+            some: cfg => isDefined(cfg.stems) ? Object.keys(cfg.stems).length : 1
         })
 
     export const sanitizeFileName = (name: string): string => name.replace(/[<>:"/\\|?*\x00-\x1F]/g, "_").trim()
 
-    export const sanitizeExportNamesInPlace = (configuration: ExportStemsConfiguration): void => {
+    export const sanitizeExportNamesInPlace = (configuration: ExportConfiguration): void => {
+        if (!isDefined(configuration.stems)) {return}
+        const stems = configuration.stems
         const sanitizedNames = new Map<string, number>()
         const getUniqueName = (baseName: string): string => {
             let count = sanitizedNames.get(baseName) ?? 0
@@ -44,8 +52,8 @@ export namespace ExportStemsConfiguration {
             sanitizedNames.set(newName, 1)
             return newName
         }
-        Object.keys(configuration).forEach((key) => {
-            const entry = configuration[key]
+        Object.keys(stems).forEach((key) => {
+            const entry = stems[key]
             entry.fileName = getUniqueName(sanitizeFileName(entry.fileName))
         })
     }

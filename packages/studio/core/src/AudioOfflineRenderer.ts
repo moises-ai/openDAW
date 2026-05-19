@@ -1,7 +1,7 @@
 import {Errors, int, isDefined, Option, panic, Progress, Terminator, TimeSpan} from "@moises-ai/lib-std"
 import {AnimationFrame} from "@moises-ai/lib-dom"
 import {Wait} from "@moises-ai/lib-runtime"
-import {ExportStemsConfiguration} from "@moises-ai/studio-adapters"
+import {ExportConfiguration} from "@moises-ai/studio-adapters"
 import {Project} from "./project"
 import {AudioWorklets} from "./AudioWorklets"
 
@@ -9,11 +9,11 @@ import {AudioWorklets} from "./AudioWorklets"
 export namespace AudioOfflineRenderer {
     /** @deprecated */
     export const start = async (source: Project,
-                                optExportConfiguration: Option<ExportStemsConfiguration>,
+                                optExportConfiguration: Option<ExportConfiguration>,
                                 progress: Progress.Handler,
                                 abortSignal?: AbortSignal,
                                 sampleRate: int = 48_000): Promise<AudioBuffer> => {
-        const numStems = ExportStemsConfiguration.countStems(optExportConfiguration)
+        const numStems = ExportConfiguration.countStems(optExportConfiguration)
         if (numStems === 0) {return panic("Nothing to export")}
         const {promise, reject, resolve} = Promise.withResolvers<AudioBuffer>()
         const projectCopy = source.copy()

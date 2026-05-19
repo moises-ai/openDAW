@@ -1,6 +1,6 @@
-import {byte, int} from "@moises-ai/lib-std"
+import {byte, int, Nullable, UUID} from "@moises-ai/lib-std"
 import {InstrumentFactories, Sample, Soundfont} from "@moises-ai/studio-adapters"
-import {EffectFactories} from "@moises-ai/studio-core"
+import {EffectFactories, PresetCategory, PresetSource} from "@moises-ai/studio-core"
 
 export type DragCopyHint = { copy?: boolean }
 export type DragSample = { type: "sample", sample: Sample } & DragCopyHint
@@ -9,16 +9,17 @@ export type DragFile = { type: "file", file: File /* This cannot be accessed whi
 export type DragDevice = (
     {
         type: "midi-effect" | "audio-effect"
-        start_index: int
+        uuids: ReadonlyArray<UUID.String>
+        instrument: Nullable<UUID.String>
     } |
     {
         type: "midi-effect"
-        start_index: null
+        uuids: null
         device: EffectFactories.MidiEffectKeys
     } |
     {
         type: "audio-effect"
-        start_index: null
+        uuids: null
         device: EffectFactories.AudioEffectKeys
     } |
     {
@@ -26,10 +27,23 @@ export type DragDevice = (
         device: InstrumentFactories.Keys
     } |
     {
+        type: "instrument"
+        device: null
+        uuid: UUID.String
+        effects: ReadonlyArray<UUID.String>
+    } |
+    {
         type: "playfield-slot"
         index: byte
         uuid: string
     }) & DragCopyHint
 export type DragChannelStrip = { type: "channelstrip", uuid: string, start_index: int } & DragCopyHint
+export type DragPreset = {
+    type: "preset"
+    category: PresetCategory
+    source: PresetSource
+    uuid: UUID.String
+    device: Nullable<InstrumentFactories.Keys>
+} & DragCopyHint
 
-export type AnyDragData = DragSample | DragFile | DragDevice | DragChannelStrip | DragSoundfont
+export type AnyDragData = DragSample | DragFile | DragDevice | DragChannelStrip | DragSoundfont | DragPreset

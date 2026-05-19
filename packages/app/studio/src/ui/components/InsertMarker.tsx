@@ -9,7 +9,7 @@ const className = Html.adoptStyleSheet(css, "InsertMarker")
 export const InsertMarker = () => {
     return (
         <div className={className}>
-            <Icon symbol={IconSymbol.ArrayDown}/>
+            <Icon symbol={IconSymbol.InsertDown}/>
         </div>
     )
 }

@@ -1,0 +1,24 @@
+component
+  padding: 1px 3px
+  display: flex
+  flex-direction: column
+  column-gap: 4px
+  cursor: default
+  background-color: color-mix(in srgb, currentColor 10%, transparent)
+  border-radius: 3px
+  pointer-events: none
+
+  &.hidden
+    display: none
+
+  > *
+    font-size: 7px
+    cursor: pointer
+    pointer-events: all
+    color: color-mix(in srgb, currentColor 50%, transparent)
+
+    &:hover
+      color: currentColor
+
+    &:active
+      color: var(--color-white)

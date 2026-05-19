@@ -44,14 +44,17 @@ import {
     AudioUnitFactory,
     CaptureBox,
     ColorCodes,
+    DeviceAccepts,
     EffectPointerType,
     IndexedAdapterCollectionListener,
     InstrumentBox,
     InstrumentFactory,
     InstrumentOptions,
     InstrumentProduct,
+    NoteEventBoxAdapter,
     NoteEventCollectionBoxAdapter,
     ProjectQueries,
+    TrackBoxAdapter,
     TrackType
 } from "@moises-ai/studio-adapters"
 import {Project} from "./Project"
@@ -177,6 +180,60 @@ export class ProjectApi {
 
     createAutomationTrack(audioUnitBox: AudioUnitBox, target: Field<Pointers.Automation>, insertIndex: int = Number.MAX_SAFE_INTEGER): TrackBox {
         return this.#createTrack({field: audioUnitBox.tracks, target, trackType: TrackType.Value, insertIndex})
+    }
+
+    // Packs the audio unit's main tracks (Notes for MIDI units, Audio for audio
+    // units) onto as few lanes as possible. Iterates tracks top-down; for each
+    // region in a non-top track, scans the higher tracks left-to-right and moves
+    // the region to the first one where it doesn't overlap an existing region.
+    // Empty main tracks are then deleted, but at least one is kept; clips and
+    // automation tracks are never moved or deleted.
+    compactTracks(audioUnitBox: AudioUnitBox): void {
+        const adapter = this.#project.boxAdapters.adapterFor(audioUnitBox, AudioUnitBoxAdapter)
+        const inputAdapter = adapter.input.adapter()
+        if (inputAdapter.isEmpty()) {return}
+        const accepts = inputAdapter.unwrap().accepts
+        if (accepts === false) {return}
+        const targetType = DeviceAccepts.toTrackType(accepts)
+        const tracks = adapter.tracks.values()
+            .filter(track => track.type === targetType)
+            .toSorted((a, b) => a.indexField.getValue() - b.indexField.getValue())
+        if (tracks.length < 2) {return}
+        const fits = (track: TrackBoxAdapter, position: ppqn, complete: ppqn): boolean => {
+            // Read regions live from the pointerHub (not from track.regions.collection),
+            // because the cached collection isn't updated within the running transaction
+            // and would miss regions just moved here in a previous iteration.
+            const regions = track.box.regions.pointerHub.incoming()
+                .map(({box}) => box as AnyRegionBox)
+                .toSorted((a, b) => a.position.getValue() - b.position.getValue())
+            for (const existing of regions) {
+                const existingPosition = existing.position.getValue()
+                if (existingPosition >= complete) {return true}
+                if (existingPosition + existing.duration.getValue() > position) {return false}
+            }
+            return true
+        }
+        for (let i = 1; i < tracks.length; i++) {
+            // Snapshot the region list before mutating; moving via `refer` will
+            // remove the region from this track's collection mid-iteration.
+            const regions = [...tracks[i].box.regions.pointerHub.incoming().map(({box}) => box as AnyRegionBox)]
+            for (const region of regions) {
+                for (let j = 0; j < i; j++) {
+                    const position = region.position.getValue()
+                    const complete = position + region.duration.getValue()
+                    if (fits(tracks[j], position, complete)) {
+                        region.regions.refer(tracks[j].box.regions)
+                        break
+                    }
+                }
+            }
+        }
+        for (let i = tracks.length - 1; i >= 1; i--) {
+            const track = tracks[i]
+            if (track.box.regions.pointerHub.isEmpty() && track.box.clips.pointerHub.isEmpty()) {
+                adapter.deleteTrack(track)
+            }
+        }
     }
 
     createTimeStretchedClip(props: AudioContentFactory.TimeStretchedProps & AudioContentFactory.Clip): AudioClipBox {
@@ -374,6 +431,35 @@ export class ProjectApi {
         const {rootBox} = this.#project
         IndexedBox.removeOrder(rootBox.audioUnits, audioUnitBox.index.getValue())
         audioUnitBox.delete()
+    }
+
+    /**
+     * Duplicate a set of notes so that the copies land flush after the
+     * source block: each copy is shifted by `max(position + duration) −
+     * min(position)` over the input. Returns the newly created note
+     * adapters in the same order as `notes`, so the caller can swap its
+     * selection in one pass. Returns an empty array when the input is
+     * empty or the computed shift is zero. The caller is responsible for
+     * wrapping the call in `editing.modify(...)`.
+     */
+    duplicateNotes(notes: ReadonlyArray<NoteEventBoxAdapter>): ReadonlyArray<NoteEventBoxAdapter> {
+        if (notes.length === 0) {return []}
+        const blockStart = notes.reduce((min, {position}) => Math.min(min, position), Infinity)
+        const blockEnd = notes.reduce((max, {position, duration}) => Math.max(max, position + duration), -Infinity)
+        const shift = blockEnd - blockStart
+        if (shift <= 0) {return []}
+        const {boxGraph, boxAdapters} = this.#project
+        return notes.map(adapter => {
+            const copy = NoteEventBox.create(boxGraph, UUID.generate(), box => {
+                const events = adapter.box.events.targetVertex.unwrap()
+                box.events.refer(events)
+                box.position.setValue(adapter.position + shift)
+                box.duration.setValue(adapter.duration)
+                box.pitch.setValue(adapter.pitch)
+                box.velocity.setValue(adapter.velocity)
+            })
+            return boxAdapters.adapterFor(copy, NoteEventBoxAdapter)
+        })
     }
 
     #createTrack({field, target, trackType, insertIndex}: {

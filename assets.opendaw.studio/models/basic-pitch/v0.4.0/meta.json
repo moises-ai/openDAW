@@ -1,0 +1,13 @@
+{
+  "task": "audio-to-midi",
+  "model": "basic-pitch",
+  "version": "v0.4.0",
+  "bytes": 230444,
+  "sha256": "2c3c1d144bfa61ad236e92e169c13535c880469a12a047d4e73451f2c059a0ec",
+  "license": "Apache-2.0",
+  "upstream": {
+    "project": "https://github.com/spotify/basic-pitch",
+    "onnx_export": "https://huggingface.co/AEmotionStudio/basic-pitch-onnx-models",
+    "onnx_commit": "327fd8ccd2f0bb84cbe56b4a0e9d318398ddf763"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "task": "stem-separation-alt",
+  "model": "htdemucs",
+  "version": "v4-jx",
+  "bytes": 304330587,
+  "sha256": "0cf9f378b3a736efacafe09b8c07aafbb3109568c274ffb7b963b540aa1978d2",
+  "license": "Apache-2.0",
+  "upstream": {
+    "project": "https://github.com/facebookresearch/demucs",
+    "onnx_export": "https://huggingface.co/jackjiangxinfa/demucs-onnx",
+    "onnx_commit": "49fcb820b3fa39937e955dda5cef1ad35dec1f7c"
+  }
+}

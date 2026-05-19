@@ -24,7 +24,7 @@ export const CrusherDeviceEditor = ({lifecycle, service, adapter, deviceHost}: C
     const {editing, midiLearning} = project
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forEffectDevice(parent, service, deviceHost, adapter)}
                       populateControls={() => (

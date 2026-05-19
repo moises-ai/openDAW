@@ -170,6 +170,7 @@ export const VolumeSlider = ({lifecycle, editing, parameter, markers = DefaultVo
             dragLifecycle.terminate()
             dragLifecycle.own(ValueDragging.installUnitValueRelativeDragging((event: PointerEvent) => Option.wrap({
                 start: (): unitValue => {
+                    editing.mark()
                     if (event.target === thumb) {
                         return parameter.getUnitValue()
                     } else {

@@ -136,7 +136,8 @@ export const NoteEditor =
                 snapping: snapping,
                 selection: selection,
                 events: reader.content.events,
-                stepRecording
+                stepRecording,
+                api: project.api
             })),
             installEditorBody({element: pitchBody, range, reader}),
             Html.watchResize(pitchBody, (() => {
@@ -189,6 +190,15 @@ export const NoteEditor =
             shortcuts,
             shortcuts.register(NoteEditorShortcuts["toggle-step-recording"].shortcut,
                 () => stepRecording.setValue(!stepRecording.getValue())),
+            shortcuts.register(NoteEditorShortcuts["duplicate-notes"].shortcut, () => {
+                const selected = selection.selected()
+                if (selected.length === 0) {return false}
+                const copies = editing.modify(() => project.api.duplicateNotes(selected)).unwrap()
+                if (copies.length === 0) {return false}
+                selection.deselectAll()
+                copies.forEach(adapter => selection.select(adapter))
+                return true
+            }),
             stepRecording.catchupAndSubscribe(owner => document.querySelectorAll("[data-component='cursor']")
                 .forEach(cursor => cursor.classList.toggle("step-recording", owner.getValue()))),
             Terminable.create(() => document.querySelectorAll("[data-component='cursor']")

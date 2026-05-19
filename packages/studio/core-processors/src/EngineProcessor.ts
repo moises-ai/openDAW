@@ -301,9 +301,9 @@ export class EngineProcessor extends AudioWorkletProcessor implements EngineCont
             this.#rootBoxAdapter.audioUnits.catchupAndSubscribe({
                 onAdd: (adapter: AudioUnitBoxAdapter) => {
                     const uuidAsString = UUID.toString(adapter.uuid)
-                    const options: AudioUnitOptions = isDefined(exportConfiguration?.[uuidAsString])
-                        ? exportConfiguration[uuidAsString]
-                        : AudioUnitOptions.Default
+                    const stems = exportConfiguration?.stems
+                    const stemForUnit = isDefined(stems) ? stems[uuidAsString] : undefined
+                    const options: AudioUnitOptions = isDefined(stemForUnit) ? stemForUnit : AudioUnitOptions.Default
                     const audioUnit = new AudioUnit(this, adapter, options)
                     const added = this.#audioUnits.add(audioUnit)
                     assert(added, `Could not add ${audioUnit}`)
@@ -334,9 +334,9 @@ export class EngineProcessor extends AudioWorkletProcessor implements EngineCont
             })()
         )
 
-        this.#stemExports = Option.wrap(exportConfiguration).match({
+        this.#stemExports = Option.wrap(exportConfiguration?.stems).match({
             none: () => Arrays.empty(),
-            some: configuration => Object.keys(configuration).map(uuidString => this.#audioUnits.get(UUID.parse(uuidString)))
+            some: stems => Object.keys(stems).map(uuidString => this.#audioUnits.get(UUID.parse(uuidString)))
         })
 
         this.#engineToClient.ready()

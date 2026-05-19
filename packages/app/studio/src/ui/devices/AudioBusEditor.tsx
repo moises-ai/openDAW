@@ -21,7 +21,7 @@ export const AudioBusEditor = ({lifecycle, service, adapter}: Construct) => {
     const {project} = service
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forAudioUnitInput(parent, service, adapter.deviceHost())}
                       populateControls={() => false}

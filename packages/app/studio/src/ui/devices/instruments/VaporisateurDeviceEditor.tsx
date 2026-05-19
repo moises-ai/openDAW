@@ -151,7 +151,7 @@ export const VaporisateurDeviceEditor = ({lifecycle, service, adapter, deviceHos
     const noiseTable = ObservableValue.seal<Func<number, number>>(x => smoothNoise(x, 32))
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forAudioUnitInput(parent, service, deviceHost)}
                       populateControls={() => (

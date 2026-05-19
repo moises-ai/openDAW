@@ -1,5 +1,5 @@
 import css from "./HeadersArea.sass?inline"
-import {Lifecycle} from "@moises-ai/lib-std"
+import {isNotNull, Lifecycle} from "@moises-ai/lib-std"
 import {createElement} from "@moises-ai/lib-jsx"
 import {StudioService} from "@/service/StudioService.ts"
 import {installAutoScroll} from "@/ui/AutoScroll.ts"
@@ -9,6 +9,7 @@ import {DragAndDrop} from "@/ui/DragAndDrop.ts"
 import {AnyDragData} from "@/ui/AnyDragData"
 import {InstrumentFactories} from "@moises-ai/studio-adapters"
 import {DefaultInstrumentFactory} from "@/ui/defaults/DefaultInstrumentFactory"
+import {PresetApplication} from "@/ui/browse/PresetApplication"
 import {TracksManager} from "@/ui/timeline/tracks/audio-unit/TracksManager"
 
 const className = Html.adoptStyleSheet(css, "HeaderArea")
@@ -28,11 +29,28 @@ export const HeadersArea = ({lifecycle, service, scrollModel}: Construct) => (
              const {api, editing} = project
              lifecycle.ownAll(
                  DragAndDrop.installTarget(element, {
-                     drag: (_event: DragEvent, data: AnyDragData): boolean => data.type === "instrument",
+                     drag: (_event: DragEvent, data: AnyDragData): boolean => {
+                         if (data.type === "instrument" && data.device !== null) {return true}
+                         if (data.type === "preset"
+                             && (data.category === "instrument" || data.category === "audio-unit")) {
+                             return true
+                         }
+                         return false
+                     },
                      drop: (_event: DragEvent, data: AnyDragData) => {
-                         if (data.type === "instrument") {
+                         if (data.type === "instrument" && data.device !== null) {
                              const factory = InstrumentFactories[data.device]
                              editing.modify(() => DefaultInstrumentFactory.create(api, factory))
+                             return
+                         }
+                         if (data.type === "preset") {
+                             if (data.category === "audio-unit") {
+                                 PresetApplication.createNewAudioUnitFromRack(project, data.uuid, data.source)
+                                     .catch(console.warn)
+                             } else if (data.category === "instrument" && isNotNull(data.device)) {
+                                 PresetApplication.createNewAudioUnitFromInstrument(
+                                     project, data.uuid, data.device, data.source).catch(console.warn)
+                             }
                          }
                      },
                      enter: (_allowDrop: boolean) => {},

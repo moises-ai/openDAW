@@ -32,7 +32,7 @@ export default defineConfig(({command}) => {
             }
         },
         optimizeDeps: {
-            exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util", "monaco-editor"]
+            exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util", "monaco-editor", "onnxruntime-web"]
         },
         build: {
             target: "esnext",

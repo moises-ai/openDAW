@@ -1,0 +1,17 @@
+TempoCNN — pretrained model weights and supporting code.
+
+Source: https://github.com/hendriks73/tempo-cnn
+Authors: Hendrik Schreiber, Meinard Müller (International Audio Laboratories
+Erlangen). Originally published with the ISMIR 2018/2019 papers.
+
+License: GNU Affero General Public License v3.0 (AGPL-3.0).
+
+Distributing or running this model — including in a browser-served web
+application like openDAW — extends AGPL obligations to the surrounding
+software. Before using TempoCNN in production, confirm that openDAW's
+own licensing is AGPL-compatible, OR replace this model with a
+permissively-licensed alternative (e.g. an MIT/Apache-2.0 beat-tracking
+model converted to ONNX).
+
+The full AGPL-3.0 text is available at:
+  https://www.gnu.org/licenses/agpl-3.0.txt

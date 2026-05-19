@@ -9,6 +9,7 @@ import {GlobalShortcuts} from "@/ui/shortcuts/GlobalShortcuts"
 import {VideoRenderer} from "@/video/VideoRenderer"
 import {createDebugMenu} from "@/service/DebugMenu"
 import {connectRoom} from "@/service/StudioLiveRoomConnect"
+import {AiDemux} from "@/service/AiDemux.tsx"
 
 export const populateStudioMenu = (service: StudioService) => {
     const Global = GlobalShortcuts
@@ -44,6 +45,8 @@ export const populateStudioMenu = (service: StudioService) => {
                                 .setTriggerProcedure(() => service.sampleService.browse(true)),
                             MenuItem.default({label: "Stems (Zip)..."})
                                 .setTriggerProcedure(() => service.importStems()),
+                            MenuItem.default({label: "AI Demux..."})
+                                .setTriggerProcedure(() => AiDemux.run(service).catch(EmptyExec)),
                             MenuItem.default({label: "Soundfont Files..."})
                                 .setTriggerProcedure(() => service.soundfontService.browse(true)),
                             MenuItem.default({label: "Project Bundle..."})
@@ -84,7 +87,7 @@ export const populateStudioMenu = (service: StudioService) => {
                     MenuItem.default({
                         label: "Join Live Room...",
                         icon: IconSymbol.Connected,
-                        separatorBefore: true,
+                        separatorBefore: true
                     }).setTriggerProcedure(() => connectRoom(service)),
                     MenuItem.default({
                         label: "Show MIDI-Keyboard",
@@ -96,7 +99,7 @@ export const populateStudioMenu = (service: StudioService) => {
                     MenuItem.default({
                         label: "Cloud Backup",
                         icon: IconSymbol.CloudFolder,
-                        separatorBefore: true,
+                        separatorBefore: true
                     }).setRuntimeChildrenProcedure(parent => {
                         parent.addMenuItem(
                             MenuItem.default({
@@ -116,7 +119,7 @@ export const populateStudioMenu = (service: StudioService) => {
                     MenuItem.default({
                         label: "Script Editor",
                         separatorBefore: true,
-                        icon: IconSymbol.Code,
+                        icon: IconSymbol.Code
                     }).setTriggerProcedure(() => RouteLocation.get().navigateTo("/scripting")),
                     MenuItem.default({
                         label: "Preferences",

@@ -77,6 +77,58 @@ export namespace WavFile {
         getChannelData(channel: number): Float32Array
     }
 
+    /**
+     * Encode the audio as a 16-bit PCM WAV file. Float samples are clamped
+     * to [-1, 1] and scaled to int16. Same input shape as `encodeFloats`
+     * (`AudioData` or `AudioBufferLike`); output is a complete RIFF/WAVE
+     * ArrayBuffer ready to drop into a Blob or pass to importers expecting
+     * standard 16-bit WAV.
+     */
+    export const encodeInts16 = (audio: AudioData | AudioBufferLike, maxLength: int = Number.MAX_SAFE_INTEGER): ArrayBuffer => {
+        const bytesPerSample = 2
+        const sampleRate = audio.sampleRate
+        let numberOfFrames: number
+        let numberOfChannels: number
+        let frames: ReadonlyArray<Float32Array>
+        if ("getChannelData" in audio) {
+            frames = Arrays.create(index => audio.getChannelData(index), audio.numberOfChannels)
+            numberOfFrames = audio.length
+            numberOfChannels = audio.numberOfChannels
+        } else {
+            frames = audio.frames
+            numberOfFrames = audio.numberOfFrames
+            numberOfChannels = audio.frames.length
+        }
+        numberOfFrames = Math.min(maxLength, numberOfFrames)
+        const dataSize = numberOfFrames * numberOfChannels * bytesPerSample
+        const size = 44 + dataSize
+        const buf = new ArrayBuffer(size)
+        const view = new DataView(buf)
+        view.setUint32(0, MAGIC_RIFF, true)
+        view.setUint32(4, size - 8, true)
+        view.setUint32(8, MAGIC_WAVE, true)
+        view.setUint32(12, MAGIC_FMT, true)
+        view.setUint32(16, 16, true)
+        view.setUint16(20, 1, true) // 1 = PCM
+        view.setUint16(22, numberOfChannels, true)
+        view.setUint32(24, sampleRate, true)
+        view.setUint32(28, sampleRate * numberOfChannels * bytesPerSample, true)
+        view.setUint16(32, numberOfChannels * bytesPerSample, true)
+        view.setUint16(34, 8 * bytesPerSample, true)
+        view.setUint32(36, MAGIC_DATA, true)
+        view.setUint32(40, dataSize, true)
+        let w = 44
+        for (let i = 0; i < numberOfFrames; ++i) {
+            for (let j = 0; j < numberOfChannels; ++j) {
+                const sample = frames[j][i]
+                const clamped = sample < -1 ? -1 : sample > 1 ? 1 : sample
+                view.setInt16(w, Math.round(clamped * 0x7fff), true)
+                w += bytesPerSample
+            }
+        }
+        return view.buffer
+    }
+
     export const encodeFloats = (audio: AudioData | AudioBufferLike, maxLength: int = Number.MAX_SAFE_INTEGER): ArrayBuffer => {
         const bytesPerChannel = Float32Array.BYTES_PER_ELEMENT
         const sampleRate = audio.sampleRate

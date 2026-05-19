@@ -55,7 +55,20 @@ export const TransportGroup = ({lifecycle, service}: Construct) => {
                     }
                 }}><Icon symbol={IconSymbol.Play}/></Button>
     )
+    const captureDisabled = new DefaultObservableValue<boolean>(true)
+    const captureButton: HTMLElement = (
+        <Button lifecycle={lifecycle}
+                disabled={captureDisabled}
+                appearance={{
+                    color: Colors.shadow,
+                    activeColor: Colors.white,
+                    tooltip: "Create region from captured notes."
+                }}
+                onClick={() => service.runIfProject(project => project.commitMidiCapture())}>
+            <Icon symbol={IconSymbol.Capture}/>
+        </Button>)
     const loopLifecycle = lifecycle.own(new Terminator())
+    const captureLifecycle = lifecycle.own(new Terminator())
     const countInLifecycle = lifecycle.own(new Terminator())
     const recordingObserver = () => recordButton.classList.toggle("active",
         engine.isCountingIn.getValue() || engine.isRecording.getValue())
@@ -83,9 +96,13 @@ export const TransportGroup = ({lifecycle, service}: Construct) => {
             )),
         projectProfileService.catchupAndSubscribe((optProfile: Option<ProjectProfile>) => {
             loopLifecycle.terminate()
+            captureLifecycle.terminate()
+            captureButton.classList.remove("active")
+            captureDisabled.setValue(true)
             optProfile.match({
                 none: () => loop.setValue(false),
-                some: ({project: {editing, timelineBox: {loopArea: {enabled}}}}) => {
+                some: ({project}) => {
+                    const {editing, timelineBox: {loopArea: {enabled}}} = project
                     loop.setValue(enabled.getValue())
                     loopLifecycle.ownAll(
                         loop.subscribe(owner => {
@@ -93,6 +110,10 @@ export const TransportGroup = ({lifecycle, service}: Construct) => {
                         }),
                         enabled.subscribe(owner => loop.setValue(owner.getValue()))
                     )
+                    captureLifecycle.own(project.subscribeMidiCaptureAvailable(available => {
+                        captureButton.classList.toggle("active", available)
+                        captureDisabled.setValue(!available)
+                    }))
                 }
             })
         })
@@ -117,6 +138,7 @@ export const TransportGroup = ({lifecycle, service}: Construct) => {
                       }}>
                 <Icon symbol={IconSymbol.Loop}/>
             </Checkbox>
+            {captureButton}
         </div>
     )
 }

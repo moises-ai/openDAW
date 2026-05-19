@@ -58,7 +58,7 @@ export const GateDeviceEditor = ({lifecycle, service, adapter, deviceHost}: Cons
     )
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forEffectDevice(parent, service, deviceHost, adapter)}
                       populateControls={() => (

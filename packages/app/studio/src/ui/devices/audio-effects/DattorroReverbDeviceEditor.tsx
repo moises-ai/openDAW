@@ -36,7 +36,7 @@ export const DattorroReverbDeviceEditor = ({lifecycle, service, adapter, deviceH
     } = adapter.namedParameter
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forEffectDevice(parent, service, deviceHost, adapter)}
                       populateControls={() => (

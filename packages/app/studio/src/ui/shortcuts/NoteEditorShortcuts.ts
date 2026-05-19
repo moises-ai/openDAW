@@ -1,6 +1,7 @@
 import {Key, Shortcut, ShortcutDefinitions, ShortcutValidator} from "@moises-ai/lib-dom"
 
 const shift = true
+const ctrl = true
 
 export const NoteEditorShortcutsFactory = ShortcutValidator.validate({
     "increment-note-semitone": {
@@ -30,6 +31,10 @@ export const NoteEditorShortcutsFactory = ShortcutValidator.validate({
     "toggle-step-recording": {
         shortcut: Shortcut.of(Key.KeyS),
         description: "Toggle step recording"
+    },
+    "duplicate-notes": {
+        shortcut: Shortcut.of(Key.KeyD, {ctrl}),
+        description: "Duplicate notes"
     }
 })
 

@@ -36,7 +36,7 @@ export const StereoToolDeviceEditor = ({lifecycle, service, adapter, deviceHost}
     const panningMixing = adapter.box.panningMixing
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => {
                           parent.addMenuItem(

@@ -77,7 +77,7 @@ export const ModularDeviceEditor = ({lifecycle, service, adapter, deviceHost}: C
     lifecycle.own({terminate: () => elements.forEach(entry => entry.terminable.terminate())})
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forEffectDevice(parent, service, deviceHost, adapter)}
                       populateControls={() => userInterface}

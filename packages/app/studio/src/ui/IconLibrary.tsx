@@ -485,7 +485,7 @@ export const IconLibrary = () => (
                 <path
                     d="M10 12l-4.364.001c.304.664.643 1.34 1.018 2.028.376.681.764 1.338 1.164 1.971.392-.633.776-1.29 1.152-1.971.375-.689.719-1.365 1.03-2.029z"/>
             </symbol>
-            <symbol id={IconSymbol.toName(IconSymbol.ArrayDown)}
+            <symbol id={IconSymbol.toName(IconSymbol.InsertDown)}
                     viewBox="0 0 24 24"
                     fill="currentColor">
                 <path
@@ -824,6 +824,36 @@ export const IconLibrary = () => (
             <symbol id={IconSymbol.toName(IconSymbol.Vocoder)} viewBox="0 0 24 24" fill="currentColor">
                 <path
                     d="M21.0049 2.99966C21.5572 2.99966 22.0049 3.44738 22.0049 3.99966V9.49966C20.6242 9.49966 19.5049 10.619 19.5049 11.9997C19.5049 13.3804 20.6242 14.4997 22.0049 14.4997V19.9997C22.0049 20.5519 21.5572 20.9997 21.0049 20.9997H3.00488C2.4526 20.9997 2.00488 20.5519 2.00488 19.9997V14.4997C3.38559 14.4997 4.50488 13.3804 4.50488 11.9997C4.50488 10.619 3.38559 9.49966 2.00488 9.49966V3.99966C2.00488 3.44738 2.4526 2.99966 3.00488 2.99966H21.0049Z"/>
+            </symbol>
+            <symbol id={IconSymbol.toName(IconSymbol.Capture)} viewBox="0 0 24 24" fill="currentColor">
+                <path
+                    d="M3,9L3,3L9,3L9,4L4,4L4,9L3,9ZM9,21L3,21L3,15L4,15L4,20L9,20L9,21ZM21,15L21,21L15,21L15,20L20,20L20,15L21,15ZM15,3L21,3L21,9L20,9L20,4L15,4L15,3Z"/>
+            </symbol>
+            <symbol id={IconSymbol.toName(IconSymbol.Chain)} viewBox="0 0 48 48">
+                <path fill="currentColor" fill-rule="evenodd"
+                      d="M18.256 6.346c6.461-6.461 16.937-6.461 23.398 0c6.462 6.461 6.462 16.937 0 23.399l-2.419 2.419a3.5 3.5 0 0 1-4.95 0l-1.435-1.436a3.5 3.5 0 0 1 0-4.95l2.43-2.43c2.932-2.932 2.914-7.691-.011-10.617a7.5 7.5 0 0 0-5.211-2.2a7.47 7.47 0 0 0-5.408 2.19l-2.49 2.49a3.5 3.5 0 0 1-4.888-.06l-1.435-1.436a3.5 3.5 0 0 1 0-4.95zm6.004 11.007l-6.937 6.937l-.052.053l-2.43 2.43c-1.753 1.754-1.75 4.614.011 6.374a4.51 4.51 0 0 0 6.374.011l11.93-11.93c1.755-1.755 1.751-4.615-.01-6.375a4.5 4.5 0 0 0-3.128-1.323a4.48 4.48 0 0 0-3.245 1.312l-2.43 2.43zm-9.11-.081a3.5 3.5 0 0 1 .038 4.91l-2.468 2.47c-2.933 2.932-2.915 7.691.01 10.617a7.5 7.5 0 0 0 5.796 2.187a7.46 7.46 0 0 0 4.822-2.177l2.43-2.43a3.5 3.5 0 0 1 4.95 0l1.435 1.436a3.5 3.5 0 0 1 0 4.95l-2.419 2.419c-6.461 6.461-16.937 6.461-23.398 0c-6.462-6.461-6.462-16.937 0-23.399l2.419-2.419a3.5 3.5 0 0 1 4.95 0z"/>
+            </symbol>
+            <symbol id={IconSymbol.toName(IconSymbol.Folder)} viewBox="0 0 24 24" fill="currentColor">
+                <path
+                    d="M4 5V19H20V7H11.5858L9.58579 5H4ZM12.4142 5H21C21.5523 5 22 5.44772 22 6V20C22 20.5523 21.5523 21 21 21H3C2.44772 21 2 20.5523 2 20V4C2 3.44772 2.44772 3 3 3H10.4142L12.4142 5Z"/>
+            </symbol>
+            <symbol id={IconSymbol.toName(IconSymbol.ArrowRight)} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M16 12L10 18V6L16 12Z"/>
+            </symbol>
+            <symbol id={IconSymbol.toName(IconSymbol.ArrowLeft)} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M8 12L14 6V18L8 12Z"/>
+            </symbol>
+            <symbol id={IconSymbol.toName(IconSymbol.ArrowDown)} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 16L6 10H18L12 16Z"/>
+            </symbol>
+            <symbol id={IconSymbol.toName(IconSymbol.ArrowUp)} viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 8L18 14H6L12 8Z"/>
+            </symbol>
+            <symbol id={IconSymbol.toName(IconSymbol.SelectDown)} viewBox="6 8 12 12" fill="currentColor">
+                <path d="M12 16L6 10H18L12 16Z"/>
+            </symbol>
+            <symbol id={IconSymbol.toName(IconSymbol.SelectUp)} viewBox="6 4 12 12" fill="currentColor">
+                <path d="M12 8L18 14H6L12 8Z"/>
             </symbol>
         </defs>
     </symbol>

@@ -292,12 +292,17 @@ export class EventSpanRetainer<E extends EventSpan> {
 
     * releaseAll(): IterableIterator<E> {
         if (this.#array.length === 0) {return}
+        // Yield everything, including events with duration === Infinity. Skipping
+        // those leaves "permanent" ghosts behind that sit at earlier positions
+        // than any later finite event; releaseLinearCompleted iterates from the
+        // earliest position and returns at the first non-completed entry, so a
+        // single ghost shadows every later release. Callers reach for releaseAll
+        // exactly when they want to drain everything (transport stop / loop
+        // jump), so honour that contract.
         for (let lastIndex = this.#array.length - 1; lastIndex >= 0; lastIndex--) {
             const event = this.#array[lastIndex]
-            if (Number.POSITIVE_INFINITY > event.duration) {
-                this.#array.splice(lastIndex, 1)
-                yield event
-            }
+            this.#array.splice(lastIndex, 1)
+            yield event
         }
     }
 

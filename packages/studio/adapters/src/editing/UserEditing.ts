@@ -30,6 +30,10 @@ export class UserEditing implements Terminable {
         this.#pointer.ifSome(pointer => this.#editing.modify(() => pointer.refer(target), false))
     }
 
+    editIfDifferent(target: Vertex<Pointers.Editing | Pointers>): void {
+        if (!this.isEditing(target)) {this.edit(target)}
+    }
+
     isEditing(vertex: Vertex<Pointers.Editing | Pointers>): boolean {
         return this.#pointer.match({
             none: () => false,

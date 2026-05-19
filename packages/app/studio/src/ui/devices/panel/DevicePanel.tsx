@@ -27,7 +27,8 @@ import {Orientation, Scroller} from "@/ui/components/Scroller"
 import {DeviceMidiMeter} from "@/ui/devices/panel/DeviceMidiMeter.tsx"
 import {ChannelStrip} from "@/ui/mixer/ChannelStrip"
 import {installAutoScroll} from "@/ui/AutoScroll"
-import {deferNextFrame, Events, Html, Keyboard} from "@moises-ai/lib-dom"
+import {deferNextFrame, Events, Html, Keyboard, ShortcutManager} from "@moises-ai/lib-dom"
+import {DevicePanelShortcuts} from "@/ui/shortcuts/DevicePanelShortcuts"
 import {DevicePanelDragAndDrop} from "@/ui/devices/DevicePanelDragAndDrop"
 import {NoAudioUnitSelectedPlaceholder} from "@/ui/devices/panel/NoAudioUnitSelectedPlaceholder"
 import {NoEffectPlaceholder} from "@/ui/devices/panel/NoEffectPlaceholder"
@@ -247,7 +248,21 @@ export const DevicePanel = ({lifecycle, service}: Construct) => {
         if (optEditing.isEmpty()) {return Option.None}
         return Option.wrap(project.boxAdapters.adapterFor(optEditing.unwrap().box, Devices.isHost))
     }
+    // Element-scoped shortcut context: active only while focus is inside
+    // the instrument container, so Delete on the focused instrument removes
+    // the whole audio unit without competing with global Delete handling.
+    const instrumentShortcuts = ShortcutManager.get().createContext(instrumentContainer, "DevicePanel/Instrument")
     lifecycle.ownAll(
+        instrumentShortcuts,
+        instrumentShortcuts.register(DevicePanelShortcuts["delete-audio-unit"].shortcut, () => {
+            const optHost = getCurrentDeviceHost()
+            if (optHost.isEmpty()) {return false}
+            const audioUnit = optHost.unwrap().audioUnitBoxAdapter()
+            if (audioUnit.isOutput) {return false}
+            const {editing, api} = service.project
+            editing.modify(() => api.deleteAudioUnit(audioUnit.box))
+            return true
+        }),
         Html.watchResize(element, updateScroller),
         scrollModel.subscribe(() => devices.scrollLeft = scrollModel.position),
         Events.subscribe(element, "wheel", (event: WheelEvent) => scrollModel.moveBy(event.deltaX), {passive: true}),

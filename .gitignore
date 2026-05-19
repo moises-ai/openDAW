@@ -16,6 +16,7 @@ lerna-debug.log
 /packages/studio/boxes/src/**
 /packages/studio/adapters/src/index.ts
 /packages/app/studio/public/build-info.json
+/packages/app/studio/public/sponsors.json
 /certs/localhost.pem
 /certs/localhost-key.pem
 /packages/app/soundfont/public/soundfonts/
@@ -23,4 +24,9 @@ lerna-debug.log
 tsconfig.tsbuildinfo
 /packages/server/api.opendaw.studio/
 /packages/server/logs.opendaw.studio/
-/assets.opendaw.studio/models/**/model.onnx
+# Inference model weights are large (hundreds of MB) and live on the CDN.
+# README, LICENSE, and meta.json next to each model ARE tracked so the layout,
+# attribution, and SHA-256 are reviewable in-repo. The download script
+# (scripts/download-inference-models.sh) populates the *.onnx files on demand.
+/assets.opendaw.studio/models/**/*.onnx
+/assets.opendaw.studio/models/**/*.onnx.partial

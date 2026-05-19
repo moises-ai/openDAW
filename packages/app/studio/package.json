@@ -1,7 +1,7 @@
 {
     "name": "@opendaw/app-studio",
     "private": true,
-    "version": "0.0.138",
+    "version": "0.0.145",
     "type": "module",
     "license": "LGPL-3.0-or-later",
     "scripts": {
@@ -14,6 +14,7 @@
         "@moises-ai/lib-box": "*",
         "@moises-ai/lib-dom": "*",
         "@moises-ai/lib-dsp": "*",
+        "@opendaw/lib-inference": "*",
         "@moises-ai/lib-jsx": "*",
         "@moises-ai/lib-midi": "*",
         "@moises-ai/lib-runtime": "*",

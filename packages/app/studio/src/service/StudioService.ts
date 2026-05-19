@@ -39,7 +39,7 @@ import {RouteLocation} from "@moises-ai/lib-jsx"
 import {PPQN} from "@moises-ai/lib-dsp"
 import {AnimationFrame, Browser, ConsoleCommands, Dragging, Files} from "@moises-ai/lib-dom"
 import {Promises} from "@moises-ai/lib-runtime"
-import {ExportStemsConfiguration, InstrumentFactories, PresetDecoder} from "@moises-ai/studio-adapters"
+import {ExportConfiguration, InstrumentFactories, PresetDecoder} from "@moises-ai/studio-adapters"
 import {Address} from "@moises-ai/lib-box"
 import {
     AudioContentFactory,
@@ -65,6 +65,7 @@ import {
     TimelineRange
 } from "@moises-ai/studio-core"
 import {ProjectDialogs} from "@/project/ProjectDialogs"
+import {PresetService} from "@/ui/browse/PresetService"
 import {AudioFileBox, AudioUnitBox} from "@moises-ai/studio-boxes"
 import {AudioUnitType} from "@moises-ai/studio-enums"
 import {Surface} from "@/ui/surface/Surface"
@@ -111,6 +112,7 @@ export class StudioService implements ProjectEnv {
     readonly samplePlayback: SamplePlayback
     readonly recovery = new Recovery(() => this.#projectProfileService.getValue(), this)
     readonly engine = new EngineFacade()
+    readonly presets = new PresetService(this)
 
     readonly #softwareKeyboardLifeCycle = new Terminator()
     readonly #signals = new Notifier<StudioSignal>()
@@ -248,7 +250,7 @@ export class StudioService implements ProjectEnv {
                     await RuntimeNotifier.info({headline: "Export Failed", message: String(dialogError)})
                     return
                 }
-                ExportStemsConfiguration.sanitizeExportNamesInPlace(config)
+                ExportConfiguration.sanitizeExportNamesInPlace(config)
                 await this.audioContext.suspend()
                 const {status, error} = await Promises.tryCatch(Mixdowns.exportStems(profile, config))
                 if (status === "rejected" && !Errors.isAbort(error)) {

@@ -1,10 +1,11 @@
-import {EmptyExec, isInstanceOf, Selection, Terminable} from "@moises-ai/lib-std"
+import {EmptyExec, isInstanceOf, RuntimeNotifier, Selection, Terminable} from "@moises-ai/lib-std"
 import {
     AudioConsolidation,
     AudioContentModifier,
     ContextMenu,
     ElementCapturing,
     MenuItem,
+    NoteMidiExport,
     TimelineRange
 } from "@moises-ai/studio-core"
 import {AnyRegionBoxAdapter, AudioRegionBoxAdapter} from "@moises-ai/studio-adapters"
@@ -14,7 +15,6 @@ import {Surface} from "@/ui/surface/Surface.tsx"
 import {RegionTransformer} from "@/ui/timeline/tracks/audio-unit/regions/RegionTransformer.ts"
 import {NameValidator} from "@/ui/validator/name.ts"
 import {DebugMenus} from "@/ui/menu/debug"
-import {NoteMidiExport} from "@moises-ai/studio-core"
 import {ColorMenu} from "@/ui/timeline/ColorMenu"
 import {BPMTools} from "@moises-ai/lib-dsp"
 import {Browser} from "@moises-ai/lib-dom"
@@ -22,6 +22,7 @@ import {Dialogs} from "@/ui/components/dialogs.tsx"
 import {StudioService} from "@/service/StudioService"
 import {Promises} from "@moises-ai/lib-runtime"
 import {RegionsShortcuts} from "@/ui/shortcuts/RegionsShortcuts"
+import {TempoDetection} from "@/service/TempoDetection"
 
 type Construct = {
     element: Element
@@ -188,6 +189,17 @@ export const installRegionContextMenu =
                             const bpm = BPMTools.detect(data.frames[0], data.sampleRate)
                             Dialogs.info({headline: "BPMTools", message: `${bpm.toFixed(3)} BPM`})
                                 .finally()
+                        })
+                    }
+                }),
+                MenuItem.default({
+                    label: "Detect BPM (AI)...",
+                    hidden: region.type !== "audio-region" || !Browser.isLocalHost()
+                }).setTriggerProcedure(() => {
+                    if (region.type === "audio-region") {
+                        region.file.data.ifSome(async data => {
+                            const bpm = await TempoDetection.runOne(data.frames[0], data.sampleRate, region.label)
+                            await RuntimeNotifier.info({headline: region.label, message: `${bpm} bpm`})
                         })
                     }
                 }),

@@ -26,7 +26,7 @@ export const ReverbDeviceEditor = ({lifecycle, service, adapter, deviceHost}: Co
     const {decay, preDelay, damp, dry, wet} = adapter.namedParameter
     return (
         <DeviceEditor lifecycle={lifecycle}
-                      project={project}
+                      service={service}
                       adapter={adapter}
                       populateMenu={parent => MenuItems.forEffectDevice(parent, service, deviceHost, adapter)}
                       populateControls={() => (
