@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it, vi} from "vitest"
-import {OpfsProtocol} from "@opendaw/lib-fusion"
+import {OpfsProtocol} from "@moises-ai/lib-fusion"
 import {installInferenceConfig} from "./InferenceConfig"
 import {ModelStore} from "./ModelStore"
 import {ModelDescriptor} from "./Task"

@@ -1,5 +1,5 @@
 import {beforeEach, describe, expect, it} from "vitest"
-import {OpfsProtocol} from "@opendaw/lib-fusion"
+import {OpfsProtocol} from "@moises-ai/lib-fusion"
 import {installInferenceConfig, requireInferenceConfig} from "./InferenceConfig"
 
 const fakeOpfs = (): OpfsProtocol => ({

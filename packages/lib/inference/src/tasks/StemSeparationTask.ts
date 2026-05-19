@@ -1,4 +1,4 @@
-import {asDefined, clampUnit, panic, unitValue} from "@opendaw/lib-std"
+import {asDefined, clampUnit, panic, unitValue} from "@moises-ai/lib-std"
 import {defineTask, ModelDescriptor, TaskDefinition, TaskEnvironment} from "../Task"
 import {tensor, TensorMap} from "../Tensor"
 

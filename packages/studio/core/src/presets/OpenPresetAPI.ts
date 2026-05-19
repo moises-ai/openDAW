@@ -1,7 +1,7 @@
 import {
     asDefined, DefaultObservableValue, isDefined, Lazy, panic, Procedure, RuntimeNotifier, tryCatch, unitValue, UUID
-} from "@opendaw/lib-std"
-import {network, Promises} from "@opendaw/lib-runtime"
+} from "@moises-ai/lib-std"
+import {network, Promises} from "@moises-ai/lib-runtime"
 import {base64Credentials, OpenDAWHeaders} from "../OpenDAWHeaders"
 import {PresetMeta} from "./PresetMeta"
 

@@ -1,5 +1,5 @@
-import {UUID} from "@opendaw/lib-std"
-import {InstrumentFactories} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {InstrumentFactories} from "@moises-ai/studio-adapters"
 import {EffectFactories} from "../EffectFactories"
 
 type PresetCommon = {

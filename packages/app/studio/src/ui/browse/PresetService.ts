@@ -11,10 +11,10 @@ import {
     panic,
     RuntimeNotifier,
     UUID
-} from "@opendaw/lib-std"
-import {Promises} from "@opendaw/lib-runtime"
-import {Box, IndexedBox} from "@opendaw/lib-box"
-import {DeviceBoxAdapter, DeviceBoxUtils, Devices, EffectDeviceBoxAdapter, InstrumentFactories, PresetDecoder, PresetEncoder, PresetHeader} from "@opendaw/studio-adapters"
+} from "@moises-ai/lib-std"
+import {Promises} from "@moises-ai/lib-runtime"
+import {Box, IndexedBox} from "@moises-ai/lib-box"
+import {DeviceBoxAdapter, DeviceBoxUtils, Devices, EffectDeviceBoxAdapter, InstrumentFactories, PresetDecoder, PresetEncoder, PresetHeader} from "@moises-ai/studio-adapters"
 import {
     AudioEffectChainPresetMeta,
     AudioEffectPresetMeta,
@@ -29,8 +29,8 @@ import {
     PresetStorage,
     Project,
     RackPresetMeta
-} from "@opendaw/studio-core"
-import {AudioUnitBox} from "@opendaw/studio-boxes"
+} from "@moises-ai/studio-core"
+import {AudioUnitBox} from "@moises-ai/studio-boxes"
 import {DefaultInstrumentFactory} from "@/ui/defaults/DefaultInstrumentFactory"
 import {AnyDragData} from "@/ui/AnyDragData"
 import {PresetDialogs} from "@/ui/browse/PresetDialogs"

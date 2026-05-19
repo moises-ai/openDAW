@@ -1,8 +1,8 @@
 import {Dialog} from "@/ui/components/Dialog"
-import {Colors, IconSymbol} from "@opendaw/studio-enums"
+import {Colors, IconSymbol} from "@moises-ai/studio-enums"
 import {Surface} from "@/ui/surface/Surface"
-import {createElement, Frag} from "@opendaw/lib-jsx"
-import {DefaultObservableValue, Errors, Terminator} from "@opendaw/lib-std"
+import {createElement, Frag} from "@moises-ai/lib-jsx"
+import {DefaultObservableValue, Errors, Terminator} from "@moises-ai/lib-std"
 import {Checkbox} from "@/ui/components/Checkbox"
 import {Icon} from "@/ui/components/Icon"
 

@@ -1,9 +1,9 @@
 import css from "./PresetPager.sass?inline"
-import {createElement} from "@opendaw/lib-jsx"
-import {Events, Html} from "@opendaw/lib-dom"
-import {IconSymbol} from "@opendaw/studio-enums"
+import {createElement} from "@moises-ai/lib-jsx"
+import {Events, Html} from "@moises-ai/lib-dom"
+import {IconSymbol} from "@moises-ai/studio-enums"
 import {Icon} from "@/ui/components/Icon.tsx"
-import {Lifecycle, ObservableValue, Procedure} from "@opendaw/lib-std"
+import {Lifecycle, ObservableValue, Procedure} from "@moises-ai/lib-std"
 import {TextTooltip} from "@/ui/surface/TextTooltip"
 
 const className = Html.adoptStyleSheet(css, "PresetPager")

@@ -1,10 +1,10 @@
-import {DeviceHost, Devices, EffectDeviceBoxAdapter, InstrumentFactories, PresetHeader} from "@opendaw/studio-adapters"
-import {EffectFactories, MenuItem} from "@opendaw/studio-core"
-import {IndexedBox, PrimitiveField, PrimitiveValues} from "@opendaw/lib-box"
-import {Editing, isDefined, panic, RuntimeNotifier, UUID} from "@opendaw/lib-std"
-import {Promises} from "@opendaw/lib-runtime"
+import {DeviceHost, Devices, EffectDeviceBoxAdapter, InstrumentFactories, PresetHeader} from "@moises-ai/studio-adapters"
+import {EffectFactories, MenuItem} from "@moises-ai/studio-core"
+import {IndexedBox, PrimitiveField, PrimitiveValues} from "@moises-ai/lib-box"
+import {Editing, isDefined, panic, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
+import {Promises} from "@moises-ai/lib-runtime"
 import {StudioService} from "@/service/StudioService"
-import {RouteLocation} from "@opendaw/lib-jsx"
+import {RouteLocation} from "@moises-ai/lib-jsx"
 import {PresetService, PresetEffectKind} from "@/ui/browse/PresetService"
 
 export namespace MenuItems {

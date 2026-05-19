@@ -1,6 +1,6 @@
 import {describe, expect, it} from "vitest"
 import {combineWindows, overlapFade, planChunks, StemSeparationTask} from "./StemSeparationTask"
-import {Option} from "@opendaw/lib-std"
+import {Option} from "@moises-ai/lib-std"
 import {tensor, TensorMap} from "../Tensor"
 
 describe("planChunks", () => {

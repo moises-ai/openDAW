@@ -1,5 +1,5 @@
-import {isDefined, Optional, Provider} from "@opendaw/lib-std"
-import {Promises} from "@opendaw/lib-runtime"
+import {isDefined, Optional, Provider} from "@moises-ai/lib-std"
+import {Promises} from "@moises-ai/lib-runtime"
 
 const UrlPattern = /https?:\/\/\S+/
 

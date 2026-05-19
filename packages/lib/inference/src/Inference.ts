@@ -8,7 +8,7 @@ import {
     Provider,
     Terminable,
     unitValue
-} from "@opendaw/lib-std"
+} from "@moises-ai/lib-std"
 import {ExecutionProvider, ModelDescriptor, TaskDefinition} from "./Task"
 import {TaskInput, TaskKey, TaskOutput, TaskRegistry} from "./registry"
 import {InferenceConfig, installInferenceConfig, requireInferenceConfig} from "./InferenceConfig"

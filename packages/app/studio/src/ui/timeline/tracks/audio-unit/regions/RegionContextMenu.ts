@@ -1,4 +1,4 @@
-import {EmptyExec, isInstanceOf, RuntimeNotifier, Selection, Terminable} from "@opendaw/lib-std"
+import {EmptyExec, isInstanceOf, RuntimeNotifier, Selection, Terminable} from "@moises-ai/lib-std"
 import {
     AudioConsolidation,
     AudioContentModifier,
@@ -7,20 +7,20 @@ import {
     MenuItem,
     NoteMidiExport,
     TimelineRange
-} from "@opendaw/studio-core"
-import {AnyRegionBoxAdapter, AudioRegionBoxAdapter} from "@opendaw/studio-adapters"
+} from "@moises-ai/studio-core"
+import {AnyRegionBoxAdapter, AudioRegionBoxAdapter} from "@moises-ai/studio-adapters"
 import {RegionCaptureTarget} from "@/ui/timeline/tracks/audio-unit/regions/RegionCapturing.ts"
-import {TimelineBox} from "@opendaw/studio-boxes"
+import {TimelineBox} from "@moises-ai/studio-boxes"
 import {Surface} from "@/ui/surface/Surface.tsx"
 import {RegionTransformer} from "@/ui/timeline/tracks/audio-unit/regions/RegionTransformer.ts"
 import {NameValidator} from "@/ui/validator/name.ts"
 import {DebugMenus} from "@/ui/menu/debug"
 import {ColorMenu} from "@/ui/timeline/ColorMenu"
-import {BPMTools} from "@opendaw/lib-dsp"
-import {Browser} from "@opendaw/lib-dom"
+import {BPMTools} from "@moises-ai/lib-dsp"
+import {Browser} from "@moises-ai/lib-dom"
 import {Dialogs} from "@/ui/components/dialogs.tsx"
 import {StudioService} from "@/service/StudioService"
-import {Promises} from "@opendaw/lib-runtime"
+import {Promises} from "@moises-ai/lib-runtime"
 import {RegionsShortcuts} from "@/ui/shortcuts/RegionsShortcuts"
 import {TempoDetection} from "@/service/TempoDetection"
 

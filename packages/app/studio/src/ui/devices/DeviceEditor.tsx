@@ -9,20 +9,20 @@ import {
     panic,
     Procedure,
     Provider
-} from "@opendaw/lib-std"
-import {createElement, Group, JsxValue} from "@opendaw/lib-jsx"
+} from "@moises-ai/lib-std"
+import {createElement, Group, JsxValue} from "@moises-ai/lib-jsx"
 import {Icon} from "@/ui/components/Icon.tsx"
 import {MenuButton} from "@/ui/components/MenuButton.tsx"
-import {ClipboardManager, DevicesClipboard, MenuItem} from "@opendaw/studio-core"
-import {DeviceBoxAdapter, DeviceHost, Devices, DeviceType} from "@opendaw/studio-adapters"
+import {ClipboardManager, DevicesClipboard, MenuItem} from "@moises-ai/studio-core"
+import {DeviceBoxAdapter, DeviceHost, Devices, DeviceType} from "@moises-ai/studio-adapters"
 import {StudioService} from "@/service/StudioService"
 import {DebugMenus} from "@/ui/menu/debug.ts"
 import {DeviceDragging} from "@/ui/devices/DeviceDragging"
-import {Events, Html} from "@opendaw/lib-dom"
+import {Events, Html} from "@moises-ai/lib-dom"
 import {TextScroller} from "@/ui/TextScroller"
-import {StringField} from "@opendaw/lib-box"
-import {Colors, IconSymbol} from "@opendaw/studio-enums"
-import {Promises} from "@opendaw/lib-runtime"
+import {StringField} from "@moises-ai/lib-box"
+import {Colors, IconSymbol} from "@moises-ai/studio-enums"
+import {Promises} from "@moises-ai/lib-runtime"
 import {Surface} from "@/ui/surface/Surface"
 
 const className = Html.adoptStyleSheet(css, "DeviceEditor")

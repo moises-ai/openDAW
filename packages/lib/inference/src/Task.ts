@@ -1,4 +1,4 @@
-import {Option, Procedure, unitValue} from "@opendaw/lib-std"
+import {Option, Procedure, unitValue} from "@moises-ai/lib-std"
 import {SessionRun} from "./Tensor"
 
 export interface ModelDescriptor {

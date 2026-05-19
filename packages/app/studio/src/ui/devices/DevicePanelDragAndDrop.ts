@@ -1,5 +1,5 @@
-import {asDefined, isAbsent, isDefined, panic, RuntimeNotifier, Terminable, UUID} from "@opendaw/lib-std"
-import {Promises} from "@opendaw/lib-runtime"
+import {asDefined, isAbsent, isDefined, panic, RuntimeNotifier, Terminable, UUID} from "@moises-ai/lib-std"
+import {Promises} from "@moises-ai/lib-runtime"
 import {DragAndDrop} from "@/ui/DragAndDrop"
 import {AnyDragData} from "@/ui/AnyDragData"
 import {
@@ -11,12 +11,12 @@ import {
     InstrumentFactory,
     PresetDecoder,
     PresetHeader
-} from "@opendaw/studio-adapters"
+} from "@moises-ai/studio-adapters"
 import {InsertMarker} from "@/ui/components/InsertMarker"
-import {EffectFactories, PresetSource, Project} from "@opendaw/studio-core"
+import {EffectFactories, PresetSource, Project} from "@moises-ai/studio-core"
 import {PresetApplication} from "@/ui/browse/PresetApplication"
-import {IndexedBox} from "@opendaw/lib-box"
-import {AudioUnitBox} from "@opendaw/studio-boxes"
+import {IndexedBox} from "@moises-ai/lib-box"
+import {AudioUnitBox} from "@moises-ai/studio-boxes"
 
 export namespace DevicePanelDragAndDrop {
     export const install = (project: Project,

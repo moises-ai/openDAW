@@ -1,5 +1,5 @@
-import {Option, panic} from "@opendaw/lib-std"
-import {OpfsProtocol} from "@opendaw/lib-fusion"
+import {Option, panic} from "@moises-ai/lib-std"
+import {OpfsProtocol} from "@moises-ai/lib-fusion"
 
 export interface InferenceConfig {
     readonly opfs: OpfsProtocol

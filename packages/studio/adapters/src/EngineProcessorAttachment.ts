@@ -1,5 +1,5 @@
-import {int, isDefined, Option} from "@opendaw/lib-std"
-import {ppqn} from "@opendaw/lib-dsp"
+import {int, isDefined, Option} from "@moises-ai/lib-std"
+import {ppqn} from "@moises-ai/lib-dsp"
 
 export type ProcessorOptions = {}
 

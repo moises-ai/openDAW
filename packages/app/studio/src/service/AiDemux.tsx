@@ -1,4 +1,4 @@
-import {createElement} from "@opendaw/lib-jsx"
+import {createElement} from "@moises-ai/lib-jsx"
 import {
     Bytes,
     DefaultObservableValue,
@@ -8,17 +8,17 @@ import {
     Option,
     RuntimeNotifier,
     UUID
-} from "@opendaw/lib-std"
-import {Promises} from "@opendaw/lib-runtime"
-import {Files} from "@opendaw/lib-dom"
-import {WavFile} from "@opendaw/lib-dsp"
+} from "@moises-ai/lib-std"
+import {Promises} from "@moises-ai/lib-runtime"
+import {Files} from "@moises-ai/lib-dom"
+import {WavFile} from "@moises-ai/lib-dsp"
 // Keep `@opendaw/lib-inference` as a type-only import; the runtime module is
 // loaded by `ensureInference` (see InferenceLoader) so it stays out of the
 // studio's boot bundle.
 import type {ExecutionProvider, Inference as InferenceNamespace, TaskKey} from "@opendaw/lib-inference"
-import {AudioContentFactory, Project, ProjectMeta, ProjectProfile} from "@opendaw/studio-core"
-import {InstrumentFactories, Sample} from "@opendaw/studio-adapters"
-import {AudioFileBox} from "@opendaw/studio-boxes"
+import {AudioContentFactory, Project, ProjectMeta, ProjectProfile} from "@moises-ai/studio-core"
+import {InstrumentFactories, Sample} from "@moises-ai/studio-adapters"
+import {AudioFileBox} from "@moises-ai/studio-boxes"
 import {Dialogs} from "@/ui/components/dialogs.tsx"
 import {StudioService} from "@/service/StudioService"
 import {ensureInference} from "@/service/InferenceLoader"

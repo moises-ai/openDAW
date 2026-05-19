@@ -1,6 +1,6 @@
-import {asDefined, isDefined, Option, panic, Procedure, tryCatch, unitValue} from "@opendaw/lib-std"
-import {Promises} from "@opendaw/lib-runtime"
-import {OpfsProtocol} from "@opendaw/lib-fusion"
+import {asDefined, isDefined, Option, panic, Procedure, tryCatch, unitValue} from "@moises-ai/lib-std"
+import {Promises} from "@moises-ai/lib-runtime"
+import {OpfsProtocol} from "@moises-ai/lib-fusion"
 import {ModelDescriptor} from "./Task"
 import {requireInferenceConfig} from "./InferenceConfig"
 

@@ -1,4 +1,4 @@
-import {panic} from "@opendaw/lib-std"
+import {panic} from "@moises-ai/lib-std"
 import {defineTask} from "../Task"
 
 export interface BasicPitchInput {

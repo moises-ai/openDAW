@@ -8,19 +8,19 @@ import {
     Predicate,
     Terminator,
     UUID
-} from "@opendaw/lib-std"
-import {Html} from "@opendaw/lib-dom"
-import {Await, createElement} from "@opendaw/lib-jsx"
-import {IndexedBox} from "@opendaw/lib-box"
-import {InstrumentFactories, PresetHeader} from "@opendaw/studio-adapters"
+} from "@moises-ai/lib-std"
+import {Html} from "@moises-ai/lib-dom"
+import {Await, createElement} from "@moises-ai/lib-jsx"
+import {IndexedBox} from "@moises-ai/lib-box"
+import {InstrumentFactories, PresetHeader} from "@moises-ai/studio-adapters"
 import {
     EffectFactories,
     EffectFactory,
     PresetEntry,
     PresetMeta,
     PresetSource
-} from "@opendaw/studio-core"
-import {Colors, IconSymbol} from "@opendaw/studio-enums"
+} from "@moises-ai/studio-core"
+import {Colors, IconSymbol} from "@moises-ai/studio-enums"
 import {StudioService} from "@/service/StudioService.ts"
 import {deviceKeyOf, PresetCategoryKey, PresetService} from "@/ui/browse/PresetService"
 import {DeviceDropKind, DeviceItem, StockDeviceMeta} from "@/ui/browse/DeviceItem"

@@ -1,4 +1,4 @@
-import {asDefined, isDefined, Option, panic, Procedure, Provider, unitValue} from "@opendaw/lib-std"
+import {asDefined, isDefined, Option, panic, Procedure, Provider, unitValue} from "@moises-ai/lib-std"
 import {ExecutionProvider, ModelDescriptor, TaskDefinition} from "./Task"
 import {SessionRun, TensorMap} from "./Tensor"
 import {InferenceCancelledError} from "./Errors"

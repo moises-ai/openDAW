@@ -10,7 +10,7 @@ import {
     SampleDeclaration,
     ScriptCompiler,
     ScriptDeclaration
-} from "@opendaw/studio-adapters"
+} from "@moises-ai/studio-adapters"
 import {
     asInstanceOf,
     Color,
@@ -26,14 +26,14 @@ import {
     Subscription,
     Terminator,
     UUID
-} from "@opendaw/lib-std"
-import {Promises} from "@opendaw/lib-runtime"
-import {createElement} from "@opendaw/lib-jsx"
-import {Colors, IconSymbol} from "@opendaw/studio-enums"
+} from "@moises-ai/lib-std"
+import {Promises} from "@moises-ai/lib-runtime"
+import {createElement} from "@moises-ai/lib-jsx"
+import {Colors, IconSymbol} from "@moises-ai/studio-enums"
 import {DeviceEditor} from "@/ui/devices/DeviceEditor.tsx"
-import {Clipboard, Html} from "@opendaw/lib-dom"
+import {Clipboard, Html} from "@moises-ai/lib-dom"
 import {StudioService} from "@/service/StudioService"
-import {AudioFileBox, WerkstattParameterBox, WerkstattSampleBox} from "@opendaw/studio-boxes"
+import {AudioFileBox, WerkstattParameterBox, WerkstattSampleBox} from "@moises-ai/studio-boxes"
 import {ControlBuilder} from "@/ui/devices/ControlBuilder"
 import {Button} from "@/ui/components/Button"
 import {Checkbox} from "@/ui/components/Checkbox"
@@ -43,7 +43,7 @@ import {Column} from "@/ui/devices/Column"
 import {LKR} from "@/ui/devices/constants"
 import {CodeEditorExample} from "@/ui/code-editor/CodeEditorState"
 import {SampleSelector, SampleSelectStrategy} from "@/ui/devices/SampleSelector"
-import {MenuItem} from "@opendaw/studio-core"
+import {MenuItem} from "@moises-ai/studio-core"
 
 const className = Html.adoptStyleSheet(css, "ScriptDeviceEditor")
 

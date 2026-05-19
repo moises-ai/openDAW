@@ -1,6 +1,6 @@
-import {isNull, Nullable} from "@opendaw/lib-std"
+import {isNull, Nullable} from "@moises-ai/lib-std"
 import type * as InferenceLib from "@opendaw/lib-inference"
-import {Workers} from "@opendaw/studio-core"
+import {Workers} from "@moises-ai/studio-core"
 
 type InferenceModule = typeof InferenceLib
 

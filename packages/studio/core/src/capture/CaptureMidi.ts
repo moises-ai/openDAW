@@ -13,13 +13,13 @@ import {
     Terminable,
     Terminator,
     unitValue
-} from "@opendaw/lib-std"
-import {Events} from "@opendaw/lib-dom"
-import {MidiData} from "@opendaw/lib-midi"
-import {Promises} from "@opendaw/lib-runtime"
-import {AudioUnitBox, CaptureMidiBox} from "@opendaw/studio-boxes"
-import {NoteSignal} from "@opendaw/studio-adapters"
-import {bpm, ppqn, PPQN} from "@opendaw/lib-dsp"
+} from "@moises-ai/lib-std"
+import {Events} from "@moises-ai/lib-dom"
+import {MidiData} from "@moises-ai/lib-midi"
+import {Promises} from "@moises-ai/lib-runtime"
+import {AudioUnitBox, CaptureMidiBox} from "@moises-ai/studio-boxes"
+import {NoteSignal} from "@moises-ai/studio-adapters"
+import {bpm, ppqn, PPQN} from "@moises-ai/lib-dsp"
 import {MidiDevices} from "../midi"
 import {Capture} from "./Capture"
 import {CaptureDevices} from "./CaptureDevices"

@@ -1,5 +1,5 @@
-import {Arrays, Errors, panic, Procedure, Progress, RuntimeNotifier, UUID} from "@opendaw/lib-std"
-import {network, Promises} from "@opendaw/lib-runtime"
+import {Arrays, Errors, panic, Procedure, Progress, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
+import {network, Promises} from "@moises-ai/lib-runtime"
 import {CloudHandler} from "./CloudHandler"
 import {OpenPresetAPI, PresetMeta, PresetStorage} from "../presets"
 

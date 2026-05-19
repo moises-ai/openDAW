@@ -1,6 +1,6 @@
 /// <reference lib="webworker" />
-import {asDefined, isDefined, panic} from "@opendaw/lib-std"
-import {Promises} from "@opendaw/lib-runtime"
+import {asDefined, isDefined, panic} from "@moises-ai/lib-std"
+import {Promises} from "@moises-ai/lib-runtime"
 import {InferenceSession, Tensor as OrtTensor, env as ortEnv} from "onnxruntime-web"
 import {Tensor, TensorElementType, TensorMap} from "../Tensor"
 import {MainToWorker, WorkerToMain} from "./protocol"

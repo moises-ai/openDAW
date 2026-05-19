@@ -1,5 +1,5 @@
-import {asDefined, clampUnit, panic} from "@opendaw/lib-std"
-import {FFT, ResamplerMono} from "@opendaw/lib-dsp"
+import {asDefined, clampUnit, panic} from "@moises-ai/lib-std"
+import {FFT, ResamplerMono} from "@moises-ai/lib-dsp"
 import {defineTask, TaskEnvironment} from "../Task"
 import {tensor, TensorMap} from "../Tensor"
 

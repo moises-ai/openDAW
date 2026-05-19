@@ -1,5 +1,5 @@
-import {Bytes, DefaultObservableValue, Errors, Nullable, RuntimeNotifier} from "@opendaw/lib-std"
-import {Promises} from "@opendaw/lib-runtime"
+import {Bytes, DefaultObservableValue, Errors, Nullable, RuntimeNotifier} from "@moises-ai/lib-std"
+import {Promises} from "@moises-ai/lib-runtime"
 import {ensureInference} from "@/service/InferenceLoader"
 
 export namespace TempoDetection {

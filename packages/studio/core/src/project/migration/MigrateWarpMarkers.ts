@@ -1,6 +1,6 @@
-import {BoxGraph} from "@opendaw/lib-box"
-import {asInstanceOf} from "@opendaw/lib-std"
-import {AudioPitchStretchBox, AudioTimeStretchBox, BoxIO, WarpMarkerBox} from "@opendaw/studio-boxes"
+import {BoxGraph} from "@moises-ai/lib-box"
+import {asInstanceOf} from "@moises-ai/lib-std"
+import {AudioPitchStretchBox, AudioTimeStretchBox, BoxIO, WarpMarkerBox} from "@moises-ai/studio-boxes"
 
 // Drop duplicate warp markers (same ppqn position) on a stretch box. The sorted
 // EventCollection used by AudioPitchStretchBoxAdapter / AudioTimeStretchBoxAdapter
