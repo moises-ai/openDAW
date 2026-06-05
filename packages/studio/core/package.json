@@ -1,6 +1,6 @@
 {
     "name": "@moises-ai/studio-core",
-    "version": "0.0.145",
+    "version": "0.0.152",
     "license": "LGPL-3.0-or-later",
     "publishConfig": {
         "registry": "https://npm.pkg.github.com",
@@ -42,7 +42,7 @@
         "@moises-ai/lib-midi": "*",
         "@moises-ai/lib-runtime": "*",
         "@moises-ai/lib-std": "*",
-        "@opendaw/nam-wasm": "^1.0.3",
+        "@opendaw/nam-wasm": "^1.2.0",
         "@moises-ai/studio-adapters": "*",
         "@moises-ai/studio-boxes": "*",
         "@moises-ai/studio-enums": "*",

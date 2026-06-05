@@ -54,7 +54,14 @@ type Construct = {
 export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollContainer, range}: Construct) => {
     const {project, timeline} = service
     const {snapping} = timeline
-    const {selection, regionSelection, editing, boxAdapters, timelineBox, userEditingManager} = project
+    const {
+        selection,
+        regionSelection,
+        editing,
+        boxAdapters,
+        timelineBox,
+        userEditingManager
+    } = project
     const markerPosition = lifecycle.own(new DefaultObservableValue<Nullable<ppqn>>(null))
     const element: HTMLElement = (
         <div className={className} tabIndex={-1} data-scope="regions">
@@ -185,7 +192,7 @@ export const RegionsArea = ({lifecycle, service, manager, scrollModel, scrollCon
                                     0, scrollContainer.scrollTop + element.scrollHeight),
                                 valueToAxis: value => value - scrollContainer.scrollTop
                             }}
-                            />
+        />
     )
     lifecycle.ownAll(
         installAutoScroll(element, (deltaX, deltaY) => {

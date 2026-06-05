@@ -1,18 +1,27 @@
 import {createElement} from "@moises-ai/lib-jsx"
 import {Html} from "@moises-ai/lib-dom"
 import {Colors} from "@moises-ai/studio-enums"
-import {NamModel} from "@opendaw/nam-wasm"
-import {isNull, Lifecycle} from "@moises-ai/lib-std"
+import {NamModel, NamModelLayerConfig} from "@opendaw/nam-wasm"
+import {isDefined, isNull, Lifecycle} from "@moises-ai/lib-std"
 
 type Construct = {
     lifecycle: Lifecycle
     model: NamModel
 }
 
+// A1 layers carry a `gated` boolean; A2 layers replace it with `gating_mode`
+// ("none" | "gated" | "blended", or one entry per stacked sub-layer).
+const isLayerGated = (layer: NamModelLayerConfig): boolean => {
+    if (isDefined(layer.gated)) {return layer.gated}
+    const mode = layer.gating_mode
+    if (!isDefined(mode)) {return false}
+    return Array.isArray(mode) ? mode.some(value => value !== "none") : mode !== "none"
+}
+
 export const ArchitectureCanvas = ({lifecycle, model}: Construct) => {
     const layers = model.config.layers
-    if (layers.length === 0) return <div className="empty">No layers</div>
-    const canvas: HTMLCanvasElement = <canvas/>
+    if (!isDefined(layers) || layers.length === 0) return (<div className="empty">No layers</div>)
+    const canvas: HTMLCanvasElement = (<canvas/>)
     lifecycle.own(Html.watchResize(canvas, () => {
         if (!canvas.isConnected) return
         const width = canvas.clientWidth
@@ -62,7 +71,7 @@ export const ArchitectureCanvas = ({lifecycle, model}: Construct) => {
             ctx.moveTo(prevX, centerY)
             ctx.lineTo(x, centerY)
             ctx.stroke()
-            ctx.fillStyle = layer.gated ? orange : green
+            ctx.fillStyle = isLayerGated(layer) ? orange : green
             ctx.beginPath()
             ctx.roundRect(x, y, layerWidth, layerHeight, 2)
             ctx.fill()

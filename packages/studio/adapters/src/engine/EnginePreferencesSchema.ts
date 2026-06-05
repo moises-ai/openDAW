@@ -3,7 +3,7 @@ import {z} from "zod"
 const _BeatSubDivisionOptions = [1, 2, 4, 8] as const
 const _RecordingCountInBars = [1, 2, 3, 4, 5, 6, 7, 8] as const
 const _OlderTakeActionOptions = ["disable-track", "mute-region"] as const
-const _OlderTakeScopeOptions = ["all", "previous-only"] as const
+const _OlderTakeScopeOptions = ["none", "all", "previous-only"] as const
 
 export const EngineSettingsSchema = z.object({
     metronome: z.object({
@@ -36,13 +36,15 @@ export const EngineSettingsSchema = z.object({
         allowTakes: z.boolean(),
         automationEnabled: z.boolean(),
         olderTakeAction: z.union(_OlderTakeActionOptions.map(value => z.literal(value))),
-        olderTakeScope: z.union(_OlderTakeScopeOptions.map(value => z.literal(value)))
+        olderTakeScope: z.union(_OlderTakeScopeOptions.map(value => z.literal(value))),
+        inputLatency: z.number().min(-1)
     }).default({
         countInBars: 1,
         allowTakes: true,
         automationEnabled: true,
         olderTakeAction: "mute-region",
-        olderTakeScope: "previous-only"
+        olderTakeScope: "previous-only",
+        inputLatency: 0
     })
 })
 

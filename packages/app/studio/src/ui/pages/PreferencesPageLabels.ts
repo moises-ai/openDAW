@@ -112,7 +112,8 @@ export namespace PreferencesPageLabels {
                 allowTakes: "Allow takes",
                 automationEnabled: "Record automation",
                 olderTakeAction: "Older take action",
-                olderTakeScope: "Older take scope"
+                olderTakeScope: "Older take scope",
+                inputLatency: "Input latency"
             }
         }
     }
@@ -129,7 +130,7 @@ export namespace PreferencesPageLabels {
             })),
             olderTakeScope: EngineSettings.OlderTakeScopeOptions.map(value => ({
                 value,
-                label: value === "all" ? "All takes" : "Previous only"
+                label: value === "all" ? "All takes" : value === "previous-only" ? "Previous only" : "None"
             }))
         }
     }

@@ -1,4 +1,4 @@
-import {EmptyExec, Errors, Option, Provider, Terminable, Terminator} from "@moises-ai/lib-std"
+import {EmptyExec, Errors, isDefined, Option, Provider, Terminable, Terminator} from "@moises-ai/lib-std"
 import {AnimationFrame, Browser, Events} from "@moises-ai/lib-dom"
 import {LogBuffer} from "@/errors/LogBuffer.ts"
 import {ErrorLog} from "@/errors/ErrorLog.ts"
@@ -7,21 +7,28 @@ import {Surface} from "@/ui/surface/Surface.tsx"
 import {Dialogs} from "@/ui/components/dialogs.tsx"
 import {BuildInfo} from "@/BuildInfo"
 
-const ExtensionPatterns = ["script-src blocked eval", "extension", "chrome-extension://", "blocked by CSP", "Zotero Connector"]
+const ExtensionPatterns = ["script-src blocked eval", "extension", "chrome-extension://", "blocked by CSP", "Zotero Connector", "hintMode", "handleHint"]
 const IgnoredErrors = [
     "ResizeObserver loop completed with undelivered notifications.",
-    "Request timeout appSettingsDistributor.getValue",
+    "Request timeout",
+    "Distributor.getValue",
+    "getDictionariesByLanguageId",
     "Script error."
 ]
 const BrowserInternalPatterns = ["feature named", "window.__firefox__"]
-const MonacoPatterns = ["monaco-editor", "vs/base/common/errors"]
+const MonacoPatterns = ["monaco-editor", "vs/base/common/errors", "editor.main", "editor.worker"]
 const ThirdPartyAppPatterns = ["_callback_receiveMIDIMessage", "_callback_addSource"]
 const UrlPattern = /https?:\/\/[^\s)]+/g
+// A stack frame that belongs to our code references a script module file: a built ".js"/".mjs"
+// chunk in production, or a ".ts"/".tsx"/".jsx" source served by Vite in dev. The HTML document
+// frame of an injected inline script (".../:line:col") matches none of these.
+const ModuleUrlPattern = /\.(?:m?jsx?|tsx?)(?:[?:#]|$)/
 
 export class ErrorHandler {
     readonly #terminator = new Terminator()
     readonly #buildInfo: BuildInfo
     readonly #recover: Provider<Option<Provider<Promise<void>>>>
+
     #errorThrown: boolean = false
 
     constructor(buildInfo: BuildInfo, recover: Provider<Option<Provider<Promise<void>>>>) {
@@ -30,9 +37,25 @@ export class ErrorHandler {
     }
 
     #looksLikeExtension(error: ErrorInfo): boolean {
-        return document.scripts.length > 1
-            || ExtensionPatterns.some(pattern =>
-                error.message?.includes(pattern) || error.stack?.includes(pattern))
+        if (document.scripts.length > 1) {return true}
+        if (ExtensionPatterns.some(pattern =>
+            error.message?.includes(pattern) || error.stack?.includes(pattern))) {return true}
+        // Safari content scripts (Vimari et al.) inject into an isolated world,
+        // so document.scripts.length stays at 1. Their stacks carry function
+        // names but no source URLs — our own minified bundle always emits URLs
+        // in the stack, so a non-empty stack with zero URLs is a reliable
+        // "this didn't come from our code" signal. (UrlPattern has the g flag,
+        // so reuse .match() rather than .test() to avoid the lastIndex gotcha.)
+        const stack = error.stack
+        if (stack === undefined || stack.trim().length === 0) {return false}
+        const urls = stack.match(UrlPattern)
+        if (urls === null) {return true}
+        // Injected/inline page scripts run from the document URL itself
+        // (e.g. "@https://opendaw.studio/:4:46", "global code@.../:28:3"); our own
+        // code only ever appears in frames that reference a script module file.
+        // So a stack with source URLs but no module frame (the HTML document only)
+        // did not originate in our code — generalises beyond any single injected id.
+        return !urls.some(url => ModuleUrlPattern.test(url))
     }
 
     #extractForeignOrigin(error: ErrorInfo): string | null {
@@ -71,7 +94,8 @@ export class ErrorHandler {
         // arriving as ErrorEvent where event.error is a raw Event (not an Error).
         if (event instanceof ErrorEvent
             && (this.#looksLikeMonacoError(event.message, event.error?.stack, event.filename)
-                || event.error instanceof Event)) {
+                || event.error instanceof Event
+                || event.message === "Uncaught [object Event]")) {
             console.warn("Monaco editor error:", event.message, event.filename)
             event.preventDefault()
             return true
@@ -84,8 +108,9 @@ export class ErrorHandler {
         }
         if (!(event instanceof PromiseRejectionEvent)) {return false}
         const {reason} = event
-        if (reason instanceof Error && IgnoredErrors.some(ignored => reason.message.includes(ignored))) {
-            console.warn(reason.message)
+        const reasonMessage = reason instanceof Error ? reason.message : typeof reason === "string" ? reason : undefined
+        if (isDefined(reasonMessage) && IgnoredErrors.some(ignored => reasonMessage.includes(ignored))) {
+            console.warn(reasonMessage)
             event.preventDefault()
             return true
         }
@@ -100,9 +125,10 @@ export class ErrorHandler {
             Dialogs.info({headline: "Warning", message: reason.message}).then(EmptyExec)
             return true
         }
-        // Handle SecurityError from File System Access API (e.g., showDirectoryPicker denied)
-        if (reason instanceof DOMException && reason.name === "SecurityError") {
-            console.warn(`SecurityError: ${reason.message}`)
+        // Handle SecurityError/NotAllowedError from File System Access API (e.g., showOpenFilePicker
+        // denied, or called outside a live user gesture so transient activation was lost).
+        if (reason instanceof DOMException && (reason.name === "SecurityError" || reason.name === "NotAllowedError")) {
+            console.warn(`${reason.name}: ${reason.message}`)
             event.preventDefault()
             Dialogs.info({
                 headline: "Access Denied",

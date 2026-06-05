@@ -1,6 +1,6 @@
 {
     "name": "@moises-ai/studio-sdk",
-    "version": "0.0.147",
+    "version": "0.0.154",
     "license": "LGPL-3.0-or-later",
     "type": "module",
     "publishConfig": {

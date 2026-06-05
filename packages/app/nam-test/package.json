@@ -1,7 +1,7 @@
 {
     "name": "@opendaw/nam-test",
     "private": true,
-    "version": "0.0.14",
+    "version": "0.0.16",
     "type": "module",
     "license": "LGPL-3.0-or-later",
     "scripts": {
@@ -16,7 +16,7 @@
         "@moises-ai/lib-jsx": "*",
         "@moises-ai/lib-runtime": "*",
         "@moises-ai/lib-std": "*",
-        "@opendaw/nam-wasm": "^1.0.0"
+        "@opendaw/nam-wasm": "^1.2.0"
     },
     "devDependencies": {
         "@opendaw/eslint-config": "*",
