@@ -8,7 +8,7 @@ const BrowserPanel = PanelState.create({
     name: "Browser",
     icon: IconSymbol.Panel,
     panelType: PanelType.BrowserPanel,
-    constrains: {type: "flex", minSize: 296, maxSize: 480, flex: 0}
+    constrains: {type: "flex", minSize: 296, maxSize: 296, flex: 0}
 })
 const DevicesPanel = PanelState.create({
     type: "panel",
@@ -16,7 +16,7 @@ const DevicesPanel = PanelState.create({
     icon: IconSymbol.Flask,
     panelType: PanelType.DevicePanel,
     notPopoutable: true,
-    constrains: {type: "fixed", fixedSize: 240}
+    constrains: {type: "fixed", fixedSize: 248}
 })
 const NotepadPanel = PanelState.create({
     type: "panel",
@@ -248,6 +248,19 @@ export const DefaultWorkspace = Object.freeze({
             ],
             constrains: {type: "flex", minSize: 20, flex: 1}
         }
+    },
+    "tap": {
+        name: "Match Tempo",
+        icon: IconSymbol.Time,
+        content: PanelState.create({
+            type: "panel",
+            name: "Match Tempo",
+            icon: IconSymbol.Time,
+            panelType: PanelType.TapTempo,
+            notMinimizable: true,
+            notPopoutable: true,
+            constrains: {type: "flex", minSize: 0, flex: 1}
+        })
     }
 } satisfies Record<string, Workspace.Screen>)
 

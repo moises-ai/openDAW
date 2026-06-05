@@ -3,6 +3,34 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.122](https://github.com/andremichelle/openDAW/compare/@opendaw/studio-core-processors@0.0.121...@opendaw/studio-core-processors@0.0.122) (2026-06-05)
+
+**Note:** Version bump only for package @opendaw/studio-core-processors
+
+## [0.0.121](https://github.com/andremichelle/openDAW/compare/@opendaw/studio-core-processors@0.0.120...@opendaw/studio-core-processors@0.0.121) (2026-06-05)
+
+**Note:** Version bump only for package @opendaw/studio-core-processors
+
+## [0.0.120](https://github.com/andremichelle/openDAW/compare/@opendaw/studio-core-processors@0.0.119...@opendaw/studio-core-processors@0.0.120) (2026-06-03)
+
+**Note:** Version bump only for package @opendaw/studio-core-processors
+
+## [0.0.119](https://github.com/andremichelle/openDAW/compare/@opendaw/studio-core-processors@0.0.118...@opendaw/studio-core-processors@0.0.119) (2026-06-03)
+
+**Note:** Version bump only for package @opendaw/studio-core-processors
+
+## [0.0.118](https://github.com/andremichelle/openDAW/compare/@opendaw/studio-core-processors@0.0.117...@opendaw/studio-core-processors@0.0.118) (2026-05-22)
+
+**Note:** Version bump only for package @opendaw/studio-core-processors
+
+## [0.0.117](https://github.com/andremichelle/openDAW/compare/@opendaw/studio-core-processors@0.0.116...@opendaw/studio-core-processors@0.0.117) (2026-05-22)
+
+**Note:** Version bump only for package @opendaw/studio-core-processors
+
+## [0.0.116](https://github.com/andremichelle/openDAW/compare/@opendaw/studio-core-processors@0.0.115...@opendaw/studio-core-processors@0.0.116) (2026-05-22)
+
+**Note:** Version bump only for package @opendaw/studio-core-processors
+
 ## [0.0.115](https://github.com/andremichelle/openDAW/compare/@opendaw/studio-core-processors@0.0.114...@opendaw/studio-core-processors@0.0.115) (2026-05-18)
 
 **Note:** Version bump only for package @opendaw/studio-core-processors

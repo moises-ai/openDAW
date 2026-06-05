@@ -1,14 +1,14 @@
-import {Errors, Optional, RuntimeNotifier, Terminator, TimeSpan, UUID} from "@moises-ai/lib-std"
-import {Promises, Wait} from "@moises-ai/lib-runtime"
-import {SampleStorage, SoundfontStorage, Workers, YService} from "@moises-ai/studio-core"
-import {P2PSession, type SignalingSocket} from "@moises-ai/studio-p2p"
+import {Errors, Option, Optional, panic, Progress, RuntimeNotifier, Terminator, TimeSpan, UUID} from "@opendaw/lib-std"
+import {Promises, Wait} from "@opendaw/lib-runtime"
+import {SampleStorage, SoundfontStorage, Workers, YService} from "@opendaw/studio-core"
+import {P2PSession, type SignalingSocket} from "@opendaw/studio-p2p"
 import {StudioService} from "@/service/StudioService"
 import {showConnectRoomDialog} from "@/service/StudioLiveRoomDialog.tsx"
 import {RoomAwareness, writeIdentity} from "@/service/RoomAwareness"
 import {newRoomSessionId, reportRoomResult, RoomResultStatus, startRoomDurationHeartbeat} from "@/service/RoomStatsReporter"
 import {ChatService} from "@/chat/ChatService"
-import {Events} from "@moises-ai/lib-dom"
-import {RouteLocation} from "@moises-ai/lib-jsx"
+import {Events} from "@opendaw/lib-dom"
+import {RouteLocation} from "@opendaw/lib-jsx"
 
 const classifyConnectError = (error: unknown): RoomResultStatus => {
     if (Errors.isAbort(error)) {return "abort"}
@@ -27,9 +27,11 @@ export const connectRoom = async (service: StudioService, prefillRoomName?: Opti
         message: "Please wait while we connect to the room..."
     })
     const sessionId = newRoomSessionId()
+    const sourceProfile = service.projectProfileService.getValue()
+    const sourceCover = sourceProfile.flatMap(profile => profile.cover)
+    const sourceCoverId = sourceProfile.mapOr(profile => profile.coverId, "")
     const {status, value: roomResult, error} = await Promises.tryCatch(
-        YService.getOrCreateRoom(service.projectProfileService.getValue()
-            .map(profile => profile.project), service, roomName))
+        YService.getOrCreateRoom(sourceProfile.map(profile => profile.project), service, roomName))
     if (status === "resolved") {
         reportRoomResult(sessionId, "success")
         const heartbeat = startRoomDurationHeartbeat(sessionId)
@@ -44,6 +46,8 @@ export const connectRoom = async (service: StudioService, prefillRoomName?: Opti
             assetReader: {
                 hasSample: uuid => SampleStorage.get().exists(uuid),
                 hasSoundfont: uuid => Workers.Opfs.exists(`${SoundfontStorage.Folder}/${UUID.toString(uuid)}`),
+                hasCover: async uuid => service.projectProfileService.getValue()
+                    .mapOr(profile => profile.coverId === UUID.toString(uuid) && profile.cover.nonEmpty(), false),
                 readSample: async uuid => {
                     const path = `${SampleStorage.Folder}/${UUID.toString(uuid)}`
                     const [wavBytes, metaBytes] = await Promise.all([
@@ -52,7 +56,10 @@ export const connectRoom = async (service: StudioService, prefillRoomName?: Opti
                     ])
                     return [wavBytes.buffer as ArrayBuffer, JSON.parse(new TextDecoder().decode(metaBytes))]
                 },
-                readSoundfont: uuid => SoundfontStorage.get().load(uuid)
+                readSoundfont: uuid => SoundfontStorage.get().load(uuid),
+                readCover: async uuid => service.projectProfileService.getValue()
+                    .flatMap(profile => profile.coverId === UUID.toString(uuid) ? profile.cover : Option.None)
+                    .unwrapOrElse(() => panic(`No cover for ${UUID.toString(uuid)}`))
             }
         }, roomName, "wss://live.opendaw.studio")
         project.own(p2pSession)
@@ -83,6 +90,21 @@ export const connectRoom = async (service: StudioService, prefillRoomName?: Opti
         })
         RouteLocation.get().navigateTo("/")
         service.projectProfileService.setProject(project, roomName)
+        service.projectProfileService.getValue().ifSome(profile => {
+            // Creator: the room project is a copy of the source, so the same cover-id already has its bytes locally.
+            if (profile.coverId !== "" && profile.coverId === sourceCoverId) {
+                sourceCover.ifSome(cover => profile.setFetchedCover(cover))
+            }
+            const fetchCover = async () => {
+                const coverId = profile.coverId
+                if (coverId === "" || profile.cover.nonEmpty()) {return}
+                const {status, value} = await Promises.tryCatch(
+                    p2pSession.fetchCover(UUID.parse(coverId), Progress.Empty))
+                if (status === "resolved" && profile.coverId === coverId) {profile.setFetchedCover(value)}
+            }
+            terminator.own(profile.subscribeCoverId(() => {fetchCover()}))
+            fetchCover()
+        })
         service.setRoomAwareness(roomAwareness)
         terminator.own({terminate: () => service.setRoomAwareness(null)})
         service.setTrafficMeter(p2pSession.trafficMeter)
