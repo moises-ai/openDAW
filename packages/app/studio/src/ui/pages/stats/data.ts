@@ -1,4 +1,4 @@
-import {isAbsent, Nullable, Option} from "@opendaw/lib-std"
+import {isAbsent, Nullable, Option} from "@moises-ai/lib-std"
 
 export type DailySeries = ReadonlyArray<readonly [date: string, value: number]>
 

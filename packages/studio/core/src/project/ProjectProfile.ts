@@ -9,9 +9,9 @@ import {
     Subscription,
     tryCatch,
     UUID
-} from "@opendaw/lib-std"
-import {Update} from "@opendaw/lib-box"
-import {ProjectMetaBox} from "@opendaw/studio-boxes"
+} from "@moises-ai/lib-std"
+import {Update} from "@moises-ai/lib-box"
+import {ProjectMetaBox} from "@moises-ai/studio-boxes"
 import {ProjectMeta} from "./ProjectMeta"
 import {Project} from "./Project"
 import {Workers} from "../Workers"

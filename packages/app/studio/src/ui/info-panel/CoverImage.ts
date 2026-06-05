@@ -1,4 +1,4 @@
-import {isDefined, panic} from "@opendaw/lib-std"
+import {isDefined, panic} from "@moises-ai/lib-std"
 
 export const CoverMaxSize = 1600
 

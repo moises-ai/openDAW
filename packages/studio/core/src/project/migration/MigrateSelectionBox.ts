@@ -1,5 +1,5 @@
-import {BoxGraph, PointerField} from "@opendaw/lib-box"
-import {BoxIO, SelectionBox} from "@opendaw/studio-boxes"
+import {BoxGraph, PointerField} from "@moises-ai/lib-box"
+import {BoxIO, SelectionBox} from "@moises-ai/studio-boxes"
 
 export const migrateSelectionBox = (boxGraph: BoxGraph<BoxIO.TypeMap>, box: SelectionBox): void => {
     const isInvalid = (pointer: PointerField): boolean =>

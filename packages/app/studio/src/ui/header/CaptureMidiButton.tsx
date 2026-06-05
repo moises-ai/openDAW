@@ -1,10 +1,10 @@
 import {Icon} from "@/ui/components/Icon.tsx"
-import {createElement} from "@opendaw/lib-jsx"
+import {createElement} from "@moises-ai/lib-jsx"
 import {StudioService} from "@/service/StudioService"
 import {Button} from "@/ui/components/Button.tsx"
-import {DefaultObservableValue, Lifecycle, Option, Terminator} from "@opendaw/lib-std"
-import {Colors, IconSymbol} from "@opendaw/studio-enums"
-import {ProjectProfile} from "@opendaw/studio-core"
+import {DefaultObservableValue, Lifecycle, Option, Terminator} from "@moises-ai/lib-std"
+import {Colors, IconSymbol} from "@moises-ai/studio-enums"
+import {ProjectProfile} from "@moises-ai/studio-core"
 
 type Construct = {
     lifecycle: Lifecycle

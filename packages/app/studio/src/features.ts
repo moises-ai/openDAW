@@ -1,4 +1,4 @@
-import {asInstanceOf, EmptyExec, requireProperty} from "@opendaw/lib-std"
+import {asInstanceOf, EmptyExec, requireProperty} from "@moises-ai/lib-std"
 
 export const testFeatures = async (): Promise<void> => {
     requireProperty(Promise, "withResolvers")

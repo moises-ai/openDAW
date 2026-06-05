@@ -1,6 +1,6 @@
 import {beforeEach, describe, expect, it} from "vitest"
-import {isInstanceOf, Option, UUID} from "@opendaw/lib-std"
-import {Address, Box, BoxEditing, PointerField} from "@opendaw/lib-box"
+import {isInstanceOf, Option, UUID} from "@moises-ai/lib-std"
+import {Address, Box, BoxEditing, PointerField} from "@moises-ai/lib-box"
 import {
     AudioUnitBox,
     AuxSendBox,
@@ -11,9 +11,9 @@ import {
     TrackBox,
     ValueEventCollectionBox,
     ValueRegionBox
-} from "@opendaw/studio-boxes"
-import {AudioUnitType, Pointers} from "@opendaw/studio-enums"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
+} from "@moises-ai/studio-boxes"
+import {AudioUnitType, Pointers} from "@moises-ai/studio-enums"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
 import {ClipboardUtils} from "../ClipboardUtils"
 import {AudioUnitsClipboard} from "./AudioUnitsClipboardHandler"
 

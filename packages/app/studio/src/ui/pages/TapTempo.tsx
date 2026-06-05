@@ -1,8 +1,8 @@
 import css from "./TapTempo.sass?inline"
-import {createElement} from "@opendaw/lib-jsx"
-import {AnimationFrame, Events, Html} from "@opendaw/lib-dom"
-import {DefaultObservableValue, Lifecycle} from "@opendaw/lib-std"
-import {PPQN} from "@opendaw/lib-dsp"
+import {createElement} from "@moises-ai/lib-jsx"
+import {AnimationFrame, Events, Html} from "@moises-ai/lib-dom"
+import {DefaultObservableValue, Lifecycle} from "@moises-ai/lib-std"
+import {PPQN} from "@moises-ai/lib-dsp"
 import {StudioService} from "@/service/StudioService"
 
 const className = Html.adoptStyleSheet(css, "TapTempo")

@@ -1,6 +1,6 @@
 import {describe, expect, it} from "vitest"
-import {isDefined, Option, Terminable, UUID} from "@opendaw/lib-std"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
+import {isDefined, Option, Terminable, UUID} from "@moises-ai/lib-std"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
 import type {ProjectEnv} from "./ProjectEnv"
 
 // jsdom lacks the Web Audio worklet globals that EngineWorklet extends at module-eval time, so a

@@ -1,6 +1,6 @@
-import {Bijective, int, isDefined, Listeners, Nullable, Predicate, SortedSet, Subscription, Terminable} from "@opendaw/lib-std"
-import {Address, Addressable} from "@opendaw/lib-box"
-import {UserInterfaceBox} from "@opendaw/studio-boxes"
+import {Bijective, int, isDefined, Listeners, Nullable, Predicate, SortedSet, Subscription, Terminable} from "@moises-ai/lib-std"
+import {Address, Addressable} from "@moises-ai/lib-box"
+import {UserInterfaceBox} from "@moises-ai/studio-boxes"
 import {SelectableVertex} from "./SelectableVertex"
 import {RemoteSelections, RemoteSelectionListener} from "./RemoteSelections"
 

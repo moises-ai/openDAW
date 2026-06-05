@@ -1,6 +1,6 @@
-import {ByteArrayInput, ByteArrayOutput, Editing, int, isDefined, Option, Optional, Provider} from "@opendaw/lib-std"
-import {Box, BoxGraph, IndexedBox} from "@opendaw/lib-box"
-import {AudioUnitType, Pointers} from "@opendaw/studio-enums"
+import {ByteArrayInput, ByteArrayOutput, Editing, int, isDefined, Option, Optional, Provider} from "@moises-ai/lib-std"
+import {Box, BoxGraph, IndexedBox} from "@moises-ai/lib-box"
+import {AudioUnitType, Pointers} from "@moises-ai/studio-enums"
 import {
     AudioBusBox,
     AudioUnitBox,
@@ -10,8 +10,8 @@ import {
     MIDIControllerBox,
     RootBox,
     TrackBox
-} from "@opendaw/studio-boxes"
-import {AudioUnitBoxAdapter, AudioUnitOrdering, RootBoxAdapter, UserEditing} from "@opendaw/studio-adapters"
+} from "@moises-ai/studio-boxes"
+import {AudioUnitBoxAdapter, AudioUnitOrdering, RootBoxAdapter, UserEditing} from "@moises-ai/studio-adapters"
 import {ClipboardEntry, ClipboardHandler} from "../ClipboardManager"
 import {ClipboardUtils} from "../ClipboardUtils"
 

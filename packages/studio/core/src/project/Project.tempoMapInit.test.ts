@@ -1,8 +1,8 @@
 import {describe, expect, it} from "vitest"
-import {isDefined, Option, Terminable, UUID} from "@opendaw/lib-std"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
-import {AudioFileBox, AudioRegionBox, SelectionBox, TrackBox, ValueEventCollectionBox} from "@opendaw/studio-boxes"
-import {TimeBase} from "@opendaw/lib-dsp"
+import {isDefined, Option, Terminable, UUID} from "@moises-ai/lib-std"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
+import {AudioFileBox, AudioRegionBox, SelectionBox, TrackBox, ValueEventCollectionBox} from "@moises-ai/studio-boxes"
+import {TimeBase} from "@moises-ai/lib-dsp"
 import type {ProjectEnv} from "./ProjectEnv"
 
 // jsdom lacks the Web Audio worklet globals that EngineWorklet extends at module-eval time, so a

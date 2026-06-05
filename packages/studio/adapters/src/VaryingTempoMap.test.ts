@@ -6,9 +6,9 @@ import {
     PPQN,
     TempoChangeGrid,
     ValueEvent
-} from "@opendaw/lib-dsp"
-import {bpm, ppqn, seconds} from "@opendaw/lib-dsp"
-import {quantizeCeil, quantizeFloor} from "@opendaw/lib-std"
+} from "@moises-ai/lib-dsp"
+import {bpm, ppqn, seconds} from "@moises-ai/lib-dsp"
+import {quantizeCeil, quantizeFloor} from "@moises-ai/lib-std"
 import {TempoGridCursor} from "./VaryingTempoMap"
 
 describe("intervalToSeconds across ppqn=0", () => {
