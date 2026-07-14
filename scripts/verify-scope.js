@@ -34,6 +34,7 @@ const PUBLISHABLE_PACKAGES = new Set([
   "lib-dawproject",
   "studio-sdk",
   "studio-core",
+  "studio-core-wasm",
   "studio-adapters",
   "studio-boxes",
   "studio-enums",

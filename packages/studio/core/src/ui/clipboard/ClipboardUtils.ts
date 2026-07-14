@@ -1,4 +1,4 @@
-import {ByteArrayInput} from "@opendaw/lib-std"
+import {ByteArrayInput} from "@moises-ai/lib-std"
 import {BoxGraphCopy} from "../../BoxGraphCopy"
 
 export namespace ClipboardUtils {

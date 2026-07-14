@@ -5,9 +5,9 @@
 // to the same `Processor` run directly, block by block (the limiter never engages at 0.2, so it is a no-op on
 // both sides).
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {ApparatDeviceBox, AudioUnitBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, ScriptCompiler} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {ApparatDeviceBox, AudioUnitBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, ScriptCompiler} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {maxDiff} from "./helpers/render-harness"

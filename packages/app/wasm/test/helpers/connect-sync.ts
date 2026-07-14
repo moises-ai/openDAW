@@ -8,9 +8,9 @@
 // AFTER the update messages (FIFO), so it resolves only once every queued update has been serialized + applied.
 // It also asserts the engine's checksum tracks the source, so a desync fails loudly instead of silently.
 
-import {Communicator, Messenger} from "@opendaw/lib-runtime"
-import {SyncSource, Synchronization, UpdateTask} from "@opendaw/lib-box"
-import {BoxIO} from "@opendaw/studio-boxes"
+import {Communicator, Messenger} from "@moises-ai/lib-runtime"
+import {SyncSource, Synchronization, UpdateTask} from "@moises-ai/lib-box"
+import {BoxIO} from "@moises-ai/studio-boxes"
 import {serializeUpdateTasks} from "../../../../studio/core-wasm/src/sync/serialize-update-tasks"
 
 export type EngineSync = {

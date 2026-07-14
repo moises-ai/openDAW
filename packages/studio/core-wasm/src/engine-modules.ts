@@ -1,4 +1,4 @@
-import {Option} from "@opendaw/lib-std"
+import {Option} from "@moises-ai/lib-std"
 
 // Fetch + compile the wasm modules the engine worklet needs: the engine (the dynamic-linker host) and
 // the device PLUGINS (PIC side modules the engine loads at host-assigned bases). All are handed to the

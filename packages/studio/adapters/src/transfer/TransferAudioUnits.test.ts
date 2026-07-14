@@ -1,6 +1,6 @@
 import {describe, expect, it, beforeEach} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {IndexedBox} from "@opendaw/lib-box"
+import {UUID} from "@moises-ai/lib-std"
+import {IndexedBox} from "@moises-ai/lib-box"
 import {
     AudioFileBox,
     AudioRegionBox,
@@ -10,8 +10,8 @@ import {
     TrackBox,
     TransientMarkerBox,
     ValueEventCollectionBox
-} from "@opendaw/studio-boxes"
-import {AudioUnitType} from "@opendaw/studio-enums"
+} from "@moises-ai/studio-boxes"
+import {AudioUnitType} from "@moises-ai/studio-enums"
 import {ProjectSkeleton} from "../project/ProjectSkeleton"
 import {TrackType} from "../timeline/TrackType"
 import {TransferAudioUnits} from "./TransferAudioUnits"

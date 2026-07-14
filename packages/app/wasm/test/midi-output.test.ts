@@ -4,8 +4,8 @@
 // + delayInMs), light the unit's 128-bit note indicator while the note is held, emit the initial CC push,
 // and — with sendTransportMessages — Start/Stop plus 24-ppq Clock ticks.
 import {describe, expect, it} from "vitest"
-import {asDefined, UUID} from "@opendaw/lib-std"
-import {PPQN} from "@opendaw/lib-dsp"
+import {asDefined, UUID} from "@moises-ai/lib-std"
+import {PPQN} from "@moises-ai/lib-dsp"
 import {
     AudioUnitBox,
     CaptureMidiBox,
@@ -16,8 +16,8 @@ import {
     NoteEventCollectionBox,
     NoteRegionBox,
     TrackBox
-} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
+} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

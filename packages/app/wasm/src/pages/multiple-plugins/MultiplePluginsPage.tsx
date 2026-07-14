@@ -1,12 +1,12 @@
-import {createElement, PageFactory} from "@opendaw/lib-jsx"
-import {Iterables, UUID} from "@opendaw/lib-std"
+import {createElement, PageFactory} from "@moises-ai/lib-jsx"
+import {Iterables, UUID} from "@moises-ai/lib-std"
 import {
     ArpeggioDeviceBox, AudioUnitBox, GrooveShuffleBox, NoteEventBox, NoteEventCollectionBox,
     NoteRegionBox, PitchDeviceBox, RevampDeviceBox, TrackBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox,
     VaporisateurDeviceBox, ZeitgeistDeviceBox
-} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
-import {PPQN} from "@opendaw/lib-dsp"
+} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
+import {PPQN} from "@moises-ai/lib-dsp"
 import {Env} from "../../Env"
 import {applySinePatch} from "../../sine-patch"
 import {applySawBassPatch} from "../../saw-bass-patch"

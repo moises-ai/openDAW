@@ -1,8 +1,8 @@
 import {describe, expect, it} from "vitest"
-import {isDefined, Option, Terminable, UUID} from "@opendaw/lib-std"
-import {AudioUnitBoxAdapter, ProjectSkeleton} from "@opendaw/studio-adapters"
-import {RootBox} from "@opendaw/studio-boxes"
-import {AudioUnitType} from "@opendaw/studio-enums"
+import {isDefined, Option, Terminable, UUID} from "@moises-ai/lib-std"
+import {AudioUnitBoxAdapter, ProjectSkeleton} from "@moises-ai/studio-adapters"
+import {RootBox} from "@moises-ai/studio-boxes"
+import {AudioUnitType} from "@moises-ai/studio-enums"
 import {AudioUnitsClipboard} from "./AudioUnitsClipboardHandler"
 import type {ProjectEnv} from "../../../project/ProjectEnv"
 

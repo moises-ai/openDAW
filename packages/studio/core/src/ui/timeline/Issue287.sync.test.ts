@@ -10,12 +10,12 @@
 // batch (the bug shape), and (b) every such task still carries a resolvable primitiveType.
 
 import {describe, expect, it} from "vitest"
-import {isDefined, Notifier, Observer, Option, panic, Subscription, Terminable, tryCatch, UUID} from "@opendaw/lib-std"
-import {Communicator, Messenger} from "@opendaw/lib-runtime"
-import {Address, Synchronization, SyncSource, UpdateTask, ValueSerialization} from "@opendaw/lib-box"
-import {BoxIO} from "@opendaw/studio-boxes"
-import {TrackBoxAdapter, AnyRegionBoxAdapter, AnyLoopableRegionBoxAdapter} from "@opendaw/studio-adapters"
-import {ppqn, RegionCollection} from "@opendaw/lib-dsp"
+import {isDefined, Notifier, Observer, Option, panic, Subscription, Terminable, tryCatch, UUID} from "@moises-ai/lib-std"
+import {Communicator, Messenger} from "@moises-ai/lib-runtime"
+import {Address, Synchronization, SyncSource, UpdateTask, ValueSerialization} from "@moises-ai/lib-box"
+import {BoxIO} from "@moises-ai/studio-boxes"
+import {TrackBoxAdapter, AnyRegionBoxAdapter, AnyLoopableRegionBoxAdapter} from "@moises-ai/studio-adapters"
+import {ppqn, RegionCollection} from "@moises-ai/lib-dsp"
 import {readFileSync} from "fs"
 import {resolve} from "path"
 import {RegionModifyStrategies, RegionModifyStrategy} from "./RegionModifyStrategies"

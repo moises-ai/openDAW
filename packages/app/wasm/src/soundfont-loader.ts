@@ -1,4 +1,4 @@
-import {UUID} from "@opendaw/lib-std"
+import {UUID} from "@moises-ai/lib-std"
 
 // The worklet -> main RPC that delivers a SIMPLIFIED soundfont blob into the engine's shared memory. Mirrors
 // `SampleLoader`: the worklet is the SENDER (driven by its soundfont-request drain), the main thread is the

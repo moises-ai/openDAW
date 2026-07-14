@@ -5,7 +5,7 @@
 
 import * as path from "node:path"
 import {readFileSync} from "node:fs"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {decodeSteps, readCommits, stepForward} from "../../src/pages/sync-log/sync-log"
 import {loadFullEngine} from "./load-full-engine"
 import {connectSyncToEngine} from "./connect-sync"

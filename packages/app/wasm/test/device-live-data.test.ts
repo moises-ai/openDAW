@@ -3,9 +3,9 @@
 // the editor slots — compressor [0] in/reduction/out, gate [0] in/out/env, maximizer [0] reduction + [1]
 // input peaks, tidal [0] phase, revamp [0xFFF] spectrum (FFT runs only once the UI subscribes).
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {ApparatDeviceBox, AudioFileBox, AudioUnitBox, CaptureMidiBox, CompressorDeviceBox, GateDeviceBox, MaximizerDeviceBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, PlayfieldDeviceBox, PlayfieldSampleBox, RevampDeviceBox, TidalDeviceBox, TrackBox, VaporisateurDeviceBox, VelocityDeviceBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {ApparatDeviceBox, AudioFileBox, AudioUnitBox, CaptureMidiBox, CompressorDeviceBox, GateDeviceBox, MaximizerDeviceBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, PlayfieldDeviceBox, PlayfieldSampleBox, RevampDeviceBox, TidalDeviceBox, TrackBox, VaporisateurDeviceBox, VelocityDeviceBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

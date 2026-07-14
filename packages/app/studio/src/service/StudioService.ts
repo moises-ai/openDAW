@@ -20,8 +20,8 @@ import {
     Terminator,
     tryCatch,
     UUID
-} from "@opendaw/lib-std"
-import {ChainedSampleProvider, ChainedSoundfontProvider, TrafficMeter} from "@opendaw/studio-p2p"
+} from "@moises-ai/lib-std"
+import {ChainedSampleProvider, ChainedSoundfontProvider, TrafficMeter} from "@moises-ai/studio-p2p"
 import {populateStudioMenu} from "@/service/StudioMenu"
 import {Snapping} from "@/ui/timeline/Snapping.ts"
 import {PanelContents} from "@/ui/workspace/PanelContents.tsx"
@@ -36,12 +36,12 @@ import {ProjectProfileService} from "./ProjectProfileService"
 import {StudioSignal} from "./StudioSignal"
 import {AudioOutputDevice} from "@/audio/AudioOutputDevice"
 import {FooterLabel} from "@/service/FooterLabel"
-import {RouteLocation} from "@opendaw/lib-jsx"
-import {PPQN} from "@opendaw/lib-dsp"
-import {AnimationFrame, Browser, ConsoleCommands, Dragging, Files} from "@opendaw/lib-dom"
-import {Promises} from "@opendaw/lib-runtime"
-import {EngineAddresses, ExportConfiguration, InstrumentFactories} from "@opendaw/studio-adapters"
-import {Address} from "@opendaw/lib-box"
+import {RouteLocation} from "@moises-ai/lib-jsx"
+import {PPQN} from "@moises-ai/lib-dsp"
+import {AnimationFrame, Browser, ConsoleCommands, Dragging, Files} from "@moises-ai/lib-dom"
+import {Promises} from "@moises-ai/lib-runtime"
+import {EngineAddresses, ExportConfiguration, InstrumentFactories} from "@moises-ai/studio-adapters"
+import {Address} from "@moises-ai/lib-box"
 import {
     AudioContentFactory,
     AudioWorklets,
@@ -66,11 +66,11 @@ import {
     StudioPreferences,
     TemplateStorage,
     TimelineRange
-} from "@opendaw/studio-core"
+} from "@moises-ai/studio-core"
 import {ProjectDialogs} from "@/project/ProjectDialogs"
 import {PresetService} from "@/ui/browse/PresetService"
-import {AudioFileBox, AudioUnitBox} from "@opendaw/studio-boxes"
-import {AudioUnitType} from "@opendaw/studio-enums"
+import {AudioFileBox, AudioUnitBox} from "@moises-ai/studio-boxes"
+import {AudioUnitType} from "@moises-ai/studio-enums"
 import {Surface} from "@/ui/surface/Surface"
 import {SoftwareMIDIPanel} from "@/ui/software-midi/SoftwareMIDIPanel"
 import {Mixdowns} from "@/service/Mixdowns"
@@ -614,8 +614,8 @@ export class StudioService implements ProjectEnv {
         // run can compare a TS export against a WASM export without touching the file dialogs.
         ConsoleCommands.exportMethod("engine.exportTest",
             async () => this.runIfProject(async project => {
-                const {OfflineEngineRenderer} = await import("@opendaw/studio-core")
-                const {WasmEngine} = await import("@opendaw/studio-core-wasm")
+                const {OfflineEngineRenderer} = await import("@moises-ai/studio-core")
+                const {WasmEngine} = await import("@moises-ai/studio-core-wasm")
                 const progress = new DefaultObservableValue(0.0)
                 const audio = await OfflineEngineRenderer.start(
                     project.copy(), Option.None, progress, undefined, 48_000, WasmEngine.useForExports())
@@ -630,9 +630,9 @@ export class StudioService implements ProjectEnv {
         // `Mixdowns.exportStems` and reports per-stem levels, for headless TS-vs-WASM comparisons.
         ConsoleCommands.exportMethod("engine.exportStemsTest",
             async () => this.runIfProject(async project => {
-                const {OfflineEngineRenderer} = await import("@opendaw/studio-core")
-                const {WasmEngine} = await import("@opendaw/studio-core-wasm")
-                const {UUID} = await import("@opendaw/lib-std")
+                const {OfflineEngineRenderer} = await import("@moises-ai/studio-core")
+                const {WasmEngine} = await import("@moises-ai/studio-core-wasm")
+                const {UUID} = await import("@moises-ai/lib-std")
                 const stems: Record<string, {includeAudioEffects: boolean, includeSends: boolean, useInstrumentOutput: boolean, fileName: string}> = {}
                 for (const box of project.boxGraph.boxes()) {
                     if (box.name !== "AudioUnitBox") {continue}

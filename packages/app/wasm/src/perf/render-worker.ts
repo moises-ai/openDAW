@@ -2,7 +2,7 @@
 // heavy render loop never blocks the main thread (the WASM analog of the studio's worker-based
 // OfflineEngineRenderer). It receives the raw bundle bytes + the render length, runs the WASM render then the TS
 // render, and transfers the two stereo masters + their render-loop times back to the page.
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {decodeBundle} from "../bundle"
 import {disableLoopArea, registerScriptDevices, renderTsOffline, renderWasmOffline} from "./offline-render"
 import type {OfflineResult} from "./result"

@@ -1,9 +1,9 @@
 import css from "./Toast.sass?inline"
-import {createElement} from "@opendaw/lib-jsx"
-import {IconSymbol} from "@opendaw/studio-enums"
-import {Html} from "@opendaw/lib-dom"
-import {TimeSpan} from "@opendaw/lib-std"
-import {Wait} from "@opendaw/lib-runtime"
+import {createElement} from "@moises-ai/lib-jsx"
+import {IconSymbol} from "@moises-ai/studio-enums"
+import {Html} from "@moises-ai/lib-dom"
+import {TimeSpan} from "@moises-ai/lib-std"
+import {Wait} from "@moises-ai/lib-runtime"
 import {Icon} from "@/ui/components/Icon.tsx"
 
 const className = Html.adoptStyleSheet(css, "Toast")

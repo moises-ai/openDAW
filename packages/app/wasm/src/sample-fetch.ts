@@ -1,6 +1,6 @@
-import {asDefined, Procedure, unitValue, UUID} from "@opendaw/lib-std"
-import {network, Promises} from "@opendaw/lib-runtime"
-import {AudioData, WavFile} from "@opendaw/lib-dsp"
+import {asDefined, Procedure, unitValue, UUID} from "@moises-ai/lib-std"
+import {network, Promises} from "@moises-ai/lib-runtime"
+import {AudioData, WavFile} from "@moises-ai/lib-dsp"
 import {SampleStorage} from "./sample-storage"
 
 // A copy of OpenSampleAPI.load (packages/studio/core/src/samples/OpenSampleAPI.ts), trimmed to what the

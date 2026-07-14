@@ -1,4 +1,4 @@
-import {UUID} from "@opendaw/lib-std"
+import {UUID} from "@moises-ai/lib-std"
 
 // The worklet -> main RPC that delivers a decoded sample into the engine's shared memory. It runs over a
 // DEDICATED MessageChannel (Messenger.for owns a port's `onmessage` exclusively, and the engine port already

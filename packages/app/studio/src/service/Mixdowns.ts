@@ -12,7 +12,7 @@ import {Files} from "@moises-ai/lib-dom"
 import {Promises} from "@moises-ai/lib-runtime"
 import {ExportConfiguration} from "@moises-ai/studio-adapters"
 import {Dialogs} from "@/ui/components/dialogs"
-import {WasmEngine} from "@opendaw/studio-core-wasm"
+import {WasmEngine} from "@moises-ai/studio-core-wasm"
 
 export namespace Mixdowns {
     export const exportMixdown = async ({project: source, meta}: ProjectProfile): Promise<void> => {

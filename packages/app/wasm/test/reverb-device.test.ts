@@ -3,8 +3,8 @@
 // reverb adds ambience) and stays finite/bounded — which only happens if the device is wired and its wet/dry/decay
 // params applied. (The FreeVerb DSP is covered by dsp::freeverb; this proves the end-to-end chain.)
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {ReverbDeviceBox} from "@opendaw/studio-boxes"
+import {UUID} from "@moises-ai/lib-std"
+import {ReverbDeviceBox} from "@moises-ai/studio-boxes"
 import {buildEffectProject, renderEffect, peakOf, allFinite} from "./helpers/effect-harness"
 
 // wet / dry in dB (-100 ~ silence for that path)

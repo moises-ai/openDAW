@@ -2,10 +2,10 @@
 // high-water growth — pools, Vec capacities, talc claims — is the accepted category), every later return to
 // step 0 must land on the SAME heap_used. Linear growth across cycles = a real per-cycle leak.
 import {describe, expect, it} from "vitest"
-import {isDefined} from "@opendaw/lib-std"
+import {isDefined} from "@moises-ai/lib-std"
 import * as path from "node:path"
 import {readFileSync} from "node:fs"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {decodeSteps, readCommits, stepBackward, stepForward} from "../src/pages/sync-log/sync-log"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"

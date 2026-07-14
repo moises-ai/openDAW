@@ -1,8 +1,8 @@
 import css from "./Scroller.sass?inline"
-import {Lifecycle, Option, Subscription, Terminable} from "@opendaw/lib-std"
-import {AnimationFrame, Dragging, Html} from "@opendaw/lib-dom"
-import {Runtime} from "@opendaw/lib-runtime"
-import {createElement} from "@opendaw/lib-jsx"
+import {Lifecycle, Option, Subscription, Terminable} from "@moises-ai/lib-std"
+import {AnimationFrame, Dragging, Html} from "@moises-ai/lib-dom"
+import {Runtime} from "@moises-ai/lib-runtime"
+import {createElement} from "@moises-ai/lib-jsx"
 import {ScrollModel} from "@/ui/components/ScrollModel.ts"
 
 export enum Orientation {vertical = "vertical", horizontal = "horizontal"}

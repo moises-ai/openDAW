@@ -1,9 +1,9 @@
 import {Dialog} from "@/ui/components/Dialog"
-import {Sample} from "@opendaw/studio-adapters"
-import {IconSymbol} from "@opendaw/studio-enums"
+import {Sample} from "@moises-ai/studio-adapters"
+import {IconSymbol} from "@moises-ai/studio-enums"
 import {Surface} from "@/ui/surface/Surface"
-import {createElement} from "@opendaw/lib-jsx"
-import {Errors, RuntimeNotifier} from "@opendaw/lib-std"
+import {createElement} from "@moises-ai/lib-jsx"
+import {Errors, RuntimeNotifier} from "@moises-ai/lib-std"
 
 export namespace SampleDialogs {
     export const showEditSampleDialog = async (sample: Sample): Promise<Sample> => {

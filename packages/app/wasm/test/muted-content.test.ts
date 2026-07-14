@@ -3,11 +3,11 @@
 // CLIPS both engines now skip a muted clip at the EMIT point too, so muting a clip WHILE IT PLAYS silences it
 // (the launch button gating alone could not). Audio-region mute is covered by audio-region-playback.test.ts.
 import {describe, expect, it} from "vitest"
-import {UUID, ValueMapping} from "@opendaw/lib-std"
-import {Interpolation} from "@opendaw/lib-dsp"
-import {ApparatDeviceBox, AudioUnitBox, CaptureMidiBox, NoteClipBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox, ValueClipBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox, WerkstattParameterBox} from "@opendaw/studio-boxes"
-import type {BoxGraph} from "@opendaw/lib-box"
-import {InterpolationFieldAdapter, ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {UUID, ValueMapping} from "@moises-ai/lib-std"
+import {Interpolation} from "@moises-ai/lib-dsp"
+import {ApparatDeviceBox, AudioUnitBox, CaptureMidiBox, NoteClipBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox, ValueClipBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox, WerkstattParameterBox} from "@moises-ai/studio-boxes"
+import type {BoxGraph} from "@moises-ai/lib-box"
+import {InterpolationFieldAdapter, ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

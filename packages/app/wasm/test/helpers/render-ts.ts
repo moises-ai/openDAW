@@ -4,10 +4,10 @@
 // `fetchAudio` protocol from a pre-decoded map. Mirrors `OfflineEngineRenderer` minus the Worker. Returns the
 // interleaved-planar (L|R per quantum) master output plus its rms / peak.
 import {setupWorkletGlobals, updateFrameTime, type WorkletGlobals} from "../../../../studio/core-workers/src/worklet-env"
-import {Communicator, Messenger} from "@opendaw/lib-runtime"
-import {Arrays, type Nullable, SyncStream, UUID} from "@opendaw/lib-std"
-import {AudioData, type ppqn, RenderQuantum, WavFile} from "@opendaw/lib-dsp"
-import {type EngineCommands, type EngineState, EngineStateSchema, type EngineToClient, type MonitoringMapEntry, type NoteSignal} from "@opendaw/studio-adapters"
+import {Communicator, Messenger} from "@moises-ai/lib-runtime"
+import {Arrays, type Nullable, SyncStream, UUID} from "@moises-ai/lib-std"
+import {AudioData, type ppqn, RenderQuantum, WavFile} from "@moises-ai/lib-dsp"
+import {type EngineCommands, type EngineState, EngineStateSchema, type EngineToClient, type MonitoringMapEntry, type NoteSignal} from "@moises-ai/studio-adapters"
 
 const globals = globalThis as unknown as WorkletGlobals
 

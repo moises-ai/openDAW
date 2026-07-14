@@ -3,12 +3,12 @@
 // Revamps use bells + shelves with the low-pass OFF) sounded very different. This renders a scriptable Apparat sine
 // through the Rust Revamp configured exactly like sunset's REVAMP 1f89 (low-bell +6 dB @78, high-bell +4.5 @1363,
 // high-shelf +4.5 @3220, all else off), captures the identical dry signal via an all-bands-disabled render, applies
-// the SAME band chain with @opendaw/lib-dsp (the exact primitives the TS RevampDeviceProcessor uses), and asserts
+// the SAME band chain with @moises-ai/lib-dsp (the exact primitives the TS RevampDeviceProcessor uses), and asserts
 // they match. Also proves a DISABLED low-pass no longer filters.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {BiquadCoeff, BiquadMono} from "@opendaw/lib-dsp"
-import {RevampDeviceBox} from "@opendaw/studio-boxes"
+import {UUID} from "@moises-ai/lib-std"
+import {BiquadCoeff, BiquadMono} from "@moises-ai/lib-dsp"
+import {RevampDeviceBox} from "@moises-ai/studio-boxes"
 import {buildEffectProject, renderEffect} from "./helpers/effect-harness"
 
 const SR = 48_000

@@ -3,10 +3,10 @@
 // when the cutoff is below it and passes when above, so the output must grow LOUDER over the sweep. If automation
 // on the Revamp param does not reach the device, the output would not change over time.
 import {describe, expect, it} from "vitest"
-import {UUID, ValueMapping} from "@opendaw/lib-std"
-import {Interpolation} from "@opendaw/lib-dsp"
-import {ApparatDeviceBox, AudioUnitBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, RevampDeviceBox, TrackBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox} from "@opendaw/studio-boxes"
-import {InterpolationFieldAdapter, ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {UUID, ValueMapping} from "@moises-ai/lib-std"
+import {Interpolation} from "@moises-ai/lib-dsp"
+import {ApparatDeviceBox, AudioUnitBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, RevampDeviceBox, TrackBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox} from "@moises-ai/studio-boxes"
+import {InterpolationFieldAdapter, ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

@@ -1,6 +1,6 @@
-import {createElement} from "@opendaw/lib-jsx"
-import {DefaultObservableValue, Errors, Option, RuntimeNotifier, Terminator, unitValue, UUID} from "@opendaw/lib-std"
-import {Promises} from "@opendaw/lib-runtime"
+import {createElement} from "@moises-ai/lib-jsx"
+import {DefaultObservableValue, Errors, Option, RuntimeNotifier, Terminator, unitValue, UUID} from "@moises-ai/lib-std"
+import {Promises} from "@moises-ai/lib-runtime"
 import {
     NextcloudCredentials,
     NextcloudHandler,
@@ -8,8 +8,8 @@ import {
     ProjectProfile,
     ProjectStorage,
     SharedFolderSync
-} from "@opendaw/studio-core"
-import {IconSymbol} from "@opendaw/studio-enums"
+} from "@moises-ai/studio-core"
+import {IconSymbol} from "@moises-ai/studio-enums"
 import {Dialog} from "@/ui/components/Dialog"
 import {Surface} from "@/ui/surface/Surface"
 import {Dialogs} from "@/ui/components/dialogs"

@@ -5,7 +5,7 @@
 // signal under test is the instruments, not the click.
 
 import {describe, expect, it} from "vitest"
-import {DeviceBoxUtils} from "@opendaw/studio-adapters"
+import {DeviceBoxUtils} from "@moises-ai/studio-adapters"
 import {buildProject, maxDiff} from "./helpers/render-harness"
 
 describe("differential audio", () => {

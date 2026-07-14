@@ -4,9 +4,9 @@
 // the unit's MIDI host, fed by a single long held note. At rate 1/3 (1280 pulses) there are far fewer steps
 // per second than at 1/16 (240 pulses) — the OLD dummy device ignored rateIndex and always ran at 1/16.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {ApparatDeviceBox, ArpeggioDeviceBox, AudioUnitBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {ApparatDeviceBox, ArpeggioDeviceBox, AudioUnitBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

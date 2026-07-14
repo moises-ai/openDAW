@@ -2,8 +2,8 @@
 // forward / backward one transaction at a time. Extracted from the page so it can be tested headlessly.
 // (This is the studio-core `SyncLogReader` model, adapted to a reversible stepper.)
 
-import {ByteArrayInput, int} from "@opendaw/lib-std"
-import {BoxGraph, Update, Updates} from "@opendaw/lib-box"
+import {ByteArrayInput, int} from "@moises-ai/lib-std"
+import {BoxGraph, Update, Updates} from "@moises-ai/lib-box"
 
 // WASM CONTRACT: commit ordinals + layout mirror studio-core `Commit` (Init=0, Updates=2).
 export const COMMIT_INIT = 0

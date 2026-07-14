@@ -3,8 +3,8 @@
 // same signal at ratio 1 (no compression) — which only happens if the device is wired and its threshold / ratio
 // params applied. (The CTAGDRC DSP internals are covered by dsp::ctagdrc; this proves the end-to-end chain.)
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {CompressorDeviceBox} from "@opendaw/studio-boxes"
+import {UUID} from "@moises-ai/lib-std"
+import {CompressorDeviceBox} from "@moises-ai/studio-boxes"
 import {buildEffectProject, renderEffect, peakOf, allFinite} from "./helpers/effect-harness"
 
 const compressor = (ratio: number) =>

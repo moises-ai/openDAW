@@ -1,7 +1,7 @@
-import {BoxGraph} from "@opendaw/lib-box"
-import {isDefined, UUID} from "@opendaw/lib-std"
-import {AudioRegionBox, BoxIO} from "@opendaw/studio-boxes"
-import {PPQN, ppqn, seconds, TimeBase} from "@opendaw/lib-dsp"
+import {BoxGraph} from "@moises-ai/lib-box"
+import {isDefined, UUID} from "@moises-ai/lib-std"
+import {AudioRegionBox, BoxIO} from "@moises-ai/studio-boxes"
+import {PPQN, ppqn, seconds, TimeBase} from "@moises-ai/lib-dsp"
 
 // A region's `position` is an Int32 (integer ppqn), but a seconds-based region's ppqn `complete`
 // is fractional (its duration is derived from seconds through the tempo). When an edit placed a

@@ -2,11 +2,11 @@
 // unit's audio-fx chain, where the test attaches ONE effect box (via `addEffect`) and configures it. Returns a
 // render() that plays and captures the interleaved stereo output. (Tape units bypass the audio-fx chain, so a
 // leaf instrument is used; the Apparat sine is finite and known — unlike a default Vaporisateur, which NaNs.)
-import {Procedure, UUID} from "@opendaw/lib-std"
-import {RenderQuantum} from "@opendaw/lib-dsp"
-import {ApparatDeviceBox, AudioUnitBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox} from "@opendaw/studio-boxes"
-import type {Box, BoxGraph} from "@opendaw/lib-box"
-import {ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {Procedure, UUID} from "@moises-ai/lib-std"
+import {RenderQuantum} from "@moises-ai/lib-dsp"
+import {ApparatDeviceBox, AudioUnitBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox} from "@moises-ai/studio-boxes"
+import type {Box, BoxGraph} from "@moises-ai/lib-box"
+import {ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./load-full-engine"
 import {connectSyncToEngine} from "./connect-sync"
 

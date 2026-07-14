@@ -1,13 +1,13 @@
-import {asDefined, RuntimeNotifier, UUID} from "@opendaw/lib-std"
-import {AudioFileBox} from "@opendaw/studio-boxes"
-import {InstrumentFactories, Sample} from "@opendaw/studio-adapters"
+import {asDefined, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
+import {AudioFileBox} from "@moises-ai/studio-boxes"
+import {InstrumentFactories, Sample} from "@moises-ai/studio-adapters"
 import {
     AudioContentFactory,
     PresetStorage,
     ProjectStorage,
     SampleStorage,
     TemplateStorage
-} from "@opendaw/studio-core"
+} from "@moises-ai/studio-core"
 import {OpenSampleAPI} from "@/opendaw-api"
 import {HTMLSelection} from "@/ui/HTMLSelection"
 import {StudioService} from "@/service/StudioService"

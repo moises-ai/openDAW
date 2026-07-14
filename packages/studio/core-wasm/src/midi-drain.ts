@@ -3,7 +3,7 @@
 // only posts a `null` wake-up signal). The hot path is allocation-free per event: the 1/2/3-byte payload
 // buffers are preallocated and reused, device-id strings are fetched once per device number and cached.
 // Shared by the realtime worklet processor and the offline render worker.
-import {int, isDefined, Nullable} from "@opendaw/lib-std"
+import {int, isDefined, Nullable} from "@moises-ai/lib-std"
 import {MIDISender} from "../../core-processors/src/MIDISender"
 import {EngineExports} from "./engine-exports"
 import {decodeUtf8} from "./utf8"

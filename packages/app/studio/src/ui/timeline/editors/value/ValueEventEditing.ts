@@ -1,6 +1,6 @@
-import {ValueEventBoxAdapter, ValueEventCollectionBoxAdapter} from "@opendaw/studio-adapters"
-import {Interpolation, ppqn, ValueEvent} from "@opendaw/lib-dsp"
-import {asDefined, assert, panic, unitValue} from "@opendaw/lib-std"
+import {ValueEventBoxAdapter, ValueEventCollectionBoxAdapter} from "@moises-ai/studio-adapters"
+import {Interpolation, ppqn, ValueEvent} from "@moises-ai/lib-dsp"
+import {asDefined, assert, panic, unitValue} from "@moises-ai/lib-std"
 import {ValueEventPlacement} from "./ValueEventPlacement"
 
 export namespace ValueEventEditing {

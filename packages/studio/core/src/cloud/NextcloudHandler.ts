@@ -1,5 +1,5 @@
-import {Errors, isDefined, Optional, panic, Progress, unitValue} from "@opendaw/lib-std"
-import {Promises} from "@opendaw/lib-runtime"
+import {Errors, isDefined, Optional, panic, Progress, unitValue} from "@moises-ai/lib-std"
+import {Promises} from "@moises-ai/lib-runtime"
 import {CloudHandler} from "./CloudHandler"
 
 export type NextcloudCredentials = {

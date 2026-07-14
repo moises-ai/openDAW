@@ -1,8 +1,8 @@
 import {beforeEach, describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {BoxEditing, BoxGraph} from "@opendaw/lib-box"
-import {AudioBusBox, AudioUnitBox, RootBox, SelectionBox, UserInterfaceBox} from "@opendaw/studio-boxes"
-import {AudioUnitType} from "@opendaw/studio-enums"
+import {UUID} from "@moises-ai/lib-std"
+import {BoxEditing, BoxGraph} from "@moises-ai/lib-box"
+import {AudioBusBox, AudioUnitBox, RootBox, SelectionBox, UserInterfaceBox} from "@moises-ai/studio-boxes"
+import {AudioUnitType} from "@moises-ai/studio-enums"
 import {ProjectSkeleton} from "../project/ProjectSkeleton"
 import {VertexSelection} from "./VertexSelection"
 

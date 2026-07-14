@@ -1,6 +1,6 @@
-import {createElement, PageFactory} from "@opendaw/lib-jsx"
-import {MutableObservableOption, Terminator} from "@opendaw/lib-std"
-import {DeviceBox, DeviceBoxUtils, ProjectSkeleton} from "@opendaw/studio-adapters"
+import {createElement, PageFactory} from "@moises-ai/lib-jsx"
+import {MutableObservableOption, Terminator} from "@moises-ai/lib-std"
+import {DeviceBox, DeviceBoxUtils, ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {Env} from "../../Env"
 import {createEngineHost} from "../../engine-host"
 

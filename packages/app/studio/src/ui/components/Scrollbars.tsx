@@ -1,6 +1,6 @@
-import {isInstanceOf, Terminable, Terminator} from "@opendaw/lib-std"
-import {AnimationFrame, Events, Html} from "@opendaw/lib-dom"
-import {createElement} from "@opendaw/lib-jsx"
+import {isInstanceOf, Terminable, Terminator} from "@moises-ai/lib-std"
+import {AnimationFrame, Events, Html} from "@moises-ai/lib-dom"
+import {createElement} from "@moises-ai/lib-jsx"
 import {Orientation, Scroller} from "@/ui/components/Scroller"
 import {ScrollModel} from "@/ui/components/ScrollModel.ts"
 

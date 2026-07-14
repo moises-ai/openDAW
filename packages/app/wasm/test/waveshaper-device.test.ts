@@ -5,9 +5,9 @@
 // which only happens if the device is wired, its gain param applied, and its hardclip equation delivered. A mix=0
 // render proves the dry path (the raw ~0.2 sine, unclipped) differs.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {ApparatDeviceBox, AudioUnitBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox, WaveshaperDeviceBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {ApparatDeviceBox, AudioUnitBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox, WaveshaperDeviceBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

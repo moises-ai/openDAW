@@ -3,9 +3,9 @@
 // magnet target (full strength) makes the output much quieter than the passthrough (strength 0) — which only
 // happens if the device is wired and its magnet params applied.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {ApparatDeviceBox, AudioUnitBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox, VelocityDeviceBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {ApparatDeviceBox, AudioUnitBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox, VelocityDeviceBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

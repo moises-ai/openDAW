@@ -2,10 +2,10 @@
 // instrument routes through a submix bus that carries a Compressor; if the wasm bus-fx params aren't delivered
 // the compressor runs with default settings (over-compresses) -> the grouped-track quietness the user reports.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {ApparatDeviceBox, AudioBusBox, AudioUnitBox, CaptureMidiBox, CompressorDeviceBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox} from "@opendaw/studio-boxes"
-import type {BoxGraph} from "@opendaw/lib-box"
-import {ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {ApparatDeviceBox, AudioBusBox, AudioUnitBox, CaptureMidiBox, CompressorDeviceBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox} from "@moises-ai/studio-boxes"
+import type {BoxGraph} from "@moises-ai/lib-box"
+import {ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {renderTs} from "./helpers/render-ts"

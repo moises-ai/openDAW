@@ -1,5 +1,5 @@
-import {isDefined, Maybe} from "@opendaw/lib-std"
-import {NoPointers, PointerRules, PointerTypes} from "@opendaw/lib-box"
+import {isDefined, Maybe} from "@moises-ai/lib-std"
+import {NoPointers, PointerRules, PointerTypes} from "@moises-ai/lib-box"
 import {ModuleDeclarationKind, Project, SourceFile, VariableDeclarationKind} from "ts-morph"
 import {BoxSchema, ClassSchema, ResourceType, Schema} from "./schema"
 import {header} from "./header"
@@ -61,7 +61,7 @@ export class BoxForge<E extends PointerTypes> {
     #writeBoxVisitor(): void {
         const file: SourceFile = this.#project.createSourceFile(`${this.#path}/visitor.ts`, header)
         file.addImportDeclarations([
-            {moduleSpecifier: "@opendaw/lib-box", namedImports: ["VertexVisitor"]},
+            {moduleSpecifier: "@moises-ai/lib-box", namedImports: ["VertexVisitor"]},
             {moduleSpecifier: ".", namedImports: this.#schema.boxes.map(({class: {name}}) => name)}
         ])
         file.addInterface({

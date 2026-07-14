@@ -1,6 +1,6 @@
-import {DefaultObservableValue, isDefined, RuntimeNotifier, UUID} from "@opendaw/lib-std"
-import {InstrumentFactories, PresetDecoder} from "@opendaw/studio-adapters"
-import {PresetSource, PresetStorage, Project} from "@opendaw/studio-core"
+import {DefaultObservableValue, isDefined, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
+import {InstrumentFactories, PresetDecoder} from "@moises-ai/studio-adapters"
+import {PresetSource, PresetStorage, Project} from "@moises-ai/studio-core"
 import {OpenPresetAPI} from "@/opendaw-api"
 
 export namespace PresetApplication {

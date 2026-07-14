@@ -1,10 +1,10 @@
-import {DefaultObservableValue, Lifecycle, RuntimeNotifier} from "@opendaw/lib-std"
-import {createElement} from "@opendaw/lib-jsx"
+import {DefaultObservableValue, Lifecycle, RuntimeNotifier} from "@moises-ai/lib-std"
+import {createElement} from "@moises-ai/lib-jsx"
 import {StudioService} from "@/service/StudioService"
 import {Checkbox} from "@/ui/components/Checkbox"
 import {Icon} from "@/ui/components/Icon"
-import {WasmEngine} from "@opendaw/studio-core-wasm"
-import {Colors, IconSymbol} from "@opendaw/studio-enums"
+import {WasmEngine} from "@moises-ai/studio-core-wasm"
+import {Colors, IconSymbol} from "@moises-ai/studio-enums"
 
 type Construct = {
     lifecycle: Lifecycle

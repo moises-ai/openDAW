@@ -4,9 +4,9 @@
 // which is fine for the fixture's purpose: exercising every box type's serialization end to end so
 // the Rust reader can be golden-tested against real TS bytes for all types.
 import {writeFileSync} from "node:fs"
-import {isDefined, Option, UUID} from "@opendaw/lib-std"
-import {BoxGraph, Field, PointerField, PointerTypes, Vertex} from "@opendaw/lib-box"
-import {BoxIO} from "@opendaw/studio-boxes"
+import {isDefined, Option, UUID} from "@moises-ai/lib-std"
+import {BoxGraph, Field, PointerField, PointerTypes, Vertex} from "@moises-ai/lib-box"
+import {BoxIO} from "@moises-ai/studio-boxes"
 import {ProjectSkeleton} from "../src/project/ProjectSkeleton"
 
 const uuidFor = (index: number): UUID.Bytes => {

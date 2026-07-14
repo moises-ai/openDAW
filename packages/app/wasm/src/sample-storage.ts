@@ -4,7 +4,7 @@
 // layout mirrors the studio's `SampleStorage` (`samples/v2/<uuid>/audio.wav`), so a bundle exported by the full
 // openDAW app drops its samples straight into this cache. The engine only needs the audio; peaks / meta (which
 // the studio also stores) are ignored here.
-import {UUID} from "@opendaw/lib-std"
+import {UUID} from "@moises-ai/lib-std"
 
 const FOLDER = "samples/v2"
 const AUDIO_FILE = "audio.wav"

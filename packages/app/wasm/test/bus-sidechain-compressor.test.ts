@@ -5,11 +5,11 @@
 // whose compressor is sidechained to a TAPE drum (a DEVICE target, which both engines register). The wasm output
 // must match the TS engine; without the fix the wasm crushes the synth and diverges by many dB.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {AudioData, TimeBase} from "@opendaw/lib-dsp"
-import {ApparatDeviceBox, AudioBusBox, AudioFileBox, AudioRegionBox, AudioUnitBox, CaptureAudioBox, CaptureMidiBox, CompressorDeviceBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TapeDeviceBox, TrackBox, ValueEventCollectionBox} from "@opendaw/studio-boxes"
-import type {BoxGraph} from "@opendaw/lib-box"
-import {ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {AudioData, TimeBase} from "@moises-ai/lib-dsp"
+import {ApparatDeviceBox, AudioBusBox, AudioFileBox, AudioRegionBox, AudioUnitBox, CaptureAudioBox, CaptureMidiBox, CompressorDeviceBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TapeDeviceBox, TrackBox, ValueEventCollectionBox} from "@moises-ai/studio-boxes"
+import type {BoxGraph} from "@moises-ai/lib-box"
+import {ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {renderTs} from "./helpers/render-ts"

@@ -3,9 +3,9 @@
 // goes stale when off), plus the look-ahead-frames latency step. We render a steady sine through a limiting
 // Maximizer, flip `lookahead` at quantum 24, and assert the left channel stays continuous across the toggle.
 import {describe, expect, it} from "vitest"
-import {Option, UUID} from "@opendaw/lib-std"
-import {RenderQuantum} from "@opendaw/lib-dsp"
-import {MaximizerDeviceBox} from "@opendaw/studio-boxes"
+import {Option, UUID} from "@moises-ai/lib-std"
+import {RenderQuantum} from "@moises-ai/lib-dsp"
+import {MaximizerDeviceBox} from "@moises-ai/studio-boxes"
 import {allFinite, buildEffectProject, leftChannel, maxStep, renderEffectToggling} from "./helpers/effect-harness"
 
 const maximizerProject = (initialLookahead: boolean): { source: ReturnType<typeof buildEffectProject>, box: MaximizerDeviceBox } => {

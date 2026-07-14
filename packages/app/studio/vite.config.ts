@@ -103,7 +103,7 @@ export default defineConfig(({command}) => {
                 }
             },
             {
-                // The WASM engine binaries (built by @opendaw/studio-core-wasm's build-wasm.sh into its
+                // The WASM engine binaries (built by @moises-ai/studio-core-wasm's build-wasm.sh into its
                 // dist/wasm/) served under /wasm-engine/: live from the package dist in dev (so a Rust rebuild
                 // is picked up without restarting), copied into the bundle at build. When they are absent
                 // (e.g. a CI runner without the Rust toolchain) the studio still builds; the engine toggle

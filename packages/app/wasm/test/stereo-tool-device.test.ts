@@ -3,8 +3,8 @@
 // through; panned hard right, the left channel goes silent — which only happens if the device is wired and its
 // volume / panning params applied. Swap on a mono source is inaudible, so panning is the discriminator.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {StereoToolDeviceBox} from "@opendaw/studio-boxes"
+import {UUID} from "@moises-ai/lib-std"
+import {StereoToolDeviceBox} from "@moises-ai/studio-boxes"
 import {buildEffectProject, renderEffect, allFinite} from "./helpers/effect-harness"
 
 const stereoTool = (panning: number) =>

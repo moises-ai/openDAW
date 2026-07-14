@@ -1,6 +1,6 @@
 import {writeFileSync} from "node:fs"
-import {isDefined, panic} from "@opendaw/lib-std"
-import {PointerTypes} from "@opendaw/lib-box"
+import {isDefined, panic} from "@moises-ai/lib-std"
+import {PointerTypes} from "@moises-ai/lib-box"
 import {AnyField, FieldRecord, Schema} from "./schema"
 
 // Emits the Rust box-schema registry consumed by the `boxgraph` reader. Unlike the TS emitter

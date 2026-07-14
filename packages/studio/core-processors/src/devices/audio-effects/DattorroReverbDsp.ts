@@ -1,5 +1,5 @@
-import {float, int, nextPowOf2, TAU} from "@opendaw/lib-std"
-import {StereoMatrix} from "@opendaw/lib-dsp"
+import {float, int, nextPowOf2, TAU} from "@moises-ai/lib-std"
+import {StereoMatrix} from "@moises-ai/lib-dsp"
 
 // https://github.com/khoin/DattorroReverbNode
 // https://ccrma.stanford.edu/~dattorro/EffectDesignPart1.pdf

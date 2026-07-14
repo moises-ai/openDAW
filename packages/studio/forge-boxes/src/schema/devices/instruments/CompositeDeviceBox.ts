@@ -1,5 +1,5 @@
 import {BoxSchema} from "@opendaw/lib-box-forge"
-import {Pointers} from "@opendaw/studio-enums"
+import {Pointers} from "@moises-ai/studio-enums"
 import {DeviceFactory} from "../../std/DeviceFactory"
 
 // A generic composite instrument: it hosts a collection of CELLS instead of being a single leaf DSP, and the

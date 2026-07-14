@@ -3,11 +3,11 @@
 // track (a compressor's makeup, an EQ boost, a gain) -> the mix rendered quieter than the TS studio engine. Here a
 // tape plays a constant sample through a +12 dB StereoTool; the boosted level must match the TS engine.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {AudioData, TimeBase} from "@opendaw/lib-dsp"
-import {AudioFileBox, AudioRegionBox, AudioUnitBox, CaptureAudioBox, StereoToolDeviceBox, TapeDeviceBox, TrackBox, ValueEventCollectionBox} from "@opendaw/studio-boxes"
-import type {BoxGraph} from "@opendaw/lib-box"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {AudioData, TimeBase} from "@moises-ai/lib-dsp"
+import {AudioFileBox, AudioRegionBox, AudioUnitBox, CaptureAudioBox, StereoToolDeviceBox, TapeDeviceBox, TrackBox, ValueEventCollectionBox} from "@moises-ai/studio-boxes"
+import type {BoxGraph} from "@moises-ai/lib-box"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {renderTs} from "./helpers/render-ts"

@@ -10,11 +10,11 @@
 import {describe, expect, it} from "vitest"
 import * as path from "node:path"
 import {readFileSync} from "node:fs"
-import {ByteArrayInput} from "@opendaw/lib-std"
-import {Communicator, Messenger} from "@opendaw/lib-runtime"
-import {BoxGraph, SyncSource, Synchronization, Updates, UpdateTask} from "@opendaw/lib-box"
-import {BoxIO} from "@opendaw/studio-boxes"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {ByteArrayInput} from "@moises-ai/lib-std"
+import {Communicator, Messenger} from "@moises-ai/lib-runtime"
+import {BoxGraph, SyncSource, Synchronization, Updates, UpdateTask} from "@moises-ai/lib-box"
+import {BoxIO} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {serializeUpdateTasks} from "../../../studio/core-wasm/src/sync/serialize-update-tasks"
 
 const ODSL = path.resolve(__dirname, "../../../../test-files/actions.odsl")

@@ -1,8 +1,8 @@
 import css from "./ImprintPage.sass?inline"
-import {createElement, PageContext, PageFactory} from "@opendaw/lib-jsx"
+import {createElement, PageContext, PageFactory} from "@moises-ai/lib-jsx"
 import {StudioService} from "@/service/StudioService.ts"
-import {Html} from "@opendaw/lib-dom"
-import {Colors} from "@opendaw/studio-enums"
+import {Html} from "@moises-ai/lib-dom"
+import {Colors} from "@moises-ai/studio-enums"
 import {installScrollbars} from "@/ui/components/Scrollbars"
 
 const className = Html.adoptStyleSheet(css, "ImprintPage")

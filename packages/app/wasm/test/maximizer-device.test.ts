@@ -3,8 +3,8 @@
 // sine (~0.1) driven through a low threshold comes out much louder yet bounded — which only happens if the device
 // is wired and its threshold param + lookahead field applied.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {MaximizerDeviceBox} from "@opendaw/studio-boxes"
+import {UUID} from "@moises-ai/lib-std"
+import {MaximizerDeviceBox} from "@moises-ai/studio-boxes"
 import {buildEffectProject, renderEffect, peakOf, allFinite} from "./helpers/effect-harness"
 
 const maximizer = (gain: number, threshold: number) =>

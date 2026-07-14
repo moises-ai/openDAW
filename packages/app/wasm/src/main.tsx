@@ -1,6 +1,6 @@
 import "./style.sass"
-import {replaceChildren} from "@opendaw/lib-jsx"
-import {initializeColors} from "@opendaw/studio-enums"
+import {replaceChildren} from "@moises-ai/lib-jsx"
+import {initializeColors} from "@moises-ai/studio-enums"
 import {App} from "./App"
 
 // Surface any uncaught error / rejected promise in an alert (these test pages have no error UI).

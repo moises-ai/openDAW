@@ -4,11 +4,11 @@
 // reverts (to the static field / the loop-start value), the tone gets cut and the late window goes quiet. We
 // compare the wasm against the TS engine (the reference) in the window AFTER the region ends.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {Interpolation} from "@opendaw/lib-dsp"
-import {ApparatDeviceBox, AudioUnitBox, CaptureMidiBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, RevampDeviceBox, TrackBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox} from "@opendaw/studio-boxes"
-import type {BoxGraph} from "@opendaw/lib-box"
-import {InterpolationFieldAdapter, ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {Interpolation} from "@moises-ai/lib-dsp"
+import {ApparatDeviceBox, AudioUnitBox, CaptureMidiBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, RevampDeviceBox, TrackBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox} from "@moises-ai/studio-boxes"
+import type {BoxGraph} from "@moises-ai/lib-box"
+import {InterpolationFieldAdapter, ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {renderTs} from "./helpers/render-ts"

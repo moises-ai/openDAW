@@ -4,9 +4,9 @@
 // to register the project's scripts. The engine must NOT swallow this: the script bridge reports each scriptless
 // device once past a short grace window. This test proves both the silence AND the diagnostic.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {ApparatDeviceBox, AudioUnitBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {ApparatDeviceBox, AudioUnitBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {ScriptBridges, ScriptEngine} from "../../../studio/core-wasm/src/script-bridge"

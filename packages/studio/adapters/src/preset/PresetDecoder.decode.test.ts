@@ -1,6 +1,6 @@
 import {describe, expect, it} from "vitest"
-import {Option, UUID} from "@opendaw/lib-std"
-import {IndexedBox} from "@opendaw/lib-box"
+import {Option, UUID} from "@moises-ai/lib-std"
+import {IndexedBox} from "@moises-ai/lib-box"
 import {
     AudioBusBox,
     AudioFileBox,
@@ -11,8 +11,8 @@ import {
     TrackBox,
     ValueEventCollectionBox,
     VaporisateurDeviceBox
-} from "@opendaw/studio-boxes"
-import {AudioUnitType} from "@opendaw/studio-enums"
+} from "@moises-ai/studio-boxes"
+import {AudioUnitType} from "@moises-ai/studio-enums"
 import {ProjectSkeleton} from "../project/ProjectSkeleton"
 import {AudioUnitFactory} from "../factories/AudioUnitFactory"
 import {TrackType} from "../timeline/TrackType"

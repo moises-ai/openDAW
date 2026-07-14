@@ -1,13 +1,13 @@
 import {describe, expect, it} from "vitest"
-import {Option, UUID} from "@opendaw/lib-std"
+import {Option, UUID} from "@moises-ai/lib-std"
 import {
     AudioFileBox,
     CaptureMidiBox,
     PlayfieldDeviceBox,
     PlayfieldSampleBox,
     StereoToolDeviceBox
-} from "@opendaw/studio-boxes"
-import {AudioUnitType} from "@opendaw/studio-enums"
+} from "@moises-ai/studio-boxes"
+import {AudioUnitType} from "@moises-ai/studio-enums"
 import {DeviceBoxUtils} from "../DeviceBox"
 import {ProjectSkeleton} from "../project/ProjectSkeleton"
 import {AudioUnitFactory} from "../factories/AudioUnitFactory"

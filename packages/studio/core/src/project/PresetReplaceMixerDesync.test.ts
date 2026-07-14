@@ -1,5 +1,5 @@
 import {describe, expect, it} from "vitest"
-import {isDefined, Option, Terminable, tryCatch, UUID} from "@opendaw/lib-std"
+import {isDefined, Option, Terminable, tryCatch, UUID} from "@moises-ai/lib-std"
 import {
     AudioUnitBoxAdapter,
     AudioUnitFactory,
@@ -8,8 +8,8 @@ import {
     PresetEncoder,
     ProjectSkeleton,
     TrackType
-} from "@opendaw/studio-adapters"
-import {PresetDecoder} from "@opendaw/studio-adapters"
+} from "@moises-ai/studio-adapters"
+import {PresetDecoder} from "@moises-ai/studio-adapters"
 import {
     AudioFileBox,
     AudioRegionBox,
@@ -19,8 +19,8 @@ import {
     TrackBox,
     ValueEventCollectionBox,
     VaporisateurDeviceBox
-} from "@opendaw/studio-boxes"
-import {AudioUnitType} from "@opendaw/studio-enums"
+} from "@moises-ai/studio-boxes"
+import {AudioUnitType} from "@moises-ai/studio-enums"
 import type {ProjectEnv} from "./ProjectEnv"
 
 // Drives the real "Replace with preset" path (PresetApplication.createNewAudioUnitFromInstrument:

@@ -2,10 +2,10 @@
 // ~1 voice while TS builds up a roll — so drive one Nano with N simultaneous HELD notes over a constant sample
 // and compare the summed level: N overlapping voices should sum to ~N x a single voice in BOTH engines.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {AudioData} from "@opendaw/lib-dsp"
-import {AudioFileBox, AudioUnitBox, CaptureMidiBox, NanoDeviceBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {AudioData} from "@moises-ai/lib-dsp"
+import {AudioFileBox, AudioUnitBox, CaptureMidiBox, NanoDeviceBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {renderTs} from "./helpers/render-ts"

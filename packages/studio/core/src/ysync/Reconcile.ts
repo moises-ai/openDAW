@@ -1,5 +1,5 @@
-import {BoxGraph, PointerField} from "@opendaw/lib-box"
-import {UUID} from "@opendaw/lib-std"
+import {BoxGraph, PointerField} from "@moises-ai/lib-box"
+import {UUID} from "@moises-ai/lib-std"
 
 // Deterministic, constraint-aware reconciliation of a box graph.
 //

@@ -5,9 +5,9 @@
 // next boundary. Exercises: audio-clip binding -> ClipSequencer sections -> AudioRegionPlayer -> master.
 
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {AudioClipBox, AudioFileBox, AudioUnitBox, TapeDeviceBox, TrackBox, ValueEventCollectionBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {AudioClipBox, AudioFileBox, AudioUnitBox, TapeDeviceBox, TrackBox, ValueEventCollectionBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

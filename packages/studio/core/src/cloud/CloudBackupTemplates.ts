@@ -11,8 +11,8 @@ import {
     RuntimeNotifier,
     TimeSpan,
     UUID
-} from "@opendaw/lib-std"
-import {network, Promises} from "@opendaw/lib-runtime"
+} from "@moises-ai/lib-std"
+import {network, Promises} from "@moises-ai/lib-runtime"
 import {ProjectMeta} from "../project/ProjectMeta"
 import {TemplateStorage} from "../project/TemplateStorage"
 import {CloudHandler} from "./CloudHandler"

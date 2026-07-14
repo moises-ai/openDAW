@@ -4,8 +4,8 @@
 import {describe, expect, it} from "vitest"
 import * as path from "node:path"
 import {readFileSync} from "node:fs"
-import {Update} from "@opendaw/lib-box"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {Update} from "@moises-ai/lib-box"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {COMMIT_INIT, decodeSteps, readCommits, stepBackward, stepForward} from "../src/pages/sync-log/sync-log"
 
 const ODSL = path.resolve(__dirname, "../public/odsl/test.odsl")

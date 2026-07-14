@@ -3,9 +3,9 @@
 // `project.od` (the box graph), `meta.json`, and `samples/<uuid>/audio.wav` (+ peaks/meta, which the engine
 // ignores). This is a PURE decode (no OPFS / no engine) so it is node-testable; the BundlePlayer page writes the
 // returned samples into `SampleStorage` and boots the engine on the returned box graph.
-import {UUID} from "@opendaw/lib-std"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
-import type {BoxGraph} from "@opendaw/lib-box"
+import {UUID} from "@moises-ai/lib-std"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
+import type {BoxGraph} from "@moises-ai/lib-box"
 
 export type Bundle = {
     version: string

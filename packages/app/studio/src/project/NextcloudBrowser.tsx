@@ -9,14 +9,14 @@ import {
     TimeSpan,
     unitValue,
     UUID
-} from "@opendaw/lib-std"
+} from "@moises-ai/lib-std"
 import {Icon} from "@/ui/components/Icon"
-import {IconSymbol} from "@opendaw/studio-enums"
+import {IconSymbol} from "@moises-ai/studio-enums"
 import {Dialogs} from "@/ui/components/dialogs"
-import {Await, createElement, DomElement, Frag, Group} from "@opendaw/lib-jsx"
-import {Html} from "@opendaw/lib-dom"
-import {Promises} from "@opendaw/lib-runtime"
-import {CloudHandler, SharedFolderSync} from "@opendaw/studio-core"
+import {Await, createElement, DomElement, Frag, Group} from "@moises-ai/lib-jsx"
+import {Html} from "@moises-ai/lib-dom"
+import {Promises} from "@moises-ai/lib-runtime"
+import {CloudHandler, SharedFolderSync} from "@moises-ai/studio-core"
 import {SearchInput} from "@/ui/components/SearchInput"
 import {ThreeDots} from "@/ui/spinner/ThreeDots"
 import {installScrollbars} from "@/ui/components/Scrollbars"

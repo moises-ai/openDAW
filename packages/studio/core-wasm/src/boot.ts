@@ -1,8 +1,8 @@
 // Shared WASM-engine boot + resource plumbing for BOTH studio hosts: the realtime worklet processor and
 // the offline render worker. Links the engine + device side-modules (with the script/NAM bridges) and
 // runs the sample/soundfont load handshakes over the UNCHANGED EngineToClient RPC.
-import {isDefined, Procedure, Provider, tryCatch, UUID} from "@opendaw/lib-std"
-import {EngineToClient} from "@opendaw/studio-adapters"
+import {isDefined, Procedure, Provider, tryCatch, UUID} from "@moises-ai/lib-std"
+import {EngineToClient} from "@moises-ai/studio-adapters"
 import {EngineExports, readPanicMessage} from "./engine-exports"
 import {CompositeSpec} from "./engine-modules"
 import {linkDevice, registerComposite} from "./device-linker"

@@ -1,8 +1,8 @@
 import {describe, expect, it} from "vitest"
-import {isDefined, Option, Terminable, UUID} from "@opendaw/lib-std"
-import {ProjectSkeleton, TrackBoxAdapter, TrackType} from "@opendaw/studio-adapters"
-import {AudioFileBox, AudioRegionBox, TrackBox, ValueEventCollectionBox} from "@opendaw/studio-boxes"
-import {PPQN, TimeBase} from "@opendaw/lib-dsp"
+import {isDefined, Option, Terminable, UUID} from "@moises-ai/lib-std"
+import {ProjectSkeleton, TrackBoxAdapter, TrackType} from "@moises-ai/studio-adapters"
+import {AudioFileBox, AudioRegionBox, TrackBox, ValueEventCollectionBox} from "@moises-ai/studio-boxes"
+import {PPQN, TimeBase} from "@moises-ai/lib-dsp"
 import {RegionClipResolver} from "./RegionClipResolver"
 import type {ProjectEnv} from "../../project/ProjectEnv"
 

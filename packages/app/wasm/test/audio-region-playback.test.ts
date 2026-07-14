@@ -5,11 +5,11 @@
 // Wired::Tape -> channel strip -> master.
 
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {AudioFileBox, AudioPitchStretchBox, AudioRegionBox, AudioTimeStretchBox, AudioUnitBox, TapeDeviceBox, TrackBox, TransientMarkerBox, ValueEventCollectionBox, WarpMarkerBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
-import {TransientPlayMode} from "@opendaw/studio-enums"
-import {TimeBase} from "@opendaw/lib-dsp"
+import {UUID} from "@moises-ai/lib-std"
+import {AudioFileBox, AudioPitchStretchBox, AudioRegionBox, AudioTimeStretchBox, AudioUnitBox, TapeDeviceBox, TrackBox, TransientMarkerBox, ValueEventCollectionBox, WarpMarkerBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
+import {TransientPlayMode} from "@moises-ai/studio-enums"
+import {TimeBase} from "@moises-ai/lib-dsp"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {maxDiff} from "./helpers/render-harness"

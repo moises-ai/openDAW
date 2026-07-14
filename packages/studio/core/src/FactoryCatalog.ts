@@ -1,4 +1,4 @@
-import {Sample, Soundfont} from "@opendaw/studio-adapters"
+import {Sample, Soundfont} from "@moises-ai/studio-adapters"
 import {PresetMeta} from "./presets"
 
 // Source of the "stock"/factory catalogs (samples, soundfonts, presets).

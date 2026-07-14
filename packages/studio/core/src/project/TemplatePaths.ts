@@ -1,4 +1,4 @@
-import {UUID} from "@opendaw/lib-std"
+import {UUID} from "@moises-ai/lib-std"
 
 export namespace TemplatePaths {
     export const Folder = "templates/v1"

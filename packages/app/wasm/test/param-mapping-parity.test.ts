@@ -8,14 +8,14 @@
 import {describe, expect, it} from "vitest"
 import * as path from "node:path"
 import {readFileSync} from "node:fs"
-import {isDefined, Option, Optional, panic, Terminable, UUID} from "@opendaw/lib-std"
-import {Address, BoxGraph, Constraints, Float32Field, PrimitiveType} from "@opendaw/lib-box"
+import {isDefined, Option, Optional, panic, Terminable, UUID} from "@moises-ai/lib-std"
+import {Address, BoxGraph, Constraints, Float32Field, PrimitiveType} from "@moises-ai/lib-box"
 import {
     ArpeggioDeviceBox, AudioFileBox, AudioUnitBox, CompressorDeviceBox, CrusherDeviceBox, DattorroReverbDeviceBox,
     DelayDeviceBox, FoldDeviceBox, GateDeviceBox, MaximizerDeviceBox, NanoDeviceBox, NeuralAmpDeviceBox,
     PitchDeviceBox, PlayfieldDeviceBox, PlayfieldSampleBox, RevampDeviceBox, ReverbDeviceBox, StereoToolDeviceBox,
     TidalDeviceBox, VaporisateurDeviceBox, VelocityDeviceBox, VocoderDeviceBox, WaveshaperDeviceBox
-} from "@opendaw/studio-boxes"
+} from "@moises-ai/studio-boxes"
 import {
     ArpeggioDeviceBoxAdapter, AutomatableParameterFieldAdapter, BoxAdapters, BoxAdaptersContext, CompressorDeviceBoxAdapter,
     CrusherDeviceBoxAdapter, DattorroReverbDeviceBoxAdapter, DelayDeviceBoxAdapter, FoldDeviceBoxAdapter,
@@ -24,7 +24,7 @@ import {
     RevampDeviceBoxAdapter, ReverbDeviceBoxAdapter, SampleLoader, SampleLoaderManager, StereoToolDeviceBoxAdapter,
     TidalDeviceBoxAdapter, VaporisateurDeviceBoxAdapter, VelocityDeviceBoxAdapter, VocoderDeviceBoxAdapter,
     WaveshaperDeviceBoxAdapter
-} from "@opendaw/studio-adapters"
+} from "@moises-ai/studio-adapters"
 import {DEVICE_STACK_SIZE, DeviceExports, parseDylink} from "../../../studio/core-wasm/src/device-linker"
 
 const PLUGINS = path.resolve(__dirname, "../public/wasm/plugins")

@@ -1,6 +1,6 @@
-import {VaporisateurDeviceBox} from "@opendaw/studio-boxes"
-import {VoicingMode} from "@opendaw/studio-enums"
-import {ClassicWaveform} from "@opendaw/lib-dsp"
+import {VaporisateurDeviceBox} from "@moises-ai/studio-boxes"
+import {VoicingMode} from "@moises-ai/studio-enums"
+import {ClassicWaveform} from "@moises-ai/lib-dsp"
 
 // Give a freshly created Vaporisateur box an audible SAW BASS preset. Like `applySinePatch`, a bare box does
 // not sound (oscillator volumes default to -inf dB, resonance leaves Q at 0), so every field the voice reads is

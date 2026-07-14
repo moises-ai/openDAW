@@ -16,16 +16,16 @@ import {
     TerminableOwner,
     Terminator,
     tryCatch
-} from "@opendaw/lib-std"
-import {createElement, DomElement} from "@opendaw/lib-jsx"
+} from "@moises-ai/lib-std"
+import {createElement, DomElement} from "@moises-ai/lib-jsx"
 import {IconLibrary} from "@/ui/IconLibrary.tsx"
 import {ErrorHandler} from "@/errors/ErrorHandler.ts"
 import {ValueTooltip} from "@/ui/surface/ValueTooltip.tsx"
 import {TextTooltip} from "./TextTooltip"
 import {FloatingTextInput} from "@/ui/components/FloatingTextInput.tsx"
-import {AnimationFrame, CssUtils, Events, Html, Keyboard} from "@opendaw/lib-dom"
-import {IconSymbol, initializeColors} from "@opendaw/studio-enums"
-import {StudioPreferences} from "@opendaw/studio-core"
+import {AnimationFrame, CssUtils, Events, Html, Keyboard} from "@moises-ai/lib-dom"
+import {IconSymbol, initializeColors} from "@moises-ai/studio-enums"
+import {StudioPreferences} from "@moises-ai/studio-core"
 import {Toast} from "./Toast"
 
 const className = Html.adoptStyleSheet(css, "Surface")

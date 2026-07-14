@@ -4,12 +4,12 @@
 // construction, and wires the offline render variant. `ensureReady` compiles the modules + registers the
 // processor module once. The WASM engine is the DEFAULT; localStorage only records an explicit opt-out.
 // Every engine (re)boot re-reads it, so the existing restart machinery swaps engines without a page reload.
-import {isNull, MutableObservableOption, Nullable, Terminable, UUID} from "@opendaw/lib-std"
-import {AudioData} from "@opendaw/lib-dsp"
-import {Communicator, Messenger, Promises} from "@opendaw/lib-runtime"
-import {Synchronization, SyncSource, UpdateTask} from "@opendaw/lib-box"
-import {BoxIO} from "@opendaw/studio-boxes"
-import {EngineVariant, EngineWorkletVariant, FrozenAudioWriter, OfflineEngineRenderer, Project} from "@opendaw/studio-core"
+import {isNull, MutableObservableOption, Nullable, Terminable, UUID} from "@moises-ai/lib-std"
+import {AudioData} from "@moises-ai/lib-dsp"
+import {Communicator, Messenger, Promises} from "@moises-ai/lib-runtime"
+import {Synchronization, SyncSource, UpdateTask} from "@moises-ai/lib-box"
+import {BoxIO} from "@moises-ai/studio-boxes"
+import {EngineVariant, EngineWorkletVariant, FrozenAudioWriter, OfflineEngineRenderer, Project} from "@moises-ai/studio-core"
 import {createEngineMemory, EngineModules, loadEngineModules} from "./engine-modules"
 import {serializeUpdateTasks} from "./sync/serialize-update-tasks"
 import {createSyncLoopback} from "./sync/loopback"

@@ -11,8 +11,8 @@
 // call passes that handle. Buffers are byte offsets into the ONE shared memory; we re-derive `memory.buffer`
 // views EVERY call, since the SharedArrayBuffer can grow / detach (talc), never caching a typed-array view.
 
-import {isDefined, UUID, ValueMapping} from "@opendaw/lib-std"
-import {SimpleLimiter} from "@opendaw/lib-dsp"
+import {isDefined, UUID, ValueMapping} from "@moises-ai/lib-std"
+import {SimpleLimiter} from "@moises-ai/lib-dsp"
 import {runSpielwerk, SpielwerkRuntime} from "./script-spielwerk"
 
 const RENDER_QUANTUM = 128

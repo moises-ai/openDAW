@@ -4,13 +4,13 @@
 // engine) and calls `engine.render()` per quantum. The TS path instantiates the real studio `EngineProcessor`
 // headless (mirrors test/helpers/render-ts) and calls `processor.process(...)` per quantum. Both capture the
 // stereo master into planar Float32Arrays for A/B playback.
-import {Arrays, type Nullable, SyncStream, UUID} from "@opendaw/lib-std"
-import {AudioData, type ppqn, RenderQuantum, WavFile} from "@opendaw/lib-dsp"
-import {Communicator, Messenger} from "@opendaw/lib-runtime"
-import {SyncSource, Synchronization, UpdateTask} from "@opendaw/lib-box"
-import {ApparatDeviceBox, BoxIO, SpielwerkDeviceBox, TimelineBox, WerkstattDeviceBox} from "@opendaw/studio-boxes"
-import type {BoxGraph} from "@opendaw/lib-box"
-import {EngineCommands, EngineState, EngineStateSchema, EngineToClient, MonitoringMapEntry, NoteSignal, ScriptCompiler} from "@opendaw/studio-adapters"
+import {Arrays, type Nullable, SyncStream, UUID} from "@moises-ai/lib-std"
+import {AudioData, type ppqn, RenderQuantum, WavFile} from "@moises-ai/lib-dsp"
+import {Communicator, Messenger} from "@moises-ai/lib-runtime"
+import {SyncSource, Synchronization, UpdateTask} from "@moises-ai/lib-box"
+import {ApparatDeviceBox, BoxIO, SpielwerkDeviceBox, TimelineBox, WerkstattDeviceBox} from "@moises-ai/studio-boxes"
+import type {BoxGraph} from "@moises-ai/lib-box"
+import {EngineCommands, EngineState, EngineStateSchema, EngineToClient, MonitoringMapEntry, NoteSignal, ScriptCompiler} from "@moises-ai/studio-adapters"
 import {setupWorkletGlobals, updateFrameTime, type WorkletGlobals} from "../../../../studio/core-workers/src/worklet-env"
 import {serializeUpdateTasks} from "../../../../studio/core-wasm/src/sync/serialize-update-tasks"
 import {ScriptBridges, ScriptEngine} from "../../../../studio/core-wasm/src/script-bridge"

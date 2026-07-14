@@ -1,6 +1,6 @@
-import {Func, Nullable, Option, Provider, Terminable, UUID} from "@opendaw/lib-std"
-import {AudioData} from "@opendaw/lib-dsp"
-import {Messenger} from "@opendaw/lib-runtime"
+import {Func, Nullable, Option, Provider, Terminable, UUID} from "@moises-ai/lib-std"
+import {AudioData} from "@moises-ai/lib-dsp"
+import {Messenger} from "@moises-ai/lib-runtime"
 import type {Project} from "./project"
 
 // A main-thread replacement for the `EngineCommands.setFrozenAudio` transfer (null = unfreeze).

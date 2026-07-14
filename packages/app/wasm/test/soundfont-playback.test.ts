@@ -4,10 +4,10 @@
 // SoundfontResource request/allocate/ready handshake -> soundfont_changed -> the device's region selection +
 // voice DSP. A DC sample makes the steady-state level exactly checkable.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {AudioUnitBox, CaptureMidiBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, SoundfontDeviceBox, SoundfontFileBox, TrackBox} from "@opendaw/studio-boxes"
-import type {BoxGraph} from "@opendaw/lib-box"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {AudioUnitBox, CaptureMidiBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, SoundfontDeviceBox, SoundfontFileBox, TrackBox} from "@moises-ai/studio-boxes"
+import type {BoxGraph} from "@moises-ai/lib-box"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {encodeSoundfont} from "../../../studio/core-wasm/src/soundfont-simplify"

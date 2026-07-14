@@ -1,5 +1,5 @@
-import {createElement, PageFactory} from "@opendaw/lib-jsx"
-import {RenderQuantum} from "@opendaw/lib-dsp"
+import {createElement, PageFactory} from "@moises-ai/lib-jsx"
+import {RenderQuantum} from "@moises-ai/lib-dsp"
 import {Env} from "../../Env"
 import {OfflineResult, resultPeak, resultRms} from "../../perf/result"
 import type {RenderRequest, RenderResponse} from "../../perf/render-worker"

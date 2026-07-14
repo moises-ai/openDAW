@@ -1,4 +1,4 @@
-import {isDefined, JSONValue} from "@opendaw/lib-std"
+import {isDefined, JSONValue} from "@moises-ai/lib-std"
 
 export type ProjectMeta = {
     name: string

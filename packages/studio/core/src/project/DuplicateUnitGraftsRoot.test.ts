@@ -1,8 +1,8 @@
 import {describe, expect, it} from "vitest"
-import {isDefined, Option, Terminable, UUID} from "@opendaw/lib-std"
-import {AudioUnitBox, RootBox} from "@opendaw/studio-boxes"
-import {AudioUnitType} from "@opendaw/studio-enums"
-import {AudioUnitBoxAdapter, ProjectSkeleton, TransferAudioUnits} from "@opendaw/studio-adapters"
+import {isDefined, Option, Terminable, UUID} from "@moises-ai/lib-std"
+import {AudioUnitBox, RootBox} from "@moises-ai/studio-boxes"
+import {AudioUnitType} from "@moises-ai/studio-enums"
+import {AudioUnitBoxAdapter, ProjectSkeleton, TransferAudioUnits} from "@moises-ai/studio-adapters"
 import type {ProjectEnv} from "./ProjectEnv"
 
 if (!isDefined(Reflect.get(globalThis, "AudioWorkletNode"))) {

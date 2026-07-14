@@ -2,11 +2,11 @@
 // level in TS but did NOTHING in wasm. Drives one looping pad through a slot StereoTool at -24 dB in both
 // engines: the cut must match.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {Interpolation, WavFile} from "@opendaw/lib-dsp"
-import {AudioFileBox, AudioUnitBox, CaptureMidiBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, PlayfieldDeviceBox, PlayfieldSampleBox, StereoToolDeviceBox, TrackBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox} from "@opendaw/studio-boxes"
-import type {BoxGraph} from "@opendaw/lib-box"
-import {InterpolationFieldAdapter, ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {Interpolation, WavFile} from "@moises-ai/lib-dsp"
+import {AudioFileBox, AudioUnitBox, CaptureMidiBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, PlayfieldDeviceBox, PlayfieldSampleBox, StereoToolDeviceBox, TrackBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox} from "@moises-ai/studio-boxes"
+import type {BoxGraph} from "@moises-ai/lib-box"
+import {InterpolationFieldAdapter, ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {buildSampleMap, renderTs} from "./helpers/render-ts"

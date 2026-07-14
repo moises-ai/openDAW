@@ -1,5 +1,5 @@
-import {createElement, LocalLink, Router} from "@opendaw/lib-jsx"
-import {Terminator} from "@opendaw/lib-std"
+import {createElement, LocalLink, Router} from "@moises-ai/lib-jsx"
+import {Terminator} from "@moises-ai/lib-std"
 import {env} from "./Env"
 import {HomePage} from "./pages/home/HomePage"
 import {SinePage} from "./pages/sine/SinePage"

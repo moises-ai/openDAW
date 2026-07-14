@@ -3,8 +3,8 @@
 // back on itself (bounded, harmonically richer), which only happens if the device is wired and its drive param +
 // over-sampling field applied. A low-drive render is near pass-through. Every over-sampling factor stays finite.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {FoldDeviceBox} from "@opendaw/studio-boxes"
+import {UUID} from "@moises-ai/lib-std"
+import {FoldDeviceBox} from "@moises-ai/studio-boxes"
 import {buildEffectProject, renderEffect, peakOf, allFinite} from "./helpers/effect-harness"
 
 // drive in dB, over-sampling index (0/1/2 -> 2x/4x/8x)

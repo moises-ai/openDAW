@@ -14,7 +14,7 @@
 // model delivery; until it is ready `host_nam_process` reports not-loaded and the device passes through,
 // mirroring the TS processor while its wasm fetch is in flight.
 
-import {isDefined, Nullable, UUID} from "@opendaw/lib-std"
+import {isDefined, Nullable, UUID} from "@moises-ai/lib-std"
 import {createNamModule, EmscriptenModule, NamWasmModule} from "@opendaw/nam-wasm"
 
 // One NeuralAmp device's JS-side state, keyed by the handle `host_nam_create` returned. `instances` mirrors

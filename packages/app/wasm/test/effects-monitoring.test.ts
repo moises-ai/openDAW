@@ -3,9 +3,9 @@
 // OUTPUT staging the worklet forwards. A StereoTool at -24 dB on the unit must attenuate the monitored
 // signal — proof the input passes the effect chain, not a bypass.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {ApparatDeviceBox, AudioUnitBox, CaptureMidiBox, StereoToolDeviceBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, ScriptCompiler} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {ApparatDeviceBox, AudioUnitBox, CaptureMidiBox, StereoToolDeviceBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, ScriptCompiler} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

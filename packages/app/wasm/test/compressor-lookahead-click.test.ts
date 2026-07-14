@@ -3,9 +3,9 @@
 // jumped. We render a steady sine through a compressing Compressor, flip `lookahead` on at quantum 24, and assert
 // the left channel stays continuous across the toggle (no sample-to-sample step far above the steady-state slope).
 import {describe, expect, it} from "vitest"
-import {Option, UUID} from "@opendaw/lib-std"
-import {RenderQuantum} from "@opendaw/lib-dsp"
-import {CompressorDeviceBox} from "@opendaw/studio-boxes"
+import {Option, UUID} from "@moises-ai/lib-std"
+import {RenderQuantum} from "@moises-ai/lib-dsp"
+import {CompressorDeviceBox} from "@moises-ai/studio-boxes"
 import {allFinite, buildEffectProject, leftChannel, maxStep, renderEffectToggling} from "./helpers/effect-harness"
 
 const compressorProject = (initialLookahead: boolean): { source: ReturnType<typeof buildEffectProject>, box: CompressorDeviceBox } => {

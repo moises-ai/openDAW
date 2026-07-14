@@ -10,10 +10,10 @@
 // bytes and posts them here. Each batch -> apply_updates, then bind() once the TimelineBox exists.
 
 import "../../../studio/core-wasm/src/worklet-scope" // MUST be first: shims `self`/`location` for inlined worker glue
-import {isDefined, Terminable, UUID} from "@opendaw/lib-std"
-import {Address} from "@opendaw/lib-box"
-import {LiveStreamBroadcaster} from "@opendaw/lib-fusion"
-import {Communicator, Messenger} from "@opendaw/lib-runtime"
+import {isDefined, Terminable, UUID} from "@moises-ai/lib-std"
+import {Address} from "@moises-ai/lib-box"
+import {LiveStreamBroadcaster} from "@moises-ai/lib-fusion"
+import {Communicator, Messenger} from "@moises-ai/lib-runtime"
 import {CompositeSpec} from "../../../studio/core-wasm/src/engine-modules"
 import {SampleInfo, SampleLoader} from "./sample-loader"
 import {SoundfontInfo, SoundfontLoader} from "./soundfont-loader"

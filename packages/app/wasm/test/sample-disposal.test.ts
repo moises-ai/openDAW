@@ -6,10 +6,10 @@
 import {describe, expect, it} from "vitest"
 import * as path from "node:path"
 import {readFileSync} from "node:fs"
-import {Communicator, Messenger} from "@opendaw/lib-runtime"
-import {SyncSource, Synchronization, UpdateTask} from "@opendaw/lib-box"
-import {BoxIO} from "@opendaw/studio-boxes"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {Communicator, Messenger} from "@moises-ai/lib-runtime"
+import {SyncSource, Synchronization, UpdateTask} from "@moises-ai/lib-box"
+import {BoxIO} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {serializeUpdateTasks} from "../../../studio/core-wasm/src/sync/serialize-update-tasks"
 import {decodeSteps, readCommits, stepBackward, stepForward} from "../src/pages/sync-log/sync-log"
 
@@ -71,7 +71,7 @@ describe("sample disposal", () => {
             return loaded
         }
         const baseline = engine.heap_used()
-        const applied: Array<ReadonlyArray<import("@opendaw/lib-box").Update>> = []
+        const applied: Array<ReadonlyArray<import("@moises-ai/lib-box").Update>> = []
         let loadedTotal = 0
         for (let at = 0; at < steps.length; at++) {
             applied[at] = stepForward(source, steps[at])

@@ -2,8 +2,8 @@
 // within the SAME call stack. SyncSource's update tasks must be serialized AT emission time — a
 // MessageChannel loopback defers by a macrotask, letting a later transaction delete boxes before the
 // earlier batch resolves its primitive-field codecs against the live source graph.
-import {Notifier, Observer, panic, Subscription, Terminable} from "@opendaw/lib-std"
-import {Messenger} from "@opendaw/lib-runtime"
+import {Notifier, Observer, panic, Subscription, Terminable} from "@moises-ai/lib-std"
+import {Messenger} from "@moises-ai/lib-runtime"
 
 export type SyncLoopback = {source: Messenger, target: Messenger} & Terminable
 

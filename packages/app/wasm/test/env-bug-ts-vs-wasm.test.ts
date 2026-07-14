@@ -10,7 +10,7 @@
 import * as path from "node:path"
 import {describe, expect, it} from "vitest"
 import {existsSync, readFileSync} from "node:fs"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {renderTs} from "./helpers/render-ts"

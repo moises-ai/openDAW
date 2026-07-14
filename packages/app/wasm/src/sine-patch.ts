@@ -1,6 +1,6 @@
-import {VaporisateurDeviceBox} from "@opendaw/studio-boxes"
-import {VoicingMode} from "@opendaw/studio-enums"
-import {ClassicWaveform} from "@opendaw/lib-dsp"
+import {VaporisateurDeviceBox} from "@moises-ai/studio-boxes"
+import {VoicingMode} from "@moises-ai/studio-enums"
+import {ClassicWaveform} from "@moises-ai/lib-dsp"
 
 // Give a freshly created Vaporisateur box an audible SINE preset. A bare `VaporisateurDeviceBox.create` does
 // not sound: the schema leaves cutoff / resonance / attack / release UNSET and defaults BOTH oscillator

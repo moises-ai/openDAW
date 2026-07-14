@@ -3,8 +3,8 @@
 // finite/bounded — which only happens if the device is wired and its wet/dry/decay params applied. (The plate DSP
 // is covered by dsp::dattorro; this proves the end-to-end chain.)
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {DattorroReverbDeviceBox} from "@opendaw/studio-boxes"
+import {UUID} from "@moises-ai/lib-std"
+import {DattorroReverbDeviceBox} from "@moises-ai/studio-boxes"
 import {buildEffectProject, renderEffect, peakOf, allFinite} from "./helpers/effect-harness"
 
 const dattorro = (wet: number, dry: number) =>

@@ -3,11 +3,11 @@
 // the 1 s sample length, TS keeps looping (steady DC), but the wasm free-running read head runs off the end of
 // the sample and goes silent. Compare the wasm to the TS engine in a window WELL PAST the sample length.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {AudioData, TimeBase} from "@opendaw/lib-dsp"
-import {AudioFileBox, AudioRegionBox, AudioUnitBox, CaptureAudioBox, TapeDeviceBox, TrackBox, ValueEventCollectionBox} from "@opendaw/studio-boxes"
-import type {BoxGraph} from "@opendaw/lib-box"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {AudioData, TimeBase} from "@moises-ai/lib-dsp"
+import {AudioFileBox, AudioRegionBox, AudioUnitBox, CaptureAudioBox, TapeDeviceBox, TrackBox, ValueEventCollectionBox} from "@moises-ai/studio-boxes"
+import type {BoxGraph} from "@moises-ai/lib-box"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {renderTs} from "./helpers/render-ts"

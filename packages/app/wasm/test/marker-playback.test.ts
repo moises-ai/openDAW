@@ -4,10 +4,10 @@
 // ([uuid 16][count u32 LE][flag u32 LE], the clip-changes pattern), a seek into another section resets
 // the play count, and a disabled marker track never jumps.
 import {describe, expect, it} from "vitest"
-import {Nullable, UUID} from "@opendaw/lib-std"
-import {PPQN} from "@opendaw/lib-dsp"
-import {MarkerBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {Nullable, UUID} from "@moises-ai/lib-std"
+import {PPQN} from "@moises-ai/lib-dsp"
+import {MarkerBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

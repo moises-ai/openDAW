@@ -5,7 +5,7 @@
 import * as path from "node:path"
 import {readFileSync} from "node:fs"
 import {createRequire} from "node:module"
-import {UUID} from "@opendaw/lib-std"
+import {UUID} from "@moises-ai/lib-std"
 import {ScriptBridges, ScriptEngine} from "../../../../studio/core-wasm/src/script-bridge"
 import {NamBridges} from "../../../../studio/core-wasm/src/nam-bridge"
 import {linkDevice, registerComposite} from "../../../../studio/core-wasm/src/device-linker"

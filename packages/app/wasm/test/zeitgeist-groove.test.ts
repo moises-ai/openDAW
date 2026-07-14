@@ -13,17 +13,17 @@
 import {describe, expect, it} from "vitest"
 import * as path from "node:path"
 import {readFileSync} from "node:fs"
-import {clamp, isDefined, moebiusEase, panic, squashUnit, UUID} from "@opendaw/lib-std"
-import {GroovePattern, ppqn} from "@opendaw/lib-dsp"
-import {BoxGraph} from "@opendaw/lib-box"
+import {clamp, isDefined, moebiusEase, panic, squashUnit, UUID} from "@moises-ai/lib-std"
+import {GroovePattern, ppqn} from "@moises-ai/lib-dsp"
+import {BoxGraph} from "@moises-ai/lib-box"
 import {
     ApparatDeviceBox, AudioUnitBox, GrooveShuffleBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox,
     TrackBox, ZeitgeistDeviceBox
-} from "@opendaw/studio-boxes"
+} from "@moises-ai/studio-boxes"
 import {
     AutomatableParameterFieldAdapter, BoxAdapters, BoxAdaptersContext, GrooveShuffleBoxAdapter,
     ParameterFieldAdapters, ProjectSkeleton, ScriptCompiler, TrackType
-} from "@opendaw/studio-adapters"
+} from "@moises-ai/studio-adapters"
 import {DEVICE_STACK_SIZE, DeviceExports, parseDylink} from "../../../studio/core-wasm/src/device-linker"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"

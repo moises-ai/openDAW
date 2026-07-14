@@ -3,8 +3,8 @@
 // numerical drift (e.g. a fast-math or SIMD change applied to only one engine).
 import {describe, expect, it} from "vitest"
 import {existsSync, readFileSync} from "node:fs"
-import {UUID} from "@opendaw/lib-std"
-import {WavFile} from "@opendaw/lib-dsp"
+import {UUID} from "@moises-ai/lib-std"
+import {WavFile} from "@moises-ai/lib-dsp"
 import {decodeBundle} from "../src/bundle"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"

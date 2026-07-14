@@ -5,8 +5,8 @@
 // (path-independence: no random sequence leaves corrupting residue). The seed is fixed so a failure reproduces.
 
 import {describe, expect, it} from "vitest"
-import {DeviceBoxUtils} from "@opendaw/studio-adapters"
-import {TrackBox} from "@opendaw/studio-boxes"
+import {DeviceBoxUtils} from "@moises-ai/studio-adapters"
+import {TrackBox} from "@moises-ai/studio-boxes"
 import {buildProject, maxDiff} from "./helpers/render-harness"
 
 describe("fuzz: random enable/disable", () => {

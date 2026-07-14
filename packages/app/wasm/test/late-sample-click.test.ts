@@ -5,10 +5,10 @@
 // fires for waveform_offset > 0 near the region start) -> a jump from silence to a mid-waveform sample = a click.
 // Baseline (sample ready BEFORE play) reads from frame 0 (~0) -> smooth. The delta between the two is the bug.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {AudioFileBox, AudioRegionBox, AudioUnitBox, TapeDeviceBox, TrackBox, ValueEventCollectionBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
-import {TimeBase} from "@opendaw/lib-dsp"
+import {UUID} from "@moises-ai/lib-std"
+import {AudioFileBox, AudioRegionBox, AudioUnitBox, TapeDeviceBox, TrackBox, ValueEventCollectionBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
+import {TimeBase} from "@moises-ai/lib-dsp"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

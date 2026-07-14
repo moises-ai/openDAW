@@ -1,5 +1,5 @@
-import {int, RuntimeNotifier, Terminable, Terminator} from "@opendaw/lib-std"
-import {Runtime} from "@opendaw/lib-runtime"
+import {int, RuntimeNotifier, Terminable, Terminator} from "@moises-ai/lib-std"
+import {Runtime} from "@moises-ai/lib-runtime"
 import {EngineFacade} from "./EngineFacade"
 import {StudioPreferences} from "./StudioPreferences"
 

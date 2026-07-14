@@ -6,7 +6,7 @@ import * as path from "node:path"
 import {existsSync, readFileSync} from "node:fs"
 
 const dist = path.resolve(__dirname, "../dist")
-// dist/index.js reaches @opendaw/studio-core, which touches DOM globals at module scope; node has none.
+// dist/index.js reaches @moises-ai/studio-core, which touches DOM globals at module scope; node has none.
 vi.stubGlobal("AudioWorkletNode", class {})
 
 describe("dist smoke", () => {

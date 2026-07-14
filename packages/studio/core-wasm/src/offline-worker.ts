@@ -4,12 +4,12 @@
 // replacement leans on (device benchmarks, offline parity renders, later exports). The project snapshot
 // is decoded here and streamed into the engine as one full-dump transaction; samples/soundfonts/NAM
 // arrive over the EngineToClient RPC exactly like the realtime worklet host.
-import {Arrays, int, isDefined, Nullable, Option, SyncStream, Terminable, TimeSpan, tryCatch, UUID} from "@opendaw/lib-std"
-import {Communicator, Messenger, Wait} from "@opendaw/lib-runtime"
-import {AudioAnalyser, AudioData, dbToGain, ppqn, RenderQuantum} from "@opendaw/lib-dsp"
-import {LiveStreamBroadcaster} from "@opendaw/lib-fusion"
-import {UpdateTask} from "@opendaw/lib-box"
-import {BoxIO} from "@opendaw/studio-boxes"
+import {Arrays, int, isDefined, Nullable, Option, SyncStream, Terminable, TimeSpan, tryCatch, UUID} from "@moises-ai/lib-std"
+import {Communicator, Messenger, Wait} from "@moises-ai/lib-runtime"
+import {AudioAnalyser, AudioData, dbToGain, ppqn, RenderQuantum} from "@moises-ai/lib-dsp"
+import {LiveStreamBroadcaster} from "@moises-ai/lib-fusion"
+import {UpdateTask} from "@moises-ai/lib-box"
+import {BoxIO} from "@moises-ai/studio-boxes"
 import {
     ClipSequencingUpdates,
     EngineAddresses,
@@ -22,7 +22,7 @@ import {
     OfflineEngineProtocol,
     OfflineEngineRenderConfig,
     ProjectSkeleton
-} from "@opendaw/studio-adapters"
+} from "@moises-ai/studio-adapters"
 import type {SoundFont2} from "soundfont2"
 import {EngineExports} from "./engine-exports"
 import {createEngineMemory, loadEngineModules} from "./engine-modules"

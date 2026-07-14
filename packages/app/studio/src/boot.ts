@@ -1,13 +1,13 @@
 import "./main.sass"
 import {App} from "@/ui/App.tsx"
-import {isDefined, panic, Progress, RuntimeNotification, RuntimeNotifier, UUID} from "@opendaw/lib-std"
+import {isDefined, panic, Progress, RuntimeNotification, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
 import {StudioService} from "@/service/StudioService"
-import {SampleMetaData, SoundfontMetaData} from "@opendaw/studio-adapters"
+import {SampleMetaData, SoundfontMetaData} from "@moises-ai/studio-adapters"
 import {Dialogs} from "@/ui/components/dialogs.tsx"
 import {installCursors} from "@/ui/Cursors.ts"
 import {BuildInfo} from "./BuildInfo"
 import {Surface} from "@/ui/surface/Surface.tsx"
-import {replaceChildren} from "@opendaw/lib-jsx"
+import {replaceChildren} from "@moises-ai/lib-jsx"
 import {
     AudioWorklets,
     BufferUnderrunDetector,
@@ -18,25 +18,25 @@ import {
     GlobalSoundfontLoaderManager,
     OfflineEngineRenderer,
     Workers
-} from "@opendaw/studio-core"
+} from "@moises-ai/studio-core"
 import {OpenPresetAPI, OpenSampleAPI, OpenSoundfontAPI} from "@/opendaw-api"
 import {testFeatures} from "@/features.ts"
 import {MissingFeature} from "@/ui/MissingFeature.tsx"
 import {UpdateMessage} from "@/ui/UpdateMessage.tsx"
 import {showStoragePersistDialog} from "@/AppDialogs"
-import {Promises} from "@opendaw/lib-runtime"
-import {AnimationFrame, Browser, Html, ShortcutManager} from "@opendaw/lib-dom"
+import {Promises} from "@moises-ai/lib-runtime"
+import {AnimationFrame, Browser, Html, ShortcutManager} from "@moises-ai/lib-dom"
 import {AudioOutputDevice} from "@/audio/AudioOutputDevice"
 import {installLatencyReporter} from "@/LatencyReporter"
 import {reportVisitor} from "@/VisitorReporter"
 import {FontLoader} from "@/ui/FontLoader"
 import {ErrorHandler} from "@/errors/ErrorHandler.ts"
-import {AudioData} from "@opendaw/lib-dsp"
-import {ChainedSampleProvider, ChainedSoundfontProvider} from "@opendaw/studio-p2p"
-import {IconSymbol} from "@opendaw/studio-enums"
+import {AudioData} from "@moises-ai/lib-dsp"
+import {ChainedSampleProvider, ChainedSoundfontProvider} from "@moises-ai/studio-p2p"
+import {IconSymbol} from "@moises-ai/studio-enums"
 import {StudioShortcutManager} from "@/service/StudioShortcutManager"
 import {Menu} from "@/ui/components/Menu"
-import {WasmEngine} from "@opendaw/studio-core-wasm"
+import {WasmEngine} from "@moises-ai/studio-core-wasm"
 
 if ("stackTraceLimit" in Error) {Error.stackTraceLimit = 50}
 

@@ -6,7 +6,7 @@
 import {describe, expect, it} from "vitest"
 import * as path from "node:path"
 import {readFileSync} from "node:fs"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {decodeSteps, readCommits, stepForward} from "../src/pages/sync-log/sync-log"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"

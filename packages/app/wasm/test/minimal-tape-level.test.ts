@@ -3,12 +3,12 @@
 // the identical sample. The steady-state output amplitude should be 0.5 in both; a 2x discrepancy pinpoints a
 // gain bug in the wasm audio-region player (`render_region`).
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {AudioData} from "@opendaw/lib-dsp"
-import {TimeBase} from "@opendaw/lib-dsp"
-import {AudioFileBox, AudioRegionBox, AudioTimeStretchBox, AudioUnitBox, CaptureAudioBox, TapeDeviceBox, TrackBox, TransientMarkerBox, ValueEventCollectionBox, WarpMarkerBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
-import {TransientPlayMode} from "@opendaw/studio-enums"
+import {UUID} from "@moises-ai/lib-std"
+import {AudioData} from "@moises-ai/lib-dsp"
+import {TimeBase} from "@moises-ai/lib-dsp"
+import {AudioFileBox, AudioRegionBox, AudioTimeStretchBox, AudioUnitBox, CaptureAudioBox, TapeDeviceBox, TrackBox, TransientMarkerBox, ValueEventCollectionBox, WarpMarkerBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
+import {TransientPlayMode} from "@moises-ai/studio-enums"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {renderTs} from "./helpers/render-ts"

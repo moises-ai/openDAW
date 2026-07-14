@@ -1,6 +1,6 @@
 // The result of one offline render (a stereo master + the render-loop time). Kept in its own tiny module so the
 // main-thread page can build audio players from a worker's result WITHOUT importing the heavy engine renderers.
-import {AudioData, WavFile} from "@opendaw/lib-dsp"
+import {AudioData, WavFile} from "@moises-ai/lib-dsp"
 
 // Plain (non-shared) buffers: `copyToChannel` and structured-clone transfer both require `ArrayBuffer` backing.
 export type OfflineResult = {left: Float32Array<ArrayBuffer>, right: Float32Array<ArrayBuffer>, renderMs: number, sampleRate: number}

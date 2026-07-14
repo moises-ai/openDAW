@@ -1,4 +1,4 @@
-import {UUID} from "@opendaw/lib-std"
+import {UUID} from "@moises-ai/lib-std"
 import type {SoundFont2} from "soundfont2"
 import {simplifySoundfont} from "../../../studio/core-wasm/src/soundfont-simplify"
 

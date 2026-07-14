@@ -11,10 +11,10 @@ import {
     Provider,
     RuntimeNotifier,
     UUID
-} from "@opendaw/lib-std"
-import {Box, BoxGraph} from "@opendaw/lib-box"
-import {Pointers} from "@opendaw/studio-enums"
-import {NoteEventCollectionBox, RootBox, TrackBox, ValueEventCollectionBox} from "@opendaw/studio-boxes"
+} from "@moises-ai/lib-std"
+import {Box, BoxGraph} from "@moises-ai/lib-box"
+import {Pointers} from "@moises-ai/studio-enums"
+import {NoteEventCollectionBox, RootBox, TrackBox, ValueEventCollectionBox} from "@moises-ai/studio-boxes"
 import {
     AudioEffectDeviceAdapter,
     BoxAdapters,
@@ -27,7 +27,7 @@ import {
     InstrumentDeviceBoxAdapter,
     MidiEffectDeviceAdapter,
     UnionBoxTypes
-} from "@opendaw/studio-adapters"
+} from "@moises-ai/studio-adapters"
 import {ClipboardEntry, ClipboardHandler} from "../ClipboardManager"
 import {ClipboardUtils} from "../ClipboardUtils"
 

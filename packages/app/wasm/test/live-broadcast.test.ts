@@ -5,9 +5,9 @@
 // the worklet's own PeakBroadcaster owns EngineAddresses.PEAKS (fed engine.output_ptr()), mirroring the TS
 // engine, so registering it here too would collide on that single address.
 import {describe, expect, it} from "vitest"
-import {asDefined, UUID} from "@opendaw/lib-std"
-import {AudioFileBox, AudioUnitBox, CaptureMidiBox, NanoDeviceBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
+import {asDefined, UUID} from "@moises-ai/lib-std"
+import {AudioFileBox, AudioUnitBox, CaptureMidiBox, NanoDeviceBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, TrackBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

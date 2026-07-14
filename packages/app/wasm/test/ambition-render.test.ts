@@ -4,9 +4,9 @@
 // proves the submix routing actually carries their signal (before this feature it was silently dropped).
 import {describe, expect, it} from "vitest"
 import {existsSync, readFileSync} from "node:fs"
-import {UUID} from "@opendaw/lib-std"
-import {WavFile} from "@opendaw/lib-dsp"
-import type {BoxGraph} from "@opendaw/lib-box"
+import {UUID} from "@moises-ai/lib-std"
+import {WavFile} from "@moises-ai/lib-dsp"
+import type {BoxGraph} from "@moises-ai/lib-box"
 import {decodeBundle} from "../src/bundle"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"

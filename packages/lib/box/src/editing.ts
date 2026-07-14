@@ -12,7 +12,7 @@ import {
     Subscription,
     SyncProvider,
     tryCatch
-} from "@opendaw/lib-std"
+} from "@moises-ai/lib-std"
 import {optimizeUpdates, Update} from "./updates"
 
 export {optimizeUpdates}

@@ -3,10 +3,10 @@
 // effect + apply_param_changes at the range start) and the bridge's `int` mapping. A constant unit-0.5 curve maps
 // through linearInteger(0,24) to a fixed semitone shift; compared to the Apparat voiced directly at PITCH+shift.
 import {describe, expect, it} from "vitest"
-import {UUID, ValueMapping} from "@opendaw/lib-std"
-import {Interpolation} from "@opendaw/lib-dsp"
-import {ApparatDeviceBox, AudioUnitBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, SpielwerkDeviceBox, TrackBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox, WerkstattParameterBox} from "@opendaw/studio-boxes"
-import {InterpolationFieldAdapter, ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {UUID, ValueMapping} from "@moises-ai/lib-std"
+import {Interpolation} from "@moises-ai/lib-dsp"
+import {ApparatDeviceBox, AudioUnitBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, SpielwerkDeviceBox, TrackBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox, WerkstattParameterBox} from "@moises-ai/studio-boxes"
+import {InterpolationFieldAdapter, ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {maxDiff} from "./helpers/render-harness"

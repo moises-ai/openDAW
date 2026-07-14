@@ -5,10 +5,10 @@
 // the TS engine uses. A non-identity range (0..2) makes the mapping observable: a constant curve at unit 0.7 must
 // reach the script as 1.4. We render through WASM and compare to the SAME Processor with paramChanged(1.4) applied.
 import {describe, expect, it} from "vitest"
-import {UUID, ValueMapping} from "@opendaw/lib-std"
-import {Interpolation} from "@opendaw/lib-dsp"
-import {AudioUnitBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox, VaporisateurDeviceBox, TrackBox, WerkstattDeviceBox, WerkstattParameterBox} from "@opendaw/studio-boxes"
-import {InterpolationFieldAdapter, ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {UUID, ValueMapping} from "@moises-ai/lib-std"
+import {Interpolation} from "@moises-ai/lib-dsp"
+import {AudioUnitBox, ValueEventBox, ValueEventCollectionBox, ValueRegionBox, VaporisateurDeviceBox, TrackBox, WerkstattDeviceBox, WerkstattParameterBox} from "@moises-ai/studio-boxes"
+import {InterpolationFieldAdapter, ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {maxDiff} from "./helpers/render-harness"

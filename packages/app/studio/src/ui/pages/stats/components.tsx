@@ -1,5 +1,5 @@
-import {createElement, JsxValue} from "@opendaw/lib-jsx"
-import {isDefined} from "@opendaw/lib-std"
+import {createElement, JsxValue} from "@moises-ai/lib-jsx"
+import {isDefined} from "@moises-ai/lib-std"
 
 type CardProps = {
     title?: string

@@ -7,11 +7,11 @@
 // engine's shared memory here. Recording, note signals, clip launching, monitoring and frozen audio are
 // honest no-ops for now — the transport state simply never reports them active.
 import "./worklet-scope" // MUST be first: shims `self`/`location` for inlined worker glue
-import {Exec, int, Nullable, panic, SyncStream, Terminable, Terminator, tryCatch, UUID} from "@opendaw/lib-std"
-import {AudioAnalyser, AudioData, ppqn, RenderQuantum} from "@opendaw/lib-dsp"
-import {Communicator, Messenger} from "@opendaw/lib-runtime"
-import {Address} from "@opendaw/lib-box"
-import {LiveStreamBroadcaster} from "@opendaw/lib-fusion"
+import {Exec, int, Nullable, panic, SyncStream, Terminable, Terminator, tryCatch, UUID} from "@moises-ai/lib-std"
+import {AudioAnalyser, AudioData, ppqn, RenderQuantum} from "@moises-ai/lib-dsp"
+import {Communicator, Messenger} from "@moises-ai/lib-runtime"
+import {Address} from "@moises-ai/lib-box"
+import {LiveStreamBroadcaster} from "@moises-ai/lib-fusion"
 import {
     ClipSequencingUpdates,
     EngineAddresses,
@@ -25,7 +25,7 @@ import {
     MonitoringMapEntry,
     NoteSignal,
     PreferencesClient
-} from "@opendaw/studio-adapters"
+} from "@moises-ai/studio-adapters"
 import type {SoundFont2} from "soundfont2"
 import {HRClock} from "../../core-processors/src/HRClock"
 import {PeakBroadcaster} from "../../core-processors/src/PeakBroadcaster"

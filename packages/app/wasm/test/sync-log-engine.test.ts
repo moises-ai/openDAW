@@ -4,11 +4,11 @@
 import {describe, expect, it} from "vitest"
 import * as path from "node:path"
 import {readFileSync} from "node:fs"
-import {ByteArrayInput} from "@opendaw/lib-std"
-import {Communicator, Messenger} from "@opendaw/lib-runtime"
-import {Synchronization, UpdateTask} from "@opendaw/lib-box"
-import {BoxIO} from "@opendaw/studio-boxes"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {ByteArrayInput} from "@moises-ai/lib-std"
+import {Communicator, Messenger} from "@moises-ai/lib-runtime"
+import {Synchronization, UpdateTask} from "@moises-ai/lib-box"
+import {BoxIO} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {serializeUpdateTasks} from "../../../studio/core-wasm/src/sync/serialize-update-tasks"
 import {decodeSteps, readCommits, stepBackward, stepForward} from "../src/pages/sync-log/sync-log"
 
@@ -56,7 +56,7 @@ describe("sync-log engine: forward to end, backward to start", () => {
         const sourceChannel = new BroadcastChannel("sl-engine")
         const targetChannel = new BroadcastChannel("sl-engine")
         Communicator.executor<Synchronization<BoxIO.TypeMap>>(Messenger.for(targetChannel), target)
-        const {SyncSource} = await import("@opendaw/lib-box")
+        const {SyncSource} = await import("@moises-ai/lib-box")
         const syncSource = new SyncSource(source, Messenger.for(sourceChannel), true)
         await expect(syncSource.checksum(source.checksum())).resolves.toBeUndefined()
         engine.bind() // set up the master bus + reactive audio-unit reconcile (the path the page exercises)

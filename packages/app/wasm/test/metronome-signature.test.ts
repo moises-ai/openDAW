@@ -5,10 +5,10 @@
 // (set_metronome_gain/-beat_sub_division/-monophonic) — the engine-preferences channel wiring lives in the
 // studio worklet (processor.ts), which this harness does not instantiate.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {PPQN} from "@opendaw/lib-dsp"
-import {SignatureEventBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {PPQN} from "@moises-ai/lib-dsp"
+import {SignatureEventBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

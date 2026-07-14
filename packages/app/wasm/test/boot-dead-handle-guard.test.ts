@@ -4,9 +4,9 @@
 // must NOT write the frames at address 0 — that obliterated the engine's own memory and the next `render()`
 // trapped with "memory access out of bounds". It must skip the delivery instead.
 import {describe, expect, it} from "vitest"
-import {AudioData} from "@opendaw/lib-dsp"
-import type {UUID} from "@opendaw/lib-std"
-import type {EngineToClient} from "@opendaw/studio-adapters"
+import {AudioData} from "@moises-ai/lib-dsp"
+import type {UUID} from "@moises-ai/lib-std"
+import type {EngineToClient} from "@moises-ai/studio-adapters"
 import {drainResourceRequests} from "../../../studio/core-wasm/src/boot"
 import type {EngineExports} from "../../../studio/core-wasm/src/engine-exports"
 

@@ -1,6 +1,6 @@
-import {Arrays, panic, RuntimeNotifier} from "@opendaw/lib-std"
-import {Promises} from "@opendaw/lib-runtime"
-import {NextcloudHandler} from "@opendaw/studio-core"
+import {Arrays, panic, RuntimeNotifier} from "@moises-ai/lib-std"
+import {Promises} from "@moises-ai/lib-runtime"
+import {NextcloudHandler} from "@moises-ai/studio-core"
 import {NextcloudDialogs} from "@/project/NextcloudDialogs"
 
 export namespace NextcloudDebug {

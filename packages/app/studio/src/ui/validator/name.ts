@@ -1,4 +1,4 @@
-import {RuntimeNotifier} from "@opendaw/lib-std"
+import {RuntimeNotifier} from "@moises-ai/lib-std"
 import {Result, Validator} from "./validator"
 
 export const NameValidator: Validator<string> = {

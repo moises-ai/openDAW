@@ -1,6 +1,6 @@
-import {createElement, PageFactory} from "@opendaw/lib-jsx"
-import {Exec} from "@opendaw/lib-std"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {createElement, PageFactory} from "@moises-ai/lib-jsx"
+import {Exec} from "@moises-ai/lib-std"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {Env} from "../../Env"
 import {createEngineHost} from "../../engine-host"
 

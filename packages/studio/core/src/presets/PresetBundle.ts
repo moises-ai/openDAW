@@ -1,4 +1,4 @@
-import {asDefined, panic, RuntimeNotifier} from "@opendaw/lib-std"
+import {asDefined, panic, RuntimeNotifier} from "@moises-ai/lib-std"
 import {ExternalLib} from "../ExternalLib"
 import {CATEGORIES, PresetMeta} from "./PresetMeta"
 

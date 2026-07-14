@@ -1,4 +1,4 @@
-import {Progress} from "@opendaw/lib-std"
+import {Progress} from "@moises-ai/lib-std"
 
 export interface CloudHandler {
     upload(path: string, data: ArrayBuffer, progress?: Progress.Handler): Promise<void>

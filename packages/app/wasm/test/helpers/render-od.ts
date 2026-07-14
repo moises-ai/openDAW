@@ -4,10 +4,10 @@
 // Use it to compare a project's Rust output against the TS engine (or against a per-device reference).
 import * as path from "node:path"
 import {readFileSync} from "node:fs"
-import {UUID} from "@opendaw/lib-std"
-import {ProjectSkeleton, ScriptCompiler} from "@opendaw/studio-adapters"
-import {ApparatDeviceBox, AudioFileBox, SpielwerkDeviceBox, WerkstattDeviceBox} from "@opendaw/studio-boxes"
-import type {BoxGraph} from "@opendaw/lib-box"
+import {UUID} from "@moises-ai/lib-std"
+import {ProjectSkeleton, ScriptCompiler} from "@moises-ai/studio-adapters"
+import {ApparatDeviceBox, AudioFileBox, SpielwerkDeviceBox, WerkstattDeviceBox} from "@moises-ai/studio-boxes"
+import type {BoxGraph} from "@moises-ai/lib-box"
 import {loadFullEngine} from "./load-full-engine"
 import {connectSyncToEngine} from "./connect-sync"
 

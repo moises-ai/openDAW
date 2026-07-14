@@ -10,13 +10,13 @@ import {
     StringComparator,
     TimeSpan,
     UUID
-} from "@opendaw/lib-std"
+} from "@moises-ai/lib-std"
 import {Icon} from "@/ui/components/Icon"
-import {IconSymbol} from "@opendaw/studio-enums"
+import {IconSymbol} from "@moises-ai/studio-enums"
 import {Dialogs} from "@/ui/components/dialogs"
-import {Await, createElement, DomElement, Frag, Group} from "@opendaw/lib-jsx"
-import {Files, Html} from "@opendaw/lib-dom"
-import {Promises} from "@opendaw/lib-runtime"
+import {Await, createElement, DomElement, Frag, Group} from "@moises-ai/lib-jsx"
+import {Files, Html} from "@moises-ai/lib-dom"
+import {Promises} from "@moises-ai/lib-runtime"
 import {
     ContextMenu,
     FilePickerAcceptTypes,
@@ -24,7 +24,7 @@ import {
     ProjectMeta,
     ProjectSignals,
     ProjectStorage
-} from "@opendaw/studio-core"
+} from "@moises-ai/studio-core"
 import {SearchInput} from "@/ui/components/SearchInput"
 import {ThreeDots} from "@/ui/spinner/ThreeDots"
 import {installScrollbars} from "@/ui/components/Scrollbars"

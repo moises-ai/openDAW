@@ -1,7 +1,7 @@
-import {createElement, PageFactory} from "@opendaw/lib-jsx"
-import {UUID} from "@opendaw/lib-std"
-import {ValueEventBox, ValueEventCollectionBox, ValueEventCurveBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {createElement, PageFactory} from "@moises-ai/lib-jsx"
+import {UUID} from "@moises-ai/lib-std"
+import {ValueEventBox, ValueEventCollectionBox, ValueEventCurveBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {Env} from "../../Env"
 import {createEngineHost} from "../../engine-host"
 

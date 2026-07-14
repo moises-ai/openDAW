@@ -5,8 +5,8 @@
 import {describe, expect, it} from "vitest"
 import * as path from "node:path"
 import {readFileSync} from "node:fs"
-import {UUID} from "@opendaw/lib-std"
-import {ProjectSkeleton, ScriptCompiler} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {ProjectSkeleton, ScriptCompiler} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 

@@ -1,7 +1,7 @@
-import {Nullable} from "@opendaw/lib-std"
-import {BoxGraph} from "@opendaw/lib-box"
-import {AudioUnitBox, BoxIO, CaptureAudioBox, CaptureMidiBox, TrackBox} from "@opendaw/studio-boxes"
-import {TrackType} from "@opendaw/studio-adapters"
+import {Nullable} from "@moises-ai/lib-std"
+import {BoxGraph} from "@moises-ai/lib-box"
+import {AudioUnitBox, BoxIO, CaptureAudioBox, CaptureMidiBox, TrackBox} from "@moises-ai/studio-boxes"
+import {TrackType} from "@moises-ai/studio-adapters"
 
 // A MIDI instrument replaced with a Tape (or vice versa) can leave an audio unit whose capture device no
 // longer matches its content tracks: a Tape (CaptureAudio) unit still holding NOTE tracks, or a MIDI

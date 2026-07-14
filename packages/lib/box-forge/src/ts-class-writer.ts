@@ -11,14 +11,14 @@ import {
     SetMultimap,
     Strings,
     Unhandled
-} from "@opendaw/lib-std"
-import {Constraints, FieldKey, NoPointers, PointerRules, PointerTypes} from "@opendaw/lib-box"
+} from "@moises-ai/lib-std"
+import {Constraints, FieldKey, NoPointers, PointerRules, PointerTypes} from "@moises-ai/lib-box"
 import {Scope, SourceFile} from "ts-morph"
 import {AnyField, ClassSchema, FieldName, Referencable, ResourceType} from "./schema"
 import type {BoxForge} from "./forge"
 
-export const STD_LIBRARY = "@opendaw/lib-std" as const
-export const BOX_LIBRARY = "@opendaw/lib-box" as const
+export const STD_LIBRARY = "@moises-ai/lib-std" as const
+export const BOX_LIBRARY = "@moises-ai/lib-box" as const
 
 const reversed_field_names = new Set(["constructor", "pointers", "name", "address"])
 
@@ -168,7 +168,7 @@ export class ClassWriter<E extends PointerTypes> {
                 : `${this.#option.extends}<${fieldsType}>`
         })
         if (noEdgeConstrains) {
-            this.#imports.add("@opendaw/lib-box", "UnreferenceableType")
+            this.#imports.add("@moises-ai/lib-box", "UnreferenceableType")
         }
         if (this.#option.isBox) {
             let pointerRules

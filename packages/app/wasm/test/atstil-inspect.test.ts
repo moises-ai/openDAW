@@ -3,8 +3,8 @@
 import * as path from "node:path"
 import {describe, it} from "vitest"
 import {existsSync, readFileSync} from "node:fs"
-import {UUID} from "@opendaw/lib-std"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 
 const FILE = path.resolve(__dirname, "../../../../test-files/atstil.od")
 

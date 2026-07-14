@@ -4,9 +4,9 @@
 // box (e.g. undo trims a region, then unstages it — #287), and re-resolving the field against the live
 // graph here would throw "no field at". Everything is written on the main thread's ordered channel.
 
-import {ByteArrayOutput, isDefined, UUID} from "@opendaw/lib-std"
-import {Address, PrimitiveValues, UpdateTask, ValueSerialization} from "@opendaw/lib-box"
-import {BoxIO} from "@opendaw/studio-boxes"
+import {ByteArrayOutput, isDefined, UUID} from "@moises-ai/lib-std"
+import {Address, PrimitiveValues, UpdateTask, ValueSerialization} from "@moises-ai/lib-box"
+import {BoxIO} from "@moises-ai/studio-boxes"
 
 export const serializeUpdateTasks = (tasks: ReadonlyArray<UpdateTask<BoxIO.TypeMap>>): ArrayBuffer => {
     const output = ByteArrayOutput.create()

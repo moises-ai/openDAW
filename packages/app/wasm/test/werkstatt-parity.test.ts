@@ -6,9 +6,9 @@
 // blocks — they must null-test to ~0, proving the bridge delivers params + block boundaries + the I/O buffers to
 // the script exactly like the TS engine, through the engine's dynamic param hub (the `@param`).
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {AudioUnitBox, VaporisateurDeviceBox, WerkstattDeviceBox, WerkstattParameterBox} from "@opendaw/studio-boxes"
-import {ProjectSkeleton, ScriptCompiler} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {AudioUnitBox, VaporisateurDeviceBox, WerkstattDeviceBox, WerkstattParameterBox} from "@moises-ai/studio-boxes"
+import {ProjectSkeleton, ScriptCompiler} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {maxDiff} from "./helpers/render-harness"

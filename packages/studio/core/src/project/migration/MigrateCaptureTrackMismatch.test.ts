@@ -1,6 +1,6 @@
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {ProjectSkeleton, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {ProjectSkeleton, TrackType} from "@moises-ai/studio-adapters"
 import {
     AudioUnitBox,
     CaptureAudioBox,
@@ -8,8 +8,8 @@ import {
     NoteEventCollectionBox,
     NoteRegionBox,
     TrackBox
-} from "@opendaw/studio-boxes"
-import {AudioUnitType} from "@opendaw/studio-enums"
+} from "@moises-ai/studio-boxes"
+import {AudioUnitType} from "@moises-ai/studio-enums"
 import {migrateCaptureTrackMismatch} from "./MigrateCaptureTrackMismatch"
 
 const setup = () => {

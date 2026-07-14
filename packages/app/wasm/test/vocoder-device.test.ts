@@ -4,8 +4,8 @@
 // DSP is covered by dsp::vocoder; this proves the end-to-end chain: params, the modulatorSource string field, and
 // bandCount all reach the device.)
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {VocoderDeviceBox} from "@opendaw/studio-boxes"
+import {UUID} from "@moises-ai/lib-std"
+import {VocoderDeviceBox} from "@moises-ai/studio-boxes"
 import {buildEffectProject, renderEffect, peakOf, allFinite} from "./helpers/effect-harness"
 
 const vocoder = (mix: number, source: string) =>

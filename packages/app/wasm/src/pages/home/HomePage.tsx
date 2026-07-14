@@ -1,4 +1,4 @@
-import {createElement, PageFactory} from "@opendaw/lib-jsx"
+import {createElement, PageFactory} from "@moises-ai/lib-jsx"
 import {Env} from "../../Env"
 
 export const HomePage: PageFactory<Env> = () => (

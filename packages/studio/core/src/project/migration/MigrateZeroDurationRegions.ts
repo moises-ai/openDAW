@@ -1,6 +1,6 @@
-import {BoxGraph} from "@opendaw/lib-box"
-import {AudioRegionBox, BoxIO, NoteRegionBox, ValueRegionBox} from "@opendaw/studio-boxes"
-import {PPQN, ppqn, TimeBase} from "@opendaw/lib-dsp"
+import {BoxGraph} from "@moises-ai/lib-box"
+import {AudioRegionBox, BoxIO, NoteRegionBox, ValueRegionBox} from "@moises-ai/studio-boxes"
+import {PPQN, ppqn, TimeBase} from "@moises-ai/lib-dsp"
 
 type AnyRegionBox = AudioRegionBox | NoteRegionBox | ValueRegionBox
 

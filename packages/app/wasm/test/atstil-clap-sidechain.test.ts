@@ -9,9 +9,9 @@
 import * as path from "node:path"
 import {describe, expect, it} from "vitest"
 import {existsSync, writeFileSync} from "node:fs"
-import {UUID} from "@opendaw/lib-std"
-import type {BoxGraph} from "@opendaw/lib-box"
-import {ProjectSkeleton} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import type {BoxGraph} from "@moises-ai/lib-box"
+import {ProjectSkeleton} from "@moises-ai/studio-adapters"
 import {buildSampleMap, renderTs} from "./helpers/render-ts"
 import {decodeAtstil, fetchAtstilSamples, registerAtstilScripts, renderAtstilWasm, rmsOf} from "./helpers/atstil"
 

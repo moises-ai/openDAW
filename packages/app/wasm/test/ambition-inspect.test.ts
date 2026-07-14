@@ -2,7 +2,7 @@
 // AudioBusBoxes (return channels), and which units output where.
 import {describe, it} from "vitest"
 import {existsSync, readFileSync} from "node:fs"
-import {UUID} from "@opendaw/lib-std"
+import {UUID} from "@moises-ai/lib-std"
 import {decodeBundle} from "../src/bundle"
 
 describe.skipIf(!existsSync("/tmp/ambition.odb"))("ambition inspect", () => {

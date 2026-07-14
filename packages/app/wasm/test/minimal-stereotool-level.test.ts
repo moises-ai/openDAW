@@ -2,10 +2,10 @@
 // showed TS applies that boost but the wasm doesn't. This drives a sine through a StereoTool at +12 dB in both
 // engines: the output levels must match.
 import {describe, expect, it} from "vitest"
-import {UUID} from "@opendaw/lib-std"
-import {ApparatDeviceBox, AudioUnitBox, CaptureMidiBox, CrusherDeviceBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, StereoToolDeviceBox, TrackBox} from "@opendaw/studio-boxes"
-import type {BoxGraph} from "@opendaw/lib-box"
-import {ProjectSkeleton, ScriptCompiler, TrackType} from "@opendaw/studio-adapters"
+import {UUID} from "@moises-ai/lib-std"
+import {ApparatDeviceBox, AudioUnitBox, CaptureMidiBox, CrusherDeviceBox, NoteEventBox, NoteEventCollectionBox, NoteRegionBox, StereoToolDeviceBox, TrackBox} from "@moises-ai/studio-boxes"
+import type {BoxGraph} from "@moises-ai/lib-box"
+import {ProjectSkeleton, ScriptCompiler, TrackType} from "@moises-ai/studio-adapters"
 import {loadFullEngine} from "./helpers/load-full-engine"
 import {connectSyncToEngine} from "./helpers/connect-sync"
 import {renderTs} from "./helpers/render-ts"

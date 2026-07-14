@@ -3,11 +3,11 @@
 // render it through the wasm engine with real PCM.
 import * as path from "node:path"
 import {existsSync, mkdirSync, readFileSync, writeFileSync} from "node:fs"
-import {UUID} from "@opendaw/lib-std"
-import {WavFile} from "@opendaw/lib-dsp"
-import type {BoxGraph} from "@opendaw/lib-box"
-import {ProjectSkeleton, ScriptCompiler} from "@opendaw/studio-adapters"
-import {WerkstattDeviceBox} from "@opendaw/studio-boxes"
+import {UUID} from "@moises-ai/lib-std"
+import {WavFile} from "@moises-ai/lib-dsp"
+import type {BoxGraph} from "@moises-ai/lib-box"
+import {ProjectSkeleton, ScriptCompiler} from "@moises-ai/studio-adapters"
+import {WerkstattDeviceBox} from "@moises-ai/studio-boxes"
 import {loadFullEngine} from "./load-full-engine"
 import {connectSyncToEngine} from "./connect-sync"
 

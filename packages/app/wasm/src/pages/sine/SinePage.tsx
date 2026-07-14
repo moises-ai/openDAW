@@ -1,5 +1,5 @@
-import {createElement, PageFactory} from "@opendaw/lib-jsx"
-import {MutableObservableOption} from "@opendaw/lib-std"
+import {createElement, PageFactory} from "@moises-ai/lib-jsx"
+import {MutableObservableOption} from "@moises-ai/lib-std"
 import {Env} from "../../Env"
 import workletURL from "./engine-worklet.ts?worker&url"
 
