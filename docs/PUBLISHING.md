@@ -136,6 +136,10 @@ git diff --name-only --diff-filter=U | xargs -I{} git checkout --theirs "{}"
 git add -A
 git commit -m "chore: merge upstream/main"
 
+# 3b. Remove upstream CI workflows the merge brought back — this fork keeps
+#     only publish.yml (upstream's deploy/parity/yjs workflows target their infra)
+find .github/workflows -type f ! -name 'publish.yml' -delete
+
 # 4. Restore all package.json files from upstream to ensure a clean transform
 #    (previous transforms may have written stale scope references)
 git checkout upstream/main -- $(find packages -name 'package.json' -not -path '*/node_modules/*' -maxdepth 4) package.json
