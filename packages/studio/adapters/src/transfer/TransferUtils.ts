@@ -87,14 +87,14 @@ export namespace TransferUtils {
         }, () => {
             audioUnitBoxes.forEach((source: AudioUnitBox) => {
                 const input = new ByteArrayInput(source.toArrayBuffer())
-                const uuid = uuidMap.get(source.address.uuid).target
+                const uuid = uuidMap.get(source.address.uuid, "uuid mapping").target
                 targetBoxGraph.createBox(source.name as keyof BoxIO.TypeMap, uuid, box => box.read(input))
             })
             dependencies.forEach((source: Box) => {
                 if (existingPreservedUuids.hasKey(source.address.uuid)) {return}
                 if (isOwnedByExistingPreserved(source)) {return}
                 const input = new ByteArrayInput(source.toArrayBuffer())
-                const uuid = uuidMap.get(source.address.uuid).target
+                const uuid = uuidMap.get(source.address.uuid, "uuid mapping").target
                 targetBoxGraph.createBox(source.name as keyof BoxIO.TypeMap, uuid, box => box.read(input))
             })
         })
@@ -107,21 +107,28 @@ export namespace TransferUtils {
         const targets = audioUnitBoxes
             .toSorted(compareIndex)
             .map(source => asInstanceOf(rootBox.graph
-                .findBox(uuidMap.get(source.address.uuid).target)
+                .findBox(uuidMap.get(source.address.uuid, "uuid mapping").target)
                 .unwrap("Target AudioUnit has not been copied"), AudioUnitBox))
         const targetSet = new Set<AudioUnitBox>(targets)
         const allAudioUnits = IndexedBox.collectIndexedBoxes(rootBox.audioUnits, AudioUnitBox)
         const existing = allAudioUnits.filter(box => !targetSet.has(box))
-        let position: int
+        let ordered: ReadonlyArray<AudioUnitBox>
         if (isDefined(insertIndex)) {
-            position = clamp(insertIndex, 0, existing.length)
+            const position = clamp(insertIndex, 0, existing.length)
+            ordered = [...existing.slice(0, position), ...targets, ...existing.slice(position)]
         } else {
+            // Place by AudioUnitOrdering, not by current index: the primary Output unit (highest order)
+            // can sit at a low index, so findIndex over the index-sorted list would insert the copy
+            // before it. Sort existing by order first so the copy lands among its own kind (e.g. an
+            // instrument after the other instruments but before the Output unit).
+            const byOrder = existing.toSorted((a, b) =>
+                (AudioUnitOrdering[a.type.getValue()] ?? 0) - (AudioUnitOrdering[b.type.getValue()] ?? 0))
             const maxOrder = targets.reduce((max, box) =>
                 Math.max(max, AudioUnitOrdering[box.type.getValue()] ?? 0), 0)
-            position = existing.findIndex(box => (AudioUnitOrdering[box.type.getValue()] ?? 0) > maxOrder)
-            if (position === -1) {position = existing.length}
+            let position = byOrder.findIndex(box => (AudioUnitOrdering[box.type.getValue()] ?? 0) > maxOrder)
+            if (position === -1) {position = byOrder.length}
+            ordered = [...byOrder.slice(0, position), ...targets, ...byOrder.slice(position)]
         }
-        const ordered = [...existing.slice(0, position), ...targets, ...existing.slice(position)]
         ordered.forEach((box, index) => box.index.setValue(index))
     }
 
@@ -134,9 +141,9 @@ export namespace TransferUtils {
         const trackBoxSet = new Set<TrackBox>()
         const audioUnitBoxSet = new SetMultimap<AudioUnitBox, TrackBox>()
         regionBoxes.forEach(regionBox => {
-            const trackBox = asInstanceOf(regionBox.regions.targetVertex.unwrap().box, TrackBox)
+            const trackBox = asInstanceOf(regionBox.regions.targetVertex.unwrap("regions.target").box, TrackBox)
             trackBoxSet.add(trackBox)
-            const audioUnitBox = asInstanceOf(trackBox.tracks.targetVertex.unwrap().box, AudioUnitBox)
+            const audioUnitBox = asInstanceOf(trackBox.tracks.targetVertex.unwrap("tracks.target").box, AudioUnitBox)
             audioUnitBoxSet.add(audioUnitBox, trackBox)
         })
         console.debug(`Found ${audioUnitBoxSet.keyCount()} audioUnits`)
@@ -159,7 +166,7 @@ export namespace TransferUtils {
             .sort(compareIndex)
             .forEach((source: TrackBox, index) => {
                 const box = boxGraph
-                    .findBox(uuidMap.get(source.address.uuid).target)
+                    .findBox(uuidMap.get(source.address.uuid, "uuid mapping").target)
                     .unwrap("Target Track has not been copied")
                 asInstanceOf(box, TrackBox).index.setValue(index)
             }))
@@ -168,7 +175,7 @@ export namespace TransferUtils {
         const delta = insertPosition - minPosition
         regionBoxes.forEach((source: AnyRegionBox) => {
             const box = boxGraph
-                .findBox(uuidMap.get(source.address.uuid).target)
+                .findBox(uuidMap.get(source.address.uuid, "uuid mapping").target)
                 .unwrap("Target Track has not been copied")
             const {position} = UnionBoxTypes.asRegionBox(box)
             position.setValue(position.getValue() + delta)

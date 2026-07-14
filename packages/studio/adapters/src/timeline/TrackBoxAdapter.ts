@@ -207,7 +207,7 @@ export class TrackBoxAdapter implements BoxAdapter {
                 },
                 some: clip => {
                     if (sectionFrom === position) {
-                        if (isInstanceOf(clip, ValueClipBoxAdapter)) {
+                        if (isInstanceOf(clip, ValueClipBoxAdapter) && !clip.mute) {
                             return clip.valueAt(position, fallback)
                         }
                     }
@@ -227,7 +227,7 @@ export class TrackBoxAdapter implements BoxAdapter {
                 return Terminable.Empty
             }
             case TrackType.Value: {
-                const target = this.#box.target.targetVertex.unwrap()
+                const target = this.#box.target.targetVertex.unwrap("target.target")
                 if (target.isField()) {
                     observer(this.#context.parameterFieldAdapters.opt(target.address).map(vertex => vertex.name))
                 } else if (target.isBox()) {

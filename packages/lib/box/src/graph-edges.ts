@@ -63,6 +63,17 @@ export class GraphEdges {
         }
     }
 
+    // Removes the watch registrations of a box that never entered the graph (failed construction).
+    // Unlike unwatchVerticesOf, this must not assert on remaining edges — other boxes created in the
+    // same (doomed) transaction may still point at the failed box until the rollback disconnects them.
+    forgetVerticesOf(box: Box): void {
+        const map: Func<Vertex, UUID.Bytes> = ({box: {address: {uuid}}}) => uuid
+        const {address: {uuid}} = box
+        this.#removeSameBox(this.#requiresTarget, uuid, map)
+        this.#removeSameBox(this.#requiresPointer, uuid, map)
+        this.#removeSameBox(this.#requiresExclusive, uuid, map)
+    }
+
     connect(source: PointerField, target: Address): void {
         this.#outgoing.add([source, target])
         this.#incoming.opt(target).match<void>({
@@ -75,7 +86,7 @@ export class GraphEdges {
 
     disconnect(source: PointerField): void {
         const [, target] = this.#outgoing.removeByKey(source.address)
-        const [, sources] = this.#incoming.get(target)
+        const [, sources] = this.#incoming.get(target, "incoming by address")
         Arrays.remove(sources, source)
         if (sources.length === 0) {this.#incoming.removeByKey(target)}
         this.#affected.add(source.address.uuid)

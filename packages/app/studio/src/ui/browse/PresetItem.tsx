@@ -26,10 +26,14 @@ export const PresetItem = ({entry, presetService, lifecycle}: Construct): HTMLEl
             parent.addMenuItem(
                 MenuItem.default({label: "Edit…"})
                     .setTriggerProcedure(() => presetService.editPreset(entry).catch(console.warn)),
+                MenuItem.default({label: "Duplicate"})
+                    .setTriggerProcedure(() => presetService.duplicatePreset(entry).catch(console.warn)),
                 ...(canUpload ? [MenuItem.default({label: "Upload"})
                     .setTriggerProcedure(() => presetService.uploadPreset(entry).catch(console.warn))] : []),
                 MenuItem.default({label: "Delete"})
-                    .setTriggerProcedure(() => presetService.deletePreset(entry).catch(console.warn))
+                    .setTriggerProcedure(() => presetService.deletePreset(entry).catch(console.warn)),
+                MenuItem.default({label: "Save to Disk…", separatorBefore: true})
+                    .setTriggerProcedure(() => presetService.savePresetToDisk(entry).catch(console.warn))
             )
         })
         : null

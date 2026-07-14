@@ -1,6 +1,6 @@
 {
     "name": "@moises-ai/studio-adapters",
-    "version": "0.0.116",
+    "version": "0.0.120",
     "license": "LGPL-3.0-or-later",
     "publishConfig": {
         "registry": "https://npm.pkg.github.com",
@@ -21,12 +21,15 @@
         "generate-exports": "node generate-exports.mjs",
         "build": "npm run generate-exports && tsc",
         "lint": "eslint \"**/*.ts\"",
-        "test": "echo \"No tests to run\""
+        "test": "echo \"No tests to run\"",
+        "generate-all-boxes": "npx tsx scripts/generate-all-boxes.ts",
+        "pregenerate-all-boxes": "npm run build -w @opendaw/studio-forge-boxes && npm run build -w @opendaw/studio-boxes"
     },
     "dependencies": {
         "@moises-ai/lib-box": "*",
         "@moises-ai/lib-dsp": "*",
         "@moises-ai/lib-fusion": "*",
+        "@moises-ai/lib-midi": "*",
         "@moises-ai/lib-runtime": "*",
         "@moises-ai/lib-std": "*",
         "@moises-ai/studio-boxes": "*",

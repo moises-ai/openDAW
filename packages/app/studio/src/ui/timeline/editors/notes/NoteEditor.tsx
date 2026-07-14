@@ -1,6 +1,6 @@
 import css from "./NoteEditor.sass?inline"
 import {Html, ShortcutManager} from "@moises-ai/lib-dom"
-import {DefaultObservableValue, int, isInstanceOf, Lifecycle, Terminable, Terminator, UUID} from "@moises-ai/lib-std"
+import {DefaultObservableValue, int, isDefined, isInstanceOf, Lifecycle, Terminable, Terminator, UUID} from "@moises-ai/lib-std"
 import {createElement} from "@moises-ai/lib-jsx"
 import {StudioService} from "@/service/StudioService.ts"
 import {PitchEditor} from "@/ui/timeline/editors/notes/pitch/PitchEditor.tsx"
@@ -57,7 +57,7 @@ export const NoteEditor =
             }
             trackBindings.terminate()
             captureRef.current = resolveCapture()
-            const audioUnitAddress = reader.trackBoxAdapter.unwrap().audioUnit.address
+            const audioUnitAddress = reader.trackBoxAdapter.unwrap("trackBoxAdapter").audioUnit.address
             noteReceiver.bind(project.liveStreamReceiver, audioUnitAddress)
             trackBindings.own(captureRef.current.subscribeNotes(signal => {
                 if (engine.isPlaying.getValue() || !stepRecording.getValue()) {return}
@@ -160,7 +160,14 @@ export const NoteEditor =
                 }
             })()))
         const element: HTMLElement = (
-            <div className={className} tabIndex={-1} onConnect={(self: HTMLElement) => self.focus()}>
+            <div className={className} tabIndex={-1} onConnect={(self: HTMLElement) => {
+                // Only grab focus when nothing else holds it. A content swap triggered by
+                // selecting a region in the timeline re-mounts this editor; stealing focus there
+                // would pull it out of the RegionsArea and break region shortcuts/clipboard until
+                // the region is clicked again.
+                const active = document.activeElement
+                if (!isDefined(active) || active === document.body) {self.focus()}
+            }}>
                 {pitchHeader}
                 {pitchBody}
                 <PropertyHeader lifecycle={lifecycle}
@@ -193,7 +200,7 @@ export const NoteEditor =
             shortcuts.register(NoteEditorShortcuts["duplicate-notes"].shortcut, () => {
                 const selected = selection.selected()
                 if (selected.length === 0) {return false}
-                const copies = editing.modify(() => project.api.duplicateNotes(selected)).unwrap()
+                const copies = editing.modify(() => project.api.duplicateNotes(selected)).unwrap("duplicateNotes")
                 if (copies.length === 0) {return false}
                 selection.deselectAll()
                 copies.forEach(adapter => selection.select(adapter))

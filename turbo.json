@@ -17,6 +17,48 @@
         "dist/**"
       ]
     },
+    "@moises-ai/studio-core-wasm#build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*",
+        "$TURBO_ROOT$/crates/**",
+        "!$TURBO_ROOT$/crates/target/**"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
+    "@opendaw/app-wasm#build": {
+      "dependsOn": [
+        "^build",
+        "@moises-ai/studio-core-wasm#build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*",
+        "$TURBO_ROOT$/crates/**",
+        "!$TURBO_ROOT$/crates/target/**"
+      ],
+      "outputs": [
+        "dist/**",
+        "public/wasm/**"
+      ]
+    },
+    "@opendaw/app-studio#build": {
+      "dependsOn": [
+        "^build"
+      ],
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*"
+      ],
+      "outputs": [
+        "dist/**"
+      ]
+    },
     "@opendaw/studio-forge-boxes#build": {
       "dependsOn": [
         "^build"
@@ -91,6 +133,18 @@
       "dependsOn": [
         "^build"
       ]
+    },
+    "@opendaw/app-wasm#test": {
+      "dependsOn": [
+        "^build"
+      ],
+      "cache": false
+    },
+    "@moises-ai/studio-core-wasm#test": {
+      "dependsOn": [
+        "build"
+      ],
+      "cache": false
     }
   }
 }

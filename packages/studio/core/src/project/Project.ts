@@ -71,6 +71,7 @@ import {
 } from "@moises-ai/studio-adapters"
 import {LiveStreamBroadcaster, LiveStreamReceiver} from "@moises-ai/lib-fusion"
 import {ProjectEnv} from "./ProjectEnv"
+import {BoxGraphCopy} from "../BoxGraphCopy"
 import {Mixer} from "../Mixer"
 import {ProjectApi} from "./ProjectApi"
 import {ProjectMigration} from "./ProjectMigration"
@@ -182,6 +183,7 @@ export class Project implements BoxAdaptersContext, Terminable, TerminableOwner 
         this.selection = new VertexSelection(this.editing, this.boxGraph)
         this.parameterFieldAdapters = new ParameterFieldAdapters()
         this.boxAdapters = this.#terminator.own(new BoxAdapters(this))
+        this.liveStreamReceiver = this.#terminator.own(new LiveStreamReceiver())
         this.#timelineBoxAdapter = this.boxAdapters.adapterFor(this.timelineBox, TimelineBoxAdapter)
         this.tempoMap = this.#terminator.own(new VaryingTempoMap(this.#timelineBoxAdapter))
         this.deviceSelection = this.#terminator.own(this.selection.createFilteredSelection(
@@ -214,7 +216,6 @@ export class Project implements BoxAdaptersContext, Terminable, TerminableOwner 
             }
         ))
         this.userEditingManager = new UserEditingManager(this.editing)
-        this.liveStreamReceiver = this.#terminator.own(new LiveStreamReceiver())
         this.midiLearning = this.#terminator.own(new MIDILearning(this))
         this.captureDevices = this.#terminator.own(new CaptureDevices(this))
         this.#rootBoxAdapter = this.boxAdapters.adapterFor(this.rootBox, RootBoxAdapter)
@@ -281,16 +282,14 @@ export class Project implements BoxAdaptersContext, Terminable, TerminableOwner 
         worklet.addEventListener("processorerror", handler)
         worklet.connect(worklet.context.destination, 0)
         this.engine.setWorklet(worklet)
+        worklet.isReady().then(() => this.audioUnitFreeze.replay(worklet))
         return worklet
     }
 
     handleCpuOverload(): void {
         if (!StudioPreferences.settings.engine["stop-playback-when-overloading"]) {return}
         this.engine.sleep()
-        RuntimeNotifier.info({
-            headline: "CPU Overload Detected",
-            message: "Playback has been stopped. Try removing heavy plugins or effects."
-        }).finally()
+        RuntimeNotifier.notify({message: "CPU overload. Playback stopped.", icon: "Info"})
     }
 
     startRecording(countIn: boolean = true) {
@@ -475,6 +474,17 @@ export class Project implements BoxAdaptersContext, Terminable, TerminableOwner 
 
     copy(env?: Partial<ProjectEnv>): Project {
         return Project.load({...this.#env, ...env}, this.toArrayBuffer() as ArrayBuffer)
+    }
+
+    copyWithNewIdentities(env?: Partial<ProjectEnv>): Project {
+        const data = BoxGraphCopy.serializeBoxes(this.boxGraph.boxes())
+        const boxGraph = new BoxGraph<BoxIO.TypeMap>(Option.wrap(BoxIO.create))
+        boxGraph.beginTransaction()
+        BoxGraphCopy.deserializeBoxes(data, boxGraph, {mapPointer: (_pointer, address) => address})
+        boxGraph.endTransaction()
+        boxGraph.verifyPointers()
+        return Project.fromSkeleton({...this.#env, ...env},
+            {boxGraph, mandatoryBoxes: ProjectSkeleton.findMandatoryBoxes(boxGraph)})
     }
 
     invalid(): boolean {

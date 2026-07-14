@@ -1,7 +1,7 @@
 {
     "name": "@opendaw/nam-test",
     "private": true,
-    "version": "0.0.16",
+    "version": "0.0.19",
     "type": "module",
     "license": "LGPL-3.0-or-later",
     "scripts": {

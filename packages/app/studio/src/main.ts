@@ -2,6 +2,8 @@ import "./main.sass"
 import workersUrl from "@moises-ai/studio-core/workers-main.js?worker&url"
 import workletsUrl from "@moises-ai/studio-core/processors.js?url"
 import offlineEngineUrl from "@moises-ai/studio-core/offline-engine.js?worker&url"
+import wasmProcessorUrl from "@moises-ai/studio-core-wasm/wasm-processor.js?url"
+import wasmOfflineWorkerUrl from "@moises-ai/studio-core-wasm/wasm-offline-worker.js?worker&url"
 import {boot} from "@/boot"
 import {initializeColors} from "@moises-ai/studio-enums"
 import {Browser} from "@moises-ai/lib-dom"
@@ -16,7 +18,9 @@ if (Browser.isMobile()) {
     boot({
         workersUrl,
         workletsUrl,
-        offlineEngineUrl
+        offlineEngineUrl,
+        wasmProcessorUrl,
+        wasmOfflineWorkerUrl
     }).then(() => console.debug(`Booted in ${Math.ceil(Date.now() - now)}ms`))
 } else {
     alert("crossOriginIsolated must be enabled")

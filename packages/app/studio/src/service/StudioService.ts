@@ -13,6 +13,7 @@ import {
     Option,
     Provider,
     RuntimeNotifier,
+    RuntimeSignal,
     safeRead,
     Subscription,
     Terminable,
@@ -39,7 +40,7 @@ import {RouteLocation} from "@moises-ai/lib-jsx"
 import {PPQN} from "@moises-ai/lib-dsp"
 import {AnimationFrame, Browser, ConsoleCommands, Dragging, Files} from "@moises-ai/lib-dom"
 import {Promises} from "@moises-ai/lib-runtime"
-import {ExportConfiguration, InstrumentFactories, PresetDecoder} from "@moises-ai/studio-adapters"
+import {EngineAddresses, ExportConfiguration, InstrumentFactories} from "@moises-ai/studio-adapters"
 import {Address} from "@moises-ai/lib-box"
 import {
     AudioContentFactory,
@@ -56,12 +57,14 @@ import {
     ProjectEnv,
     ProjectMeta,
     ProjectProfile,
+    ProjectSignals,
     ProjectStorage,
     Recovery,
     RestartWorklet,
     SampleService,
     SoundfontService,
     StudioPreferences,
+    TemplateStorage,
     TimelineRange
 } from "@moises-ai/studio-core"
 import {ProjectDialogs} from "@/project/ProjectDialogs"
@@ -171,6 +174,51 @@ export class StudioService implements ProjectEnv {
 
     panicEngine(): void {this.runIfProject(({engine}) => engine.panic())}
 
+    // Tear down the running worklet and boot a fresh one for the current project (e.g. after switching the
+    // engine variant). The screen is re-mounted so views subscribe to the new broadcaster instances, and the
+    // transport state (position, playing) carries over to the new engine.
+    restartEngine(): void {
+        this.runIfProject(project => {
+            const screen = this.layout.screen.getValue()
+            const wasPlaying = this.engine.isPlaying.getValue()
+            const position = this.engine.position.getValue()
+            this.switchScreen(null)
+            this.engine.releaseWorklet()
+            const restart: RestartWorklet = {
+                unload: async (event: unknown) => {
+                    this.switchScreen(null)
+                    this.engine.releaseWorklet()
+                    return Dialogs.info({
+                        headline: "Audio-Engine Error",
+                        message: String(safeRead(event, "error", "message") ?? "Unknown error"),
+                        okText: "Restart Engine",
+                        cancelable: false
+                    })
+                },
+                load: (engine: EngineWorklet) => {
+                    this.engine.setWorklet(engine)
+                    this.switchScreen(screen)
+                }
+            }
+            const {status, value: worklet, error} = tryCatch(() => project.startAudioWorklet(restart, {}))
+            if (status === "failure") {
+                Dialogs.info({
+                    headline: "Audio-Engine Error",
+                    message: `Could not start the audio engine. (${Errors.toString(error)})`,
+                    okText: "OK",
+                    cancelable: false
+                }).finally()
+                return
+            }
+            this.engine.setWorklet(worklet)
+            this.switchScreen(screen)
+            worklet.isReady().then(() => {
+                this.engine.setPosition(position)
+                if (wasPlaying) {this.engine.play()}
+            })
+        })
+    }
+
     async newProject() {
         if (this.hasProfile && !this.project.editing.hasNoChanges()) {
             const approved = await RuntimeNotifier.approve({
@@ -220,13 +268,21 @@ export class StudioService implements ProjectEnv {
         }
     }
 
+    async deleteTemplate(uuid: UUID.Bytes): Promise<void> {
+        const {status} = await Promises.tryCatch(TemplateStorage.deleteTemplate(uuid))
+        if (status === "resolved") {
+            RuntimeSignal.dispatch(ProjectSignals.StorageUpdated)
+        }
+    }
+
     async exportMixdown() {
         return this.#projectProfileService.getValue()
             .ifSome(async (profile) => {
                 await this.audioContext.suspend()
                 const {status, error} = await Promises.tryCatch(Mixdowns.exportMixdown(profile))
                 if (status === "rejected" && !Errors.isAbort(error)) {
-                    await RuntimeNotifier.info({headline: "Export Failed", message: String(error)})
+                    console.warn(error)
+                    RuntimeNotifier.notify({message: "Export failed.", icon: "Warning"})
                 }
                 this.audioContext.resume().then()
             })
@@ -238,23 +294,23 @@ export class StudioService implements ProjectEnv {
                 const {project} = profile
                 if (project.rootBox.audioUnits.pointerHub.incoming()
                     .every(({box}) => asInstanceOf(box, AudioUnitBox).type.getValue() === AudioUnitType.Output)) {
-                    return RuntimeNotifier.info({
-                        headline: "Export Error",
-                        message: "No stems to export"
-                    })
+                    RuntimeNotifier.notify({message: "No stems to export.", icon: "Info"})
+                    return
                 }
                 const {status: dialogStatus, error: dialogError, value: config} =
                     await Promises.tryCatch(ProjectDialogs.showExportStemsDialog(project))
                 if (dialogStatus === "rejected") {
                     if (Errors.isAbort(dialogError)) {return}
-                    await RuntimeNotifier.info({headline: "Export Failed", message: String(dialogError)})
+                    console.warn(dialogError)
+                    RuntimeNotifier.notify({message: "Export failed.", icon: "Warning"})
                     return
                 }
                 ExportConfiguration.sanitizeExportNamesInPlace(config)
                 await this.audioContext.suspend()
                 const {status, error} = await Promises.tryCatch(Mixdowns.exportStems(profile, config))
                 if (status === "rejected" && !Errors.isAbort(error)) {
-                    await RuntimeNotifier.info({headline: "Export Failed", message: String(error)})
+                    console.warn(error)
+                    RuntimeNotifier.notify({message: "Export failed.", icon: "Warning"})
                 }
                 this.audioContext.resume().then(EmptyExec, EmptyExec)
             })
@@ -270,26 +326,7 @@ export class StudioService implements ProjectEnv {
         return this.#projectProfileService.getValue().ifSome(profile => DawProjectService.exportDawproject(profile))
     }
 
-    async importPreset() {
-        const {
-            status,
-            value: files
-        } = await Promises.tryCatch(Files.open({types: [FilePickerAcceptTypes.PresetFileType]}))
-        if (status === "rejected") {return}
-        if (files.length === 0) {return}
-        const bytes = await files[0].arrayBuffer()
-        console.debug("importing preset", bytes.byteLength)
-        if (this.hasProfile) {
-            const {editing, skeleton} = this.project
-            editing.modify(() => PresetDecoder.decode(bytes, skeleton))
-        } else {
-            const project = Project.new(this)
-            const {editing, skeleton} = project
-            editing.modify(() => PresetDecoder.decode(bytes, skeleton))
-            this.#projectProfileService.setValue(Option.wrap(
-                new ProjectProfile(UUID.generate(), project, ProjectMeta.init("Untitled"), Option.None)))
-        }
-    }
+    async importPreset() {await this.presets.loadBundleFromDisk()}
 
     async importStems(): Promise<void> {
         const fileResult = await Promises.tryCatch(Files.open({types: [FilePickerAcceptTypes.ZipFileType]}))
@@ -300,7 +337,8 @@ export class StudioService implements ProjectEnv {
         if (status === "rejected") {return}
         const zipResult = await Promises.tryCatch(JSZip.loadAsync(await firstFile.arrayBuffer()))
         if (zipResult.status === "rejected") {
-            await RuntimeNotifier.info({headline: "Import Failed", message: String(zipResult.error)})
+            console.warn(zipResult.error)
+            RuntimeNotifier.notify({message: "Import failed.", icon: "Warning"})
             return
         }
         const audioEntries = Object.entries(zipResult.value.files)
@@ -431,7 +469,7 @@ export class StudioService implements ProjectEnv {
         if (!this.hasProfile) {return}
         const {boxGraph} = this.project
         const result = boxGraph.verifyPointers()
-        await RuntimeNotifier.info({message: `Project is okay. All ${result.count} pointers are fine.`})
+        RuntimeNotifier.notify({message: `Project is okay. All ${result.count} pointers are fine.`, icon: "Checkbox"})
     }
 
     toggleSoftwareKeyboard(): void {
@@ -547,6 +585,74 @@ export class StudioService implements ProjectEnv {
             })).match({none: () => "no project", some: value => value}))
         ConsoleCommands.exportAccessor("box.graph.dependencies",
             () => this.runIfProject(project => project.boxGraph.debugDependencies()))
+        ConsoleCommands.exportMethod("engine.play",
+            () => {
+                this.engine.play()
+                return this.hasProfile
+            })
+        ConsoleCommands.exportMethod("engine.stop",
+            () => {
+                this.engine.stop(true)
+                return this.hasProfile
+            })
+        ConsoleCommands.exportMethod("engine.position", () => this.engine.position.getValue())
+        ConsoleCommands.exportMethod("engine.isPlaying", () => this.engine.isPlaying.getValue())
+        // A LiveStream liveness probe: subscribes the master PEAKS once (like the header meter, a
+        // profile-lifetime subscription) and returns the dispatch count — if it stops growing while
+        // playing, telemetry died (e.g. across an engine swap).
+        const meterProbe = {count: 0, subscribed: false}
+        ConsoleCommands.exportMethod("engine.meterTest",
+            () => this.runIfProject(project => {
+                if (!meterProbe.subscribed) {
+                    meterProbe.subscribed = true
+                    project.liveStreamReceiver.subscribeFloats(EngineAddresses.PEAKS, () => meterProbe.count++)
+                }
+                return meterProbe.count
+            }).unwrapOrNull())
+        // An offline-export probe: renders the current project's mixdown exactly like `Mixdowns.exportMixdown`
+        // (through the wasm variant when the engine toggle is on) and reports level + length, so a headless
+        // run can compare a TS export against a WASM export without touching the file dialogs.
+        ConsoleCommands.exportMethod("engine.exportTest",
+            async () => this.runIfProject(async project => {
+                const {OfflineEngineRenderer} = await import("@moises-ai/studio-core")
+                const {WasmEngine} = await import("@moises-ai/studio-core-wasm")
+                const progress = new DefaultObservableValue(0.0)
+                const audio = await OfflineEngineRenderer.start(
+                    project.copy(), Option.None, progress, undefined, 48_000, WasmEngine.useForExports())
+                let sum = 0.0
+                for (const channel of audio.frames) {
+                    for (const value of channel) {sum += value * value}
+                }
+                const rms = Math.sqrt(sum / (audio.numberOfFrames * audio.numberOfChannels))
+                return {variant: WasmEngine.useForExports() ? "wasm" : "ts", frames: audio.numberOfFrames, rms}
+            }).unwrapOrNull())
+        // The STEM-export probe: exports every instrument unit as a stem (default options) exactly like
+        // `Mixdowns.exportStems` and reports per-stem levels, for headless TS-vs-WASM comparisons.
+        ConsoleCommands.exportMethod("engine.exportStemsTest",
+            async () => this.runIfProject(async project => {
+                const {OfflineEngineRenderer} = await import("@moises-ai/studio-core")
+                const {WasmEngine} = await import("@moises-ai/studio-core-wasm")
+                const {UUID} = await import("@moises-ai/lib-std")
+                const stems: Record<string, {includeAudioEffects: boolean, includeSends: boolean, useInstrumentOutput: boolean, fileName: string}> = {}
+                for (const box of project.boxGraph.boxes()) {
+                    if (box.name !== "AudioUnitBox") {continue}
+                    const type = (box as unknown as {type: {getValue(): string}}).type.getValue()
+                    if (type !== "instrument") {continue}
+                    stems[UUID.toString(box.address.uuid)] =
+                        {includeAudioEffects: true, includeSends: true, useInstrumentOutput: false, fileName: UUID.toString(box.address.uuid).slice(0, 8)}
+                }
+                const progress = new DefaultObservableValue(0.0)
+                const audio = await OfflineEngineRenderer.start(
+                    project.copy(), Option.wrap({stems}), progress, undefined, 48_000, WasmEngine.useForExports())
+                const perStem: Array<number> = []
+                for (let stem = 0; stem < audio.numberOfChannels / 2; stem++) {
+                    let sum = 0.0
+                    for (const value of audio.frames[stem * 2]) {sum += value * value}
+                    for (const value of audio.frames[stem * 2 + 1]) {sum += value * value}
+                    perStem.push(Math.sqrt(sum / (audio.numberOfFrames * 2)))
+                }
+                return {variant: WasmEngine.useForExports() ? "wasm" : "ts", frames: audio.numberOfFrames, perStem}
+            }).unwrapOrNull())
     }
 
     #populateSpotlightData(): void {
@@ -581,7 +687,5 @@ export class StudioService implements ProjectEnv {
             document.body.classList.toggle("experimental-visible", value), "debug", "enable-beta-features")
         StudioPreferences.catchupAndSubscribe(value =>
             document.body.classList.toggle("help-hidden", !value), "visibility", "visible-help-hints")
-        StudioPreferences.catchupAndSubscribe(value =>
-            document.body.classList.toggle("scrollbar-padding", value), "visibility", "scrollbar-padding")
     }
 }

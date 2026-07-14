@@ -1,4 +1,4 @@
-import {Arrays, asDefined, EmptyExec, SortedSet, Subscription, Terminable, Terminator, UUID} from "@moises-ai/lib-std"
+import {Arrays, asDefined, EmptyExec, panic, SortedSet, Subscription, Terminable, Terminator, UUID} from "@moises-ai/lib-std"
 import {Pointers} from "@moises-ai/studio-enums"
 import {AudioUnitBox, AuxSendBox, BoxVisitor} from "@moises-ai/studio-boxes"
 import {AudioUnitBoxAdapter, IndexedBoxAdapterCollection} from "@moises-ai/studio-adapters"
@@ -17,12 +17,14 @@ interface ChannelStripState {
 
 export class Mixer implements Terminable {
     readonly #terminator: Terminator = new Terminator()
+    readonly #audioUnits: IndexedBoxAdapterCollection<AudioUnitBoxAdapter, Pointers.AudioUnits>
     readonly #states: SortedSet<UUID.Bytes, ChannelStripState>
     readonly #solo: Set<AudioUnitBoxAdapter>
     readonly #virtualSolo: Set<AudioUnitBoxAdapter>
     readonly #deferUpdate: DeferExec
 
     constructor(audioUnits: IndexedBoxAdapterCollection<AudioUnitBoxAdapter, Pointers.AudioUnits>) {
+        this.#audioUnits = audioUnits
         this.#states = UUID.newSet(({adapter: {uuid}}) => uuid)
         this.#solo = new Set()
         this.#virtualSolo = new Set()
@@ -53,6 +55,10 @@ export class Mixer implements Terminable {
                 })
             },
             onRemove: (adapter: AudioUnitBoxAdapter) => {
+                if (adapter.isOutput) {
+                    console.warn(`[Mixer] OUTPUT unit ${UUID.toString(adapter.uuid)} removed from rootBox.audioUnits`,
+                        new Error().stack)
+                }
                 this.#solo.delete(adapter)
                 this.#states.removeByKey(adapter.uuid).subscription.terminate()
                 this.#deferUpdate.request()
@@ -61,8 +67,22 @@ export class Mixer implements Terminable {
         }))
     }
 
-    registerChannelStrip({uuid}: AudioUnitBoxAdapter, view: ChannelStripView): Terminable {
-        const {views} = this.#states.get(uuid)
+    registerChannelStrip(adapter: AudioUnitBoxAdapter, view: ChannelStripView): Terminable {
+        const {uuid} = adapter
+        // Diagnostic for the recurring "Unknown key" panic (#924/925/926/984/985): a ChannelStrip was
+        // requested for a unit that core Mixer never registered in #states. Capture which unit + state
+        // (the bare SortedSet.get only reported "Unknown key: <bytes>"). Strips come from two sites:
+        // the mixer panel (rootBox.audioUnits catchup) and DevicePanel (deviceHost.audioUnitBoxAdapter()).
+        const optState = this.#states.opt(uuid)
+        if (optState.isEmpty()) {
+            const inCollection = this.#audioUnits.getAdapterById(uuid).nonEmpty()
+            const collectionEdge = adapter.box.collection.targetVertex.mapOr(vertex => vertex.address.toString(), "EMPTY")
+            return panic(`Mixer has no channel-strip state for audio-unit ${UUID.toString(uuid)} `
+                + `(type=${adapter.type}, attached=${adapter.box.isAttached()}, states=${this.#states.size()}, `
+                + `inCollection=${inCollection}, collectionEdge=${collectionEdge}); `
+                + `requested for a unit absent from rootBox.audioUnits`)
+        }
+        const {views} = optState.unwrap("mixer-state")
         views.push(view)
         this.#deferUpdate.request()
         return Terminable.create(() => {
@@ -106,9 +126,9 @@ export class Mixer implements Terminable {
     #resolveAdapter(box: Box): AudioUnitBoxAdapter {
         return asDefined(box.accept<BoxVisitor<AudioUnitBoxAdapter>>({
             visitAudioUnitBox: ({address: {uuid}}: AudioUnitBox) =>
-                this.#states.get(uuid).adapter,
+                this.#states.get(uuid, "channel-strip state").adapter,
             visitAuxSendBox: ({audioUnit: {targetVertex}}: AuxSendBox) =>
-                this.#states.get(targetVertex.unwrap().address.uuid).adapter
+                this.#states.get(targetVertex.unwrap("auxSend.target").address.uuid, "channel-strip state").adapter
         }), "Could not resolve entry")
     }
 

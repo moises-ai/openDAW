@@ -15,6 +15,7 @@ import {CloudHandler} from "./CloudHandler"
 import {CloudAuthManager} from "./CloudAuthManager"
 import {CloudBackupSamples} from "./CloudBackupSamples"
 import {CloudBackupProjects} from "./CloudBackupProjects"
+import {CloudBackupTemplates} from "./CloudBackupTemplates"
 import {CloudBackupSoundfonts} from "./CloudBackupSoundfonts"
 import {CloudBackupPresets} from "./CloudBackupPresets"
 import {ProjectSignals} from "../project"
@@ -44,10 +45,7 @@ export namespace CloudBackup {
         } catch (reason: unknown) {
             if (Errors.isAbort(reason)) {return}
             console.warn(reason)
-            await RuntimeNotifier.info({
-                headline: `Could not sync`,
-                message: String(reason)
-            })
+            RuntimeNotifier.notify({message: "Could not sync.", icon: "Warning"})
         } finally {
             RuntimeSignal.dispatch(ProjectSignals.StorageUpdated)
         }
@@ -57,8 +55,8 @@ export namespace CloudBackup {
         const progressValue = new DefaultObservableValue<unitValue>(0.0)
         const notification = RuntimeNotifier.progress({headline: `Backup with ${service}`, progress: progressValue})
         const log = (text: string) => notification.message = text
-        const [progressSamples, progressProjects, progressSoundfonts, progressPresets] =
-            Progress.split(progress => progressValue.setValue(progress), 4)
+        const [progressSamples, progressProjects, progressTemplates, progressSoundfonts, progressPresets] =
+            Progress.split(progress => progressValue.setValue(progress), 5)
         const lockPath = "lock.json"
         type Lock = { id: string, created: string }
         let canReleaseLock = false
@@ -94,6 +92,7 @@ export namespace CloudBackup {
             await cloudHandler.upload(lockPath, new TextEncoder().encode(JSON.stringify(json)).buffer)
             await CloudBackupSamples.start(cloudHandler, progressSamples, log)
             await CloudBackupProjects.start(cloudHandler, progressProjects, log)
+            await CloudBackupTemplates.start(cloudHandler, progressTemplates, log)
             await CloudBackupSoundfonts.start(cloudHandler, progressSoundfonts, log)
             await CloudBackupPresets.start(cloudHandler, progressPresets, log)
         } finally {

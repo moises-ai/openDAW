@@ -31,6 +31,7 @@ import {Promises} from "@moises-ai/lib-runtime"
 import {createElement} from "@moises-ai/lib-jsx"
 import {Colors, IconSymbol} from "@moises-ai/studio-enums"
 import {DeviceEditor} from "@/ui/devices/DeviceEditor.tsx"
+import {Surface} from "@/ui/surface/Surface.tsx"
 import {Clipboard, Html} from "@moises-ai/lib-dom"
 import {StudioService} from "@/service/StudioService"
 import {AudioFileBox, WerkstattParameterBox, WerkstattSampleBox} from "@moises-ai/studio-boxes"
@@ -170,7 +171,9 @@ export const ScriptDeviceEditor = ({lifecycle, service, adapter, deviceHost, con
                  message: lastErrorMessage,
                  buttons: [{
                      text: "Copy to Clipboard",
-                     onClick: handler => Clipboard.writeText(lastErrorMessage).finally(() => handler.close())
+                     onClick: handler => Clipboard.writeText(lastErrorMessage)
+                         .then(() => Surface.get(errorIcon).toast("Error message copied to clipboard", IconSymbol.Copy))
+                         .finally(() => handler.close())
                  }]
              })}>
             <Icon symbol={IconSymbol.Bug}/>

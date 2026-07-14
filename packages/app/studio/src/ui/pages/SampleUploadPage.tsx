@@ -4,7 +4,8 @@ import {StudioService} from "@/service/StudioService.ts"
 import {Files, Html} from "@moises-ai/lib-dom"
 import {Dialogs} from "@/ui/components/dialogs.tsx"
 import {estimateBpm, WavFile} from "@moises-ai/lib-dsp"
-import {FilePickerAcceptTypes, OpenSampleAPI} from "@moises-ai/studio-core"
+import {FilePickerAcceptTypes} from "@moises-ai/studio-core"
+import {OpenSampleAPI} from "@/opendaw-api"
 
 const className = Html.adoptStyleSheet(css, "SampleUploadPage")
 

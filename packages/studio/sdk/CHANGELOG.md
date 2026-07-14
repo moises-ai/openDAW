@@ -3,6 +3,22 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [0.0.158](https://github.com/andremichelle/opendaw/compare/@opendaw/studio-sdk@0.0.157...@opendaw/studio-sdk@0.0.158) (2026-07-14)
+
+**Note:** Version bump only for package @opendaw/studio-sdk
+
+## [0.0.157](https://github.com/andremichelle/opendaw/compare/@opendaw/studio-sdk@0.0.156...@opendaw/studio-sdk@0.0.157) (2026-07-07)
+
+**Note:** Version bump only for package @opendaw/studio-sdk
+
+## [0.0.156](https://github.com/andremichelle/opendaw/compare/@opendaw/studio-sdk@0.0.155...@opendaw/studio-sdk@0.0.156) (2026-06-29)
+
+**Note:** Version bump only for package @opendaw/studio-sdk
+
+## [0.0.155](https://github.com/andremichelle/opendaw/compare/@opendaw/studio-sdk@0.0.154...@opendaw/studio-sdk@0.0.155) (2026-06-23)
+
+**Note:** Version bump only for package @opendaw/studio-sdk
+
 ## [0.0.154](https://github.com/andremichelle/opendaw/compare/@opendaw/studio-sdk@0.0.153...@opendaw/studio-sdk@0.0.154) (2026-06-05)
 
 **Note:** Version bump only for package @opendaw/studio-sdk

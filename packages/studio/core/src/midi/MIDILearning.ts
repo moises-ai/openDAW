@@ -96,7 +96,7 @@ export class MIDILearning implements Terminable {
                     box.deviceChannel.setValue(MidiData.readChannel(data))
                     box.controlId.setValue(MidiData.readParam1(data))
                 }))
-                this.#connections.get(optBox.unwrap("Could not create MIDIControllerBox").address).handleEvent(event)
+                this.#connections.get(optBox.unwrap("Could not create MIDIControllerBox").address, "midi connection").handleEvent(event)
             }
         }))
         return RuntimeNotifier.info({
@@ -167,6 +167,6 @@ export class MIDILearning implements Terminable {
     }
 
     #findConnectionByParameterAddress(address: Address): Option<MIDIConnection> {
-        return Option.wrap(this.#connections.values().find(({box}) => box.parameter.targetAddress.unwrap() === address))
+        return Option.wrap(this.#connections.values().find(({box}) => box.parameter.targetAddress.unwrap("parameter.targetAddr") === address))
     }
 }

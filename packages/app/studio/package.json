@@ -1,14 +1,15 @@
 {
     "name": "@opendaw/app-studio",
     "private": true,
-    "version": "0.0.152",
+    "version": "0.0.156",
     "type": "module",
     "license": "LGPL-3.0-or-later",
     "scripts": {
         "dev": "CI=true vite --clearScreen false --host",
         "build": "tsc && vite build",
         "preview": "vite preview --host",
-        "lint": "eslint \"src/**/*.ts\""
+        "lint": "eslint \"src/**/*.ts\"",
+        "test": "vitest run --config vitest.config.ts"
     },
     "dependencies": {
         "@moises-ai/lib-box": "*",
@@ -22,6 +23,7 @@
         "@moises-ai/studio-adapters": "*",
         "@moises-ai/studio-boxes": "*",
         "@moises-ai/studio-core": "*",
+        "@moises-ai/studio-core-wasm": "*",
         "@moises-ai/studio-enums": "*",
         "@moises-ai/studio-p2p": "*",
         "@moises-ai/studio-scripting": "*",

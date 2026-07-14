@@ -252,6 +252,80 @@ describe("editing", () => {
     })
 })
 
+describe("transaction abort integrity", () => {
+    interface TestScene {
+        graph: BoxGraph
+        editing: BoxEditing
+    }
+
+    beforeEach<TestScene>((scene: TestScene) => {
+        const graph = new BoxGraph<any>(Option.wrap((name: keyof any, graph: BoxGraph, uuid: UUID.Bytes, constructor: Procedure<Box>) => {
+            switch (name) {
+                case "BarBox":
+                    return BarBox.create(graph, uuid, constructor)
+                default:
+                    return panic()
+            }
+        }))
+        scene.graph = graph
+        scene.editing = new BoxEditing(graph)
+    })
+
+    it("rollback survives a box with deferred pointer created and deleted in the aborted transaction", (scene: TestScene) => {
+        // #1014: the deferred pointer update lands at the end of the transaction updates, so the
+        // reverse rollback replay used to hit it first — after the box was already unstaged —
+        // and panicked with "Could not find PointerField".
+        const targetBox = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate())).unwrap()
+        expect(() => scene.editing.modify(() => {
+            const tempBox = BarBox.create(scene.graph, UUID.generate(),
+                box => box.pointer.targetAddress = Option.wrap(targetBox.pointer.address))
+            tempBox.delete()
+            panic("forced failure")
+        })).toThrow("forced failure")
+        expect(scene.graph.boxes().length).toBe(1)
+        expect(scene.graph.findBox(targetBox.address.uuid).nonEmpty()).true
+        expect(scene.editing.modify(() => targetBox.bool.setValue(true)).isEmpty()).true
+        expect(targetBox.bool.getValue()).true
+    })
+
+    it("recovers when a box constructor throws mid-transaction", (scene: TestScene) => {
+        // The never-staged box must not leak deferred pointer updates, edges or the constructing flag.
+        const targetBox = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate())).unwrap()
+        expect(() => scene.editing.modify(() => {
+            BarBox.create(scene.graph, UUID.generate(), box => {
+                box.pointer.targetAddress = Option.wrap(targetBox.pointer.address)
+                panic("constructor failure")
+            })
+        })).toThrow("constructor failure")
+        expect(scene.graph.boxes().length).toBe(1)
+        const laterBox = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate())).unwrap()
+        expect(scene.graph.findBox(laterBox.address.uuid).nonEmpty()).true
+    })
+
+    it("restores deleted boxes with resolved pointers when a transaction aborts", () => {
+        // #1015/#1020: boxes recreated during the rollback deferred their pointer updates, which were
+        // then discarded without resolving — leaving a live box whose pointer had no target vertex.
+        const graph = createGraphWithFactory()
+        const editing = new BoxEditing(graph)
+        const {mandatory, ref} = editing.modify(() => {
+            const mandatory = MandatoryBox.create(graph, UUID.generate())
+            const ref = RefBox.create(graph, UUID.generate(), box => box.target.refer(mandatory))
+            return {mandatory, ref}
+        }).unwrap()
+        const refUuid = ref.address.uuid
+        expect(() => editing.modify(() => {
+            mandatory.delete()
+            panic("forced failure")
+        })).toThrow("forced failure")
+        const restored = graph.findBox(refUuid)
+        expect(restored.nonEmpty()).true
+        const restoredPointer = (restored.unwrap() as RefBox).target
+        expect(restoredPointer.targetAddress.nonEmpty()).true
+        expect(restoredPointer.targetVertex.nonEmpty()).true
+        expect(restoredPointer.targetVertex.unwrap().address.equals(mandatory.address)).true
+    })
+})
+
 describe("transaction validation & rollback", () => {
     describe("validation catches invalid state", () => {
         it("valid transaction succeeds", () => {
@@ -888,5 +962,149 @@ describe("P2P concurrent editing simulation", () => {
         externalTransaction(scene.graph, () => mandatory.value.setValue(false))
         expect(mandatory.value.getValue()).false
         expect(() => scene.graph.edges().validateRequirements()).not.toThrow()
+    })
+})
+
+describe("#208 create-then-settle-move is a single undo step", () => {
+    // `modify` has NO pre-flush: a marked modify folds any leftover UNMARKED pending into its own history entry
+    // instead of sealing that pending as a separate step first. So an unmarked create followed by ANY marked edit
+    // is one undo step, and a trailing unmarked selection folds into the edit it belongs to (no phantom entry).
+    interface TestScene {
+        graph: BoxGraph
+        editing: BoxEditing
+    }
+
+    beforeEach<TestScene>((scene: TestScene) => {
+        scene.graph = createGraphWithFactory()
+        scene.editing = new BoxEditing(scene.graph)
+    })
+
+    it("an unmarked create folds into the next marked modify as ONE undo step (no pre-flush)", (scene: TestScene) => {
+        const box = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate()), false).unwrap()
+        const uuid = box.address.uuid
+        scene.editing.modify(() => box.bool.setValue(true)) // marked: seals the leftover create INTO this entry
+        expect(scene.graph.findBox(uuid).nonEmpty()).true
+        scene.editing.undo() // a single undo reverses both the create and the setValue
+        expect(scene.graph.findBox(uuid).nonEmpty()).false
+        expect(scene.editing.canUndo()).false
+    })
+
+    it("fix: unmarked create + unmarked settle-move needs a single undo", (scene: TestScene) => {
+        const box = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate()), false).unwrap()
+        const uuid = box.address.uuid
+        scene.editing.modify(() => box.bool.setValue(true), false)
+        expect(scene.graph.findBox(uuid).nonEmpty()).true
+        scene.editing.undo()
+        expect(scene.graph.findBox(uuid).nonEmpty()).false
+    })
+
+    it("fix preserves prior history: the gesture is its own undo step, not merged into the previous action", (scene: TestScene) => {
+        const prior = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate())).unwrap()
+        const priorUuid = prior.address.uuid
+        const box = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate()), false).unwrap()
+        const uuid = box.address.uuid
+        scene.editing.modify(() => box.bool.setValue(true), false)
+        scene.editing.undo()
+        expect(scene.graph.findBox(uuid).nonEmpty()).false
+        expect(scene.graph.findBox(priorUuid).nonEmpty()).true
+    })
+
+    it("a self-sealing gesture (explicit mark() boundaries) stays a separate step from a following edit", (scene: TestScene) => {
+        // Why removing the pre-flush is safe: a gesture that must stay distinct (a knob/slider drag, recording)
+        // brackets itself — mark() at start, unmarked modifies during, mark() at finalise. The finalise seal empties
+        // #pending, so the next marked edit has nothing to fold and forms its own entry. Two undo steps, not one.
+        const dragged = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate())).unwrap()
+        const draggedUuid = dragged.address.uuid
+        scene.editing.mark() // start of gesture: seal anything prior
+        scene.editing.modify(() => dragged.bool.setValue(true), false) // drag step (unmarked)
+        scene.editing.mark() // finalise: seal the gesture as its own entry
+        const next = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate())).unwrap()
+        const nextUuid = next.address.uuid
+        scene.editing.undo()
+        expect(scene.graph.findBox(nextUuid).nonEmpty()).false // only the following edit is undone
+        expect(dragged.bool.getValue()).true // the gesture is untouched — it is a separate, earlier step
+        scene.editing.undo()
+        expect(dragged.bool.getValue()).false // the second undo reverses ONLY the gesture, not merged with `next`
+        expect(scene.graph.findBox(draggedUuid).nonEmpty()).true // the base create (its own entry) is still intact
+    })
+})
+
+describe("#306 each automation-node placement is its own undo step", () => {
+    // The double-click create + settle-move commit UNMARKED so they group into one undo entry (#208), but the
+    // gesture must then SEAL itself with editing.mark() at pointer-up (ValueMoveModifier.approve). Without the
+    // seal, consecutive placements accumulate in #pending and the next mark() (the first undo triggers one)
+    // flushes them all as ONE entry — so a single undo removes every node placed since (the #306 report).
+    // Sealing each gesture keeps create+move atomic while making each placement independently undoable.
+    interface TestScene {
+        graph: BoxGraph
+        editing: BoxEditing
+    }
+
+    beforeEach<TestScene>((scene: TestScene) => {
+        scene.graph = createGraphWithFactory()
+        scene.editing = new BoxEditing(scene.graph)
+    })
+
+    // One placement gesture: create (unmarked) + settle-move (unmarked) + the approve() seal.
+    const place = (scene: TestScene) => {
+        const box = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate()), false).unwrap()
+        scene.editing.modify(() => box.bool.setValue(true), false)
+        scene.editing.mark() // ValueMoveModifier.approve() seals the gesture here
+        return box.address.uuid
+    }
+
+    it("reproduces the bug: WITHOUT the per-gesture seal, one undo removes every placed node", (scene: TestScene) => {
+        const make = () => {
+            const box = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate()), false).unwrap()
+            scene.editing.modify(() => box.bool.setValue(true), false)
+            return box.address.uuid
+        }
+        const first = make(), second = make(), third = make()
+        scene.editing.undo() // marks ALL pending as one entry, then undoes it
+        expect(scene.graph.findBox(first).nonEmpty()).false
+        expect(scene.graph.findBox(second).nonEmpty()).false
+        expect(scene.graph.findBox(third).nonEmpty()).false
+    })
+
+    it("fix: each sealed placement undoes independently, newest first", (scene: TestScene) => {
+        const first = place(scene), second = place(scene), third = place(scene)
+        scene.editing.undo()
+        expect(scene.graph.findBox(third).nonEmpty()).false
+        expect(scene.graph.findBox(second).nonEmpty()).true
+        expect(scene.graph.findBox(first).nonEmpty()).true
+        scene.editing.undo()
+        expect(scene.graph.findBox(second).nonEmpty()).false
+        expect(scene.graph.findBox(first).nonEmpty()).true
+        scene.editing.undo()
+        expect(scene.graph.findBox(first).nonEmpty()).false
+    })
+
+    it("fix: create+settle-move within one sealed gesture is still a single undo", (scene: TestScene) => {
+        const uuid = place(scene)
+        scene.editing.undo()
+        expect(scene.graph.findBox(uuid).nonEmpty()).false
+        expect(scene.editing.canUndo()).false
+    })
+
+    it("fix: a leading standalone selection modify folds into the placement, not a phantom entry", (scene: TestScene) => {
+        // Models note / region creation: a standalone selection change (SelectionRectangle deselect on pointerdown,
+        // or the trailing select) is its own mark=false modify. If the create seals separately the selection becomes
+        // a phantom undo step (note = two undos; two regions = three undos). Committing create UNMARKED and calling
+        // mark() at gesture end folds the leading selection into the one placement entry.
+        const first = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate()), false).unwrap()
+        scene.editing.mark() // placement 1 sealed
+        const firstUuid = first.address.uuid
+        // placement 2: a leading standalone mark=false modify (stand-in for the SelectionRectangle deselect), then
+        // the create, then the gesture seal — all one entry.
+        scene.editing.modify(() => first.bool.setValue(true), false)
+        const second = scene.editing.modify(() => BarBox.create(scene.graph, UUID.generate()), false).unwrap()
+        const secondUuid = second.address.uuid
+        scene.editing.mark()
+        scene.editing.undo() // one step removes placement 2 (and reverts the folded selection change)
+        expect(scene.graph.findBox(secondUuid).nonEmpty()).false
+        expect(scene.graph.findBox(firstUuid).nonEmpty()).true
+        scene.editing.undo() // one more step removes placement 1
+        expect(scene.graph.findBox(firstUuid).nonEmpty()).false
+        expect(scene.editing.canUndo()).false
     })
 })

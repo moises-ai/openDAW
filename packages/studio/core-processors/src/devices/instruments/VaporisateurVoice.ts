@@ -3,6 +3,7 @@ import {
     Adsr,
     AudioBuffer,
     BandLimitedOscillator,
+    fastExp2,
     Glide,
     LFO,
     MidiKeys,
@@ -104,7 +105,8 @@ export class VaporisateurVoice implements Voice {
             parameterUnisonStereo
         } = this.device
         const gain = velocityToGain(this.#event.velocity) * this.#gain
-        const detune = 2.0 ** (this.#spread * (parameterUnisonDetune.getValue() / 1200.0))
+        // WASM CONTRACT: `fastExp2` mirrors `dsp::fast_math` (identical arithmetic in both engines)
+        const detune = fastExp2(this.#spread * (parameterUnisonDetune.getValue() / 1200.0))
         const panning = this.#spread * parameterUnisonStereo.getValue()
         const [gainL, gainR] = StereoMatrix.panningToGains(panning, Mixing.Linear)
         const [outL, outR] = output.channels()
@@ -118,6 +120,9 @@ export class VaporisateurVoice implements Voice {
         const lfo_target_cutoff = parameterLfoTargetCutoff.getValue()
         const lfo_target_volume = parameterLfoTargetVolume.getValue()
 
+        // BIT-EXACT fast path (mirrored in the Rust voice): with no tune modulation `2 ** (lfo * 0)` is
+        // exactly 1 and multiplying by it is the identity, so the per-sample exp2 can be skipped outright.
+        const tuneModulated = lfo_target_tune !== 0.0
         for (let i = fromIndex; i < toIndex; i++) {
             // apply lfo
             const lfo = lfoBuffer[i]
@@ -128,7 +133,8 @@ export class VaporisateurVoice implements Voice {
             // apply gain
             vcaBuffer[i] *= clampUnit(gain + lfo * lfo_target_volume)
             // compute frequencies
-            const frequency = freqBuffer[i] * (2.0 ** (lfo * lfo_target_tune))
+            // WASM CONTRACT: `fastExp2` mirrors `dsp::fast_math` (identical arithmetic in both engines)
+            const frequency = tuneModulated ? freqBuffer[i] * fastExp2(lfo * lfo_target_tune) : freqBuffer[i]
             freqBufferA[i] = frequency * frequencyAMultiplier
             freqBufferB[i] = frequency * frequencyBMultiplier
         }

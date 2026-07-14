@@ -1,6 +1,6 @@
 {
     "name": "@moises-ai/studio-sdk",
-    "version": "0.0.154",
+    "version": "0.0.158",
     "license": "LGPL-3.0-or-later",
     "type": "module",
     "publishConfig": {
@@ -56,6 +56,7 @@
         "@moises-ai/studio-adapters": "*",
         "@moises-ai/studio-boxes": "*",
         "@moises-ai/studio-core": "*",
+        "@moises-ai/studio-core-wasm": "*",
         "@moises-ai/studio-enums": "*"
     },
     "gitHead": "e4f70170c5947610932306da94e7f0bb817e43b3"

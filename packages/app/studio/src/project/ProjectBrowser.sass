@@ -41,13 +41,10 @@ component
     align-content: start
     align-items: center
     row-gap: 3px
-    overflow-y: scroll
+    overflow: hidden scroll
     color: var(--color-dark)
     position: relative
     min-height: 2em
-
-    .scrollbar-padding &
-      padding-right: 12px
 
     &:empty:after
       font-size: 1em
@@ -56,6 +53,7 @@ component
 
     .delete-icon
       cursor: pointer
+      margin-right: 8px
 
       &:hover
         color: var(--color-red)

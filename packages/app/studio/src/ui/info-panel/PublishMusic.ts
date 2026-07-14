@@ -2,6 +2,7 @@ import {OfflineEngineRenderer, ProjectBundle, ProjectProfile} from "@moises-ai/s
 import {WavFile} from "@moises-ai/lib-dsp"
 import {DefaultObservableValue, isDefined, Option, panic, Procedure, Progress} from "@moises-ai/lib-std"
 import {Promises} from "@moises-ai/lib-runtime"
+import {WasmEngine} from "@moises-ai/studio-core-wasm"
 
 export namespace PublishMusic {
     export const publishMusic = async (profile: ProjectProfile, progress: Progress.Handler, log: Procedure<string>): Promise<string> => {
@@ -13,7 +14,7 @@ export namespace PublishMusic {
         }
         log("Mixdown audio...")
         const renderProgress = new DefaultObservableValue(0.0)
-        const mixdownResult = await Promises.tryCatch(OfflineEngineRenderer.start(profile.project.copy(), Option.None, renderProgress))
+        const mixdownResult = await Promises.tryCatch(OfflineEngineRenderer.start(profile.project.copy(), Option.None, renderProgress, undefined, 48_000, WasmEngine.useForExports()))
         if (mixdownResult.status === "rejected") {
             return panic(mixdownResult.error)
         }

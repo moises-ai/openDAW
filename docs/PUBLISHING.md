@@ -10,13 +10,14 @@ This fork of [andremichelle/openDAW](https://github.com/andremichelle/openDAW) p
 
 ## Package Structure
 
-### Publishable Packages (17 total)
+### Publishable Packages (18 total)
 
 These packages are published to GitHub Package Registry when a release is created:
 
 **Studio packages:**
 - `@moises-ai/studio-sdk` - Meta-package that re-exports all studio functionality
 - `@moises-ai/studio-core` - Core studio functionality
+- `@moises-ai/studio-core-wasm` - WebAssembly engine build of the studio core
 - `@moises-ai/studio-adapters` - Adapters for studio integration
 - `@moises-ai/studio-boxes` - Box schemas and types
 - `@moises-ai/studio-enums` - Shared enumerations
@@ -40,7 +41,9 @@ These packages are published to GitHub Package Registry when a release is create
 These packages have `"private": true` and are not published. They keep their upstream `@opendaw` scope to minimize diff from upstream and reduce merge conflicts during syncs:
 
 - `@opendaw/app-studio` - Web application
+- `@opendaw/app-wasm` - WASM test application
 - `@opendaw/lab` - Lab application
+- `@opendaw/lib-inference` - Inference library (private upstream)
 - `@opendaw/studio-core-workers` - Audio workers (built into core)
 - `@opendaw/studio-core-processors` - Audio processors (built into core)
 - `@opendaw/studio-forge-boxes` - Code generator
@@ -87,7 +90,7 @@ Once the dry run succeeds, create a release to publish for real:
 5. Add release notes describing what changed
 6. Click **"Publish release"**
 
-The GitHub Action will automatically build, test, and publish all 16 packages to GitHub Package Registry.
+The GitHub Action will automatically build, test, and publish all 18 packages to GitHub Package Registry.
 
 **Release Naming Convention:** Since this project uses independent versioning (each package has its own version), the release tag serves as a snapshot marker. Use the `@moises-ai/studio-sdk` version as the tag name.
 
@@ -132,6 +135,10 @@ git merge upstream/main
 git diff --name-only --diff-filter=U | xargs -I{} git checkout --theirs "{}"
 git add -A
 git commit -m "chore: merge upstream/main"
+
+# 3b. Remove upstream CI workflows the merge brought back — this fork keeps
+#     only publish.yml (upstream's deploy/parity/yjs workflows target their infra)
+find .github/workflows -type f ! -name 'publish.yml' -delete
 
 # 4. Restore all package.json files from upstream to ensure a clean transform
 #    (previous transforms may have written stale scope references)

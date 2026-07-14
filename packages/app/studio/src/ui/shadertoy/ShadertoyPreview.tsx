@@ -3,6 +3,7 @@ import {Events, Html} from "@moises-ai/lib-dom"
 import {asInstanceOf, isAbsent, Lifecycle, Nullable, Terminable, Terminator, tryCatch} from "@moises-ai/lib-std"
 import {createElement, LocalLink} from "@moises-ai/lib-jsx"
 import {StudioService} from "@/service/StudioService"
+import {Promises} from "@moises-ai/lib-runtime"
 import {ShadertoyRunner} from "@/ui/shadertoy/ShadertoyRunner"
 import {ShadertoyBox} from "@moises-ai/studio-boxes"
 import {Colors} from "@moises-ai/studio-enums"
@@ -62,11 +63,9 @@ export const ShadertoyPreview = ({lifecycle, service}: Construct) => {
                             })
                         }),
                         Events.subscribe(canvas, "click", async () => {
-                            if (document.fullscreenElement) {
-                                await document.exitFullscreen()
-                            } else {
-                                await canvas.requestFullscreen()
-                            }
+                            await Promises.tryCatch(document.fullscreenElement
+                                ? document.exitFullscreen()
+                                : canvas.requestFullscreen())
                         })
                     )
                 }}/>

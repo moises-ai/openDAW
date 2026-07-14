@@ -3,18 +3,19 @@ import {createElement, PageContext, PageFactory} from "@moises-ai/lib-jsx"
 import {StudioService} from "@/service/StudioService.ts"
 import {Html} from "@moises-ai/lib-dom"
 import {Colors} from "@moises-ai/studio-enums"
+import {installScrollbars} from "@/ui/components/Scrollbars"
 
 const className = Html.adoptStyleSheet(css, "ImprintPage")
 
-export const ImprintPage: PageFactory<StudioService> = ({}: PageContext<StudioService>) => (
-    <div className={className}>
+export const ImprintPage: PageFactory<StudioService> = ({lifecycle}: PageContext<StudioService>) => (
+    <div className={className} onConnect={host => lifecycle.own(installScrollbars(host))}>
         <h1>Imprint</h1>
         <h3>In accordance with § 5 TMG (German Telemedia Act)</h3>
         <h4>Responsible for content:</h4>
         <p>
             <span style={{color: Colors.cream.toString()}}>André Michelle</span><br/>
             <span style={{color: Colors.dark.toString()}}>Cologne, Germany</span><br/>
-            Email: <a style={{color: Colors.blue}} href="mailto:hello@moises-ai.org">hello@moises-ai.org</a>
+            Email: <a style={{color: Colors.blue}} href="mailto:hello@opendaw.org">hello@opendaw.org</a>
         </p>
         <p>
             This website is a personal, non-commercial project.<br/>

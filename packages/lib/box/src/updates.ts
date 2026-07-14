@@ -4,7 +4,38 @@ import {PointerField} from "./pointer"
 import {Arrays, ByteArrayInput, DataInput, DataOutput, Option, UUID} from "@moises-ai/lib-std"
 import {BoxGraph} from "./graph"
 
+// WASM CONTRACT: the per-update type tags ("new"/"delete"/"pointer"/"primitive") and each update's
+// write() layout are decoded by Rust (crates/boxgraph updates.rs, the .odsl stream). Do not rename
+// the tags or reorder the serialized fields.
 export type Update = NewUpdate | PrimitiveUpdate | PointerUpdate | DeleteUpdate
+
+// Removes updates for boxes that were created AND deleted in the same transaction.
+export const optimizeUpdates = (updates: ReadonlyArray<Update>): ReadonlyArray<Update> => {
+    const createdUuids = UUID.newSet<UUID.Bytes>(uuid => uuid)
+    const deletedUuids = UUID.newSet<UUID.Bytes>(uuid => uuid)
+    for (const update of updates) {
+        if (update instanceof NewUpdate) {
+            createdUuids.add(update.uuid)
+        } else if (update instanceof DeleteUpdate) {
+            deletedUuids.add(update.uuid)
+        }
+    }
+    const phantomUuids = UUID.newSet<UUID.Bytes>(uuid => uuid)
+    for (const uuid of createdUuids.values()) {
+        if (deletedUuids.hasKey(uuid)) {
+            phantomUuids.add(uuid)
+        }
+    }
+    if (phantomUuids.isEmpty()) {return updates}
+    return updates.filter(update => {
+        if (update instanceof NewUpdate || update instanceof DeleteUpdate) {
+            return !phantomUuids.hasKey(update.uuid)
+        } else if (update instanceof PointerUpdate || update instanceof PrimitiveUpdate) {
+            return !phantomUuids.hasKey(update.address.uuid)
+        }
+        return true
+    })
+}
 
 export namespace Updates {
     export const decode = (input: DataInput): ReadonlyArray<Update> => {
@@ -109,6 +140,7 @@ export class PrimitiveUpdate<V extends PrimitiveValues = PrimitiveValues> implem
     }
 
     get address(): Address {return this.#address}
+    get serialization(): ValueSerialization<V> {return this.#serialization}
     get oldValue(): V {return this.#oldValue}
     get newValue(): V {return this.#newValue}
 

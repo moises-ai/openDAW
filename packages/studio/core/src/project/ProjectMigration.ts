@@ -26,7 +26,9 @@ import {
     migrateAudioClipBox,
     migrateAudioFileBox,
     migrateAudioRegionBox,
+    migrateAudioRegionOverlaps,
     migrateAudioUnitBox,
+    migrateCaptureTrackMismatch,
     migrateDelayDeviceBox,
     migrateMIDIOutputDeviceBox,
     migrateNeuralAmpDeviceBox,
@@ -37,7 +39,8 @@ import {
     migrateValueEventCollection,
     migrateVaporisateurDeviceBox,
     migrateWarpMarkers,
-    migrateZeitgeistDeviceBox
+    migrateZeitgeistDeviceBox,
+    migrateZeroDurationRegions
 } from "./migration"
 
 export class ProjectMigration {
@@ -50,7 +53,7 @@ export class ProjectMigration {
             rootBox.groove.refer(GrooveShuffleBox.create(boxGraph, UUID.generate()))
             boxGraph.endTransaction()
         }
-        const globalShuffle = asInstanceOf(rootBox.groove.targetVertex.unwrap(), GrooveShuffleBox).label
+        const globalShuffle = asInstanceOf(rootBox.groove.targetVertex.unwrap("groove.target"), GrooveShuffleBox).label
         if (globalShuffle.getValue() !== "Groove Shuffle") {
             boxGraph.beginTransaction()
             globalShuffle.setValue("Groove Shuffle")
@@ -78,7 +81,7 @@ export class ProjectMigration {
             orphans.forEach(orphan => orphan.delete())
             boxGraph.endTransaction()
         }
-        const grooveTarget = rootBox.groove.targetVertex.unwrap()
+        const grooveTarget = rootBox.groove.targetVertex.unwrap("groove.target")
         const outputMidiDevices = rootBox.outputMidiDevices
         const bpmValue = bpm.getValue()
         // 1st pass (2nd pass might rely on those changes)
@@ -105,5 +108,17 @@ export class ProjectMigration {
             visitDelayDeviceBox: (box: DelayDeviceBox) => migrateDelayDeviceBox(boxGraph, box),
             visitSelectionBox: (box: SelectionBox) => migrateSelectionBox(boxGraph, box)
         }))
+        // 3rd pass. Drop content tracks whose type no longer matches their unit's capture device (a MIDI
+        // instrument swapped for a Tape leaves note tracks on an audio-capture unit, and vice versa) — they
+        // are unusable and crash editors. Runs after per-unit migration, which ensures each unit has a
+        // capture box, so the comparison reflects the current instrument.
+        migrateCaptureTrackMismatch(boxGraph)
+        // 4th pass. Drop regions with a non-positive (derived) duration — legacy of the zero-length-sample
+        // bug — so they can never trip validateTrack on a later edit. Runs after per-region migration (which
+        // can rewrite audio durations) and before the overlap heal (which then sees only valid spans).
+        migrateZeroDurationRegions(boxGraph, bpmValue)
+        // 5th pass. Heal sub-ppqn overlaps that the Int32 position truncation (or the AudioFit->Seconds
+        // pass above) left between seconds-based audio regions. Runs after per-region migration.
+        migrateAudioRegionOverlaps(boxGraph, bpmValue)
     }
 }

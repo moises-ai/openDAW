@@ -1,9 +1,10 @@
 # Storage file-not-found
 
-- **status:** ENV · **priority:** ENV
+- **status:** FIXED (no longer crashes; UX enhancement deferred) · **priority:** ENV
 - **occurrences:** 4 · **ids:** [631, 766, 971, 974]
-- **assessment:** OPFS entry removed out from under us.
-- **action:** Catch NotFoundError; recover/re-init.
+- **assessment:** OPFS entry vanished (eviction / other tab / never written) → `NotFoundError` from `OpfsWorker.#resolveFile`, propagated as an unhandled rejection from `SampleStorage.load`/`loadMeta`.
+- **fix:** No longer crashes — covered by the cross-cutting non-fatal-rejection change in `ErrorHandler`. NOT globally ignore-listed (`NotFoundError` also arises from non-storage DOM ops, so a blanket branch could mask real bugs).
+- **deferred enhancement:** wrap `SampleStorage.load`/`loadMeta` (`SampleStorage.ts:53,61-65`) in `Promises.tryCatch`; on `NotFoundError` treat the sample as missing (online re-fetch / "sample not found" path) instead of failing silently. Not required to avoid the crash.
 
 [< back to index](error-triage.md)
 

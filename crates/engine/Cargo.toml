@@ -1,0 +1,21 @@
+[package]
+name = "engine"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+boxgraph = {path = "../boxgraph"}
+studio-boxes = {path = "../studio-boxes"}
+engine-env = {path = "../engine-env"}
+abi = {path = "../abi"}
+transport = {path = "../transport"}
+dsp = {path = "../dsp"}
+math = {path = "../math"}
+value = {path = "../value"}
+bindings = {path = "../bindings"}
+processors = {path = "../processors"}
+talc = {version = "5.0.3", features = ["counters"]}

@@ -34,28 +34,21 @@ export namespace PresetDecoder {
     export const decode = (bytes: ArrayBufferLike, target: ProjectSkeleton): ReadonlyArray<AudioUnitBox> => {
         const header = new ByteArrayInput(bytes.slice(0, 8))
         if (header.readInt() !== PresetHeader.MAGIC_HEADER_OPEN) {
-            RuntimeNotifier.info({
-                headline: "Could Not Import Preset",
-                message: "Invalid preset file"
-            }).then()
+            RuntimeNotifier.notify({message: "Invalid preset file.", icon: "Warning"})
             return []
         }
         const version = header.readInt()
         if (version !== PresetHeader.FORMAT_VERSION) {
-            RuntimeNotifier.info({
-                headline: "Could Not Import Preset",
-                message: `Unsupported preset version ${version} (this build supports ${PresetHeader.FORMAT_VERSION}).`
-            }).then()
+            console.warn(`Unsupported preset version ${version} (supports ${PresetHeader.FORMAT_VERSION})`)
+            RuntimeNotifier.notify({message: "Unsupported preset version.", icon: "Warning"})
             return []
         }
         const sourceBoxGraph = new BoxGraph<BoxIO.TypeMap>(Option.wrap(BoxIO.create))
         try {
             sourceBoxGraph.fromArrayBuffer(bytes.slice(8), false)
         } catch (reason) {
-            RuntimeNotifier.info({
-                headline: "Could Not Import Preset",
-                message: String(reason)
-            }).then()
+            console.warn(reason)
+            RuntimeNotifier.notify({message: "Could not import preset.", icon: "Warning"})
             return []
         }
         const summary: Record<string, number> = {}
@@ -79,7 +72,7 @@ export namespace PresetDecoder {
         TransferUtils.reorderAudioUnits(uuidMap, sourceAudioUnitBoxes, rootBox)
         const importedAudioUnits = sourceAudioUnitBoxes
             .map(source => asInstanceOf(rootBox.graph
-                .findBox(uuidMap.get(source.address.uuid).target)
+                .findBox(uuidMap.get(source.address.uuid, "uuid mapping").target)
                 .unwrap("Target AudioUnit has not been copied"), AudioUnitBox))
             .filter(box => box.type.getValue() !== AudioUnitType.Output)
         importedAudioUnits.forEach((audioUnitBox) => {
@@ -240,7 +233,7 @@ export namespace PresetDecoder {
                     }
                     const input = new ByteArrayInput(source.toArrayBuffer())
                     const key = source.name as keyof BoxIO.TypeMap
-                    const uuid = uuidMap.get(source.address.uuid).target
+                    const uuid = uuidMap.get(source.address.uuid, "uuid mapping").target
                     targetBoxGraph.createBox(key, uuid, box => box.read(input))
                 })
         })
@@ -333,7 +326,7 @@ export namespace PresetDecoder {
         }, () => {
             effects.forEach((source, i) => {
                 const input = new ByteArrayInput(source.toArrayBuffer())
-                const uuid = uuidMap.get(source.address.uuid).target
+                const uuid = uuidMap.get(source.address.uuid, "uuid mapping").target
                 targetGraph.createBox(source.name as keyof BoxIO.TypeMap, uuid, box => {
                     box.read(input)
                     if (IndexedBox.isIndexedBox(box)) {box.index.setValue(insertIndex + i)}
@@ -342,7 +335,7 @@ export namespace PresetDecoder {
             dependencies.forEach(source => {
                 if (existingPreservedUuids.hasKey(source.address.uuid)) {return}
                 const input = new ByteArrayInput(source.toArrayBuffer())
-                const uuid = uuidMap.get(source.address.uuid).target
+                const uuid = uuidMap.get(source.address.uuid, "uuid mapping").target
                 targetGraph.createBox(source.name as keyof BoxIO.TypeMap, uuid, box => box.read(input))
             })
         })

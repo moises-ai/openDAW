@@ -1,8 +1,6 @@
-if ("stackTraceLimit" in Error) {Error.stackTraceLimit = 50}
-
 import "./main.sass"
 import {App} from "@/ui/App.tsx"
-import {panic, Progress, RuntimeNotification, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
+import {isDefined, panic, Progress, RuntimeNotification, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
 import {StudioService} from "@/service/StudioService"
 import {SampleMetaData, SoundfontMetaData} from "@moises-ai/studio-adapters"
 import {Dialogs} from "@/ui/components/dialogs.tsx"
@@ -12,15 +10,16 @@ import {Surface} from "@/ui/surface/Surface.tsx"
 import {replaceChildren} from "@moises-ai/lib-jsx"
 import {
     AudioWorklets,
+    BufferUnderrunDetector,
     CloudAuthManager,
     ContextMenu,
+    FactoryCatalog,
     GlobalSampleLoaderManager,
     GlobalSoundfontLoaderManager,
     OfflineEngineRenderer,
-    OpenSampleAPI,
-    OpenSoundfontAPI,
     Workers
 } from "@moises-ai/studio-core"
+import {OpenPresetAPI, OpenSampleAPI, OpenSoundfontAPI} from "@/opendaw-api"
 import {testFeatures} from "@/features.ts"
 import {MissingFeature} from "@/ui/MissingFeature.tsx"
 import {UpdateMessage} from "@/ui/UpdateMessage.tsx"
@@ -34,15 +33,20 @@ import {FontLoader} from "@/ui/FontLoader"
 import {ErrorHandler} from "@/errors/ErrorHandler.ts"
 import {AudioData} from "@moises-ai/lib-dsp"
 import {ChainedSampleProvider, ChainedSoundfontProvider} from "@moises-ai/studio-p2p"
+import {IconSymbol} from "@moises-ai/studio-enums"
 import {StudioShortcutManager} from "@/service/StudioShortcutManager"
 import {Menu} from "@/ui/components/Menu"
+import {WasmEngine} from "@moises-ai/studio-core-wasm"
+
+if ("stackTraceLimit" in Error) {Error.stackTraceLimit = 50}
 
 const loadBuildInfo = async () => fetch(`/build-info.json?v=${Date.now()}`)
     .then(x => x.json())
     .then(x => BuildInfo.parse(x))
 
-export const boot = async ({workersUrl, workletsUrl, offlineEngineUrl}: {
+export const boot = async ({workersUrl, workletsUrl, offlineEngineUrl, wasmProcessorUrl, wasmOfflineWorkerUrl}: {
     workersUrl: string, workletsUrl: string, offlineEngineUrl: string
+    wasmProcessorUrl: string, wasmOfflineWorkerUrl: string
 }) => {
     console.debug("booting...")
     console.debug(location.origin)
@@ -75,12 +79,27 @@ export const boot = async ({workersUrl, workletsUrl, offlineEngineUrl}: {
     if (audioWorklets.status === "rejected") {
         return panic(audioWorklets.error)
     }
+    WasmEngine.install({
+        processorUrl: wasmProcessorUrl,
+        offlineWorkerUrl: wasmOfflineWorkerUrl,
+        wasmUrl: `${import.meta.env.BASE_URL}wasm-engine`
+    })
+    if (WasmEngine.isEnabled() && !await WasmEngine.ensureReady(context)) {
+        // Session-only fallback (the EngineVariant provider yields null while the modules are absent):
+        // persisting the opt-out would strand the user on the TS engine after the artifacts return.
+        console.warn("WASM engine artifacts unavailable — falling back to the TypeScript engine.")
+    }
     if (context.state === "suspended") {
         window.addEventListener("click",
             async () => await context.resume().then(() =>
                 console.debug(`AudioContext resumed (${context.state})`)), {capture: true, once: true})
     }
     const audioDevices = await AudioOutputDevice.create(context)
+    FactoryCatalog.install({
+        samples: () => OpenSampleAPI.get().all(),
+        soundfonts: () => OpenSoundfontAPI.get().all(),
+        presets: () => OpenPresetAPI.get().list()
+    })
     const chainedSampleProvider = new ChainedSampleProvider({
         fetch: async (uuid: UUID.Bytes, progress: Progress.Handler): Promise<[AudioData, SampleMetaData]> =>
             OpenSampleAPI.get().load(uuid, progress)
@@ -99,6 +118,9 @@ export const boot = async ({workersUrl, workletsUrl, offlineEngineUrl}: {
         sampleManager, soundfontManager, chainedSampleProvider, chainedSoundfontProvider,
         cloudAuthManager, buildInfo)
     StudioShortcutManager.install(service)
+    if (isDefined(context.playbackStats)) {
+        new BufferUnderrunDetector(context.playbackStats, service.engine)
+    }
     const errorHandler = new ErrorHandler(buildInfo, () => service.recovery.createBackupCommand())
     const surface = Surface.main({
         config: (surface: Surface) => surface.own(ContextMenu.install(surface.owner, (menuItem, {clientX, clientY}) => {
@@ -119,14 +141,17 @@ export const boot = async ({workersUrl, workletsUrl, offlineEngineUrl}: {
     RuntimeNotifier.install({
         info: (request) => Dialogs.info(request),
         approve: (request) => Dialogs.approve({...request, reverse: true}),
-        progress: (request): RuntimeNotification.ProgressUpdater => Dialogs.progress(request)
+        progress: (request): RuntimeNotification.ProgressUpdater => Dialogs.progress(request),
+        notify: ({message, icon, origin}) => Surface.get(origin)
+            .toast(message, isDefined(icon) ? IconSymbol.fromName(icon) : IconSymbol.Notification)
     })
     const opfsProbe = await Promises.tryCatch(navigator.storage.getDirectory())
     if (opfsProbe.status === "rejected") {
         Dialogs.info({
             headline: "Storage Unavailable",
-            message: "openDAW cannot persist samples, presets or projects because the browser is blocking access to private storage. This typically happens in Private Browsing mode. Please reopen openDAW in a regular browser window to enable saving."
+            message: "openDAW cannot start because the browser is blocking access to private storage, so samples, presets and projects cannot be persisted. This typically happens in Private Browsing mode. Please reopen openDAW in a regular browser window."
         }).finally()
+        return
     }
     if (buildInfo.env === "production" && !Browser.isLocalHost()) {
         if (import.meta.env.BUILD_UUID !== buildInfo.uuid) {

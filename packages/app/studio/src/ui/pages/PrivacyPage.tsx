@@ -3,11 +3,12 @@ import {createElement, PageContext, PageFactory} from "@moises-ai/lib-jsx"
 import {StudioService} from "@/service/StudioService.ts"
 import {Html} from "@moises-ai/lib-dom"
 import {Colors} from "@moises-ai/studio-enums"
+import {installScrollbars} from "@/ui/components/Scrollbars"
 
 const className = Html.adoptStyleSheet(css, "PrivacyPage")
 
-export const PrivacyPage: PageFactory<StudioService> = ({}: PageContext<StudioService>) => (
-    <div className={className}>
+export const PrivacyPage: PageFactory<StudioService> = ({lifecycle}: PageContext<StudioService>) => (
+    <div className={className} onConnect={host => lifecycle.own(installScrollbars(host))}>
         <h1>Privacy Policy</h1>
         <p style={{color: Colors.blue.toString()}}>openDAW respects your privacy. This application does not collect
             personal data, create user accounts, or track visitors.</p>
@@ -22,7 +23,7 @@ export const PrivacyPage: PageFactory<StudioService> = ({}: PageContext<StudioSe
             storage location.</p>
         <h3>Contact</h3>
         <p>For questions about this policy, contact: <a style={{color: Colors.blue}}
-                                                        href="mailto:hello@moises-ai.org">hello@moises-ai.org</a>
+                                                        href="mailto:hello@opendaw.org">hello@opendaw.org</a>
         </p>
     </div>
 )

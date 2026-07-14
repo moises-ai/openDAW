@@ -106,9 +106,9 @@ export class AudioClipBoxAdapter implements AudioContentBoxAdapter, ClipBoxAdapt
             box.hue.setValue(this.hue)
             box.duration.setValue(this.duration)
             box.mute.setValue(this.mute)
-            box.clips.refer(this.#box.clips.targetVertex.unwrap())
-            box.file.refer(this.#box.file.targetVertex.unwrap())
-            box.events.refer(this.#box.events.targetVertex.unwrap())
+            box.clips.refer(this.#box.clips.targetVertex.unwrap("clips.target"))
+            box.file.refer(this.#box.file.targetVertex.unwrap("file.target"))
+            box.events.refer(this.#box.events.targetVertex.unwrap("events.target"))
             clonedPlayMode.ifSome(mode => box.playMode.refer(mode))
         })
     }
@@ -128,6 +128,7 @@ export class AudioClipBoxAdapter implements AudioContentBoxAdapter, ClipBoxAdapt
     get hue(): int {return this.#box.hue.getValue()}
     get gain(): MutableObservableValue<number> {return this.#box.gain}
     get file(): AudioFileBoxAdapter {return this.#fileAdapter.unwrap("Cannot access file.")}
+    get optFile(): Option<AudioFileBoxAdapter> {return this.#fileAdapter}
     get observableOptPlayMode(): ObservableOption<AudioPlayMode> {return this.#playMode}
     get hasCollection() {return !this.optCollection.isEmpty()}
     get optCollection(): Option<never> {return Option.None}
