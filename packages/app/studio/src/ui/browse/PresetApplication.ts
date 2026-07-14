@@ -1,6 +1,7 @@
-import {DefaultObservableValue, isDefined, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
-import {InstrumentFactories, PresetDecoder} from "@moises-ai/studio-adapters"
-import {OpenPresetAPI, PresetSource, PresetStorage, Project} from "@moises-ai/studio-core"
+import {DefaultObservableValue, isDefined, RuntimeNotifier, UUID} from "@opendaw/lib-std"
+import {InstrumentFactories, PresetDecoder} from "@opendaw/studio-adapters"
+import {PresetSource, PresetStorage, Project} from "@opendaw/studio-core"
+import {OpenPresetAPI} from "@/opendaw-api"
 
 export namespace PresetApplication {
     export const loadBytes = (uuid: UUID.String, source: PresetSource): Promise<ArrayBuffer> => {
@@ -42,10 +43,7 @@ export namespace PresetApplication {
                 bytes, product.audioUnitBox,
                 {keepMIDIEffects: true, keepAudioEffects: true})
             if (attempt.isFailure()) {
-                RuntimeNotifier.info({
-                    headline: "Can't Apply Preset",
-                    message: attempt.failureReason()
-                }).then()
+                RuntimeNotifier.notify({message: "Cannot apply preset.", icon: "Warning"})
             }
         })
         project.loadScriptDevices()

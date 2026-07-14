@@ -6,15 +6,16 @@ import {
     Lifecycle,
     MutableObservableOption,
     RuntimeNotifier
-} from "@moises-ai/lib-std"
-import {createElement, Inject} from "@moises-ai/lib-jsx"
+} from "@opendaw/lib-std"
+import {createElement, Inject} from "@opendaw/lib-jsx"
 import {StudioService} from "@/service/StudioService.ts"
 import {Cover} from "./Cover"
-import {Events, Html} from "@moises-ai/lib-dom"
+import {Events, Html} from "@opendaw/lib-dom"
 import {Button} from "@/ui/components/Button"
-import {Colors} from "@moises-ai/studio-enums"
+import {Colors} from "@opendaw/studio-enums"
 import {PublishMusic} from "@/ui/info-panel/PublishMusic"
-import {Promises} from "@moises-ai/lib-runtime"
+import {Promises} from "@opendaw/lib-runtime"
+import {installScrollbars} from "@/ui/components/Scrollbars"
 
 const className = Html.adoptStyleSheet(css, "ProjectInfo")
 
@@ -142,7 +143,7 @@ export const ProjectProfileInfo = ({lifecycle, service}: Construct) => {
                                     }
                                     unpublishButton.classList.toggle("hidden", isUndefined(meta.radioToken))
                                     buttonPublishText.value = isDefined(meta.radioToken) ? "Republish" : "Publish"
-                                    return await RuntimeNotifier.info({headline: "Publish complete", message: ""})
+                                    RuntimeNotifier.notify({message: "Publish complete", icon: "Checkbox"})
                                 }}
                                 appearance={{framed: true, color: Colors.purple}}>
                             {buttonPublishText}
@@ -177,7 +178,7 @@ export const ProjectProfileInfo = ({lifecycle, service}: Construct) => {
         })
     )
     return (
-        <div className={className}>
+        <div className={className} onConnect={host => lifecycle.own(installScrollbars(host))}>
             {form}
         </div>
     )

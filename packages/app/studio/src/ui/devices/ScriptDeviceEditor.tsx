@@ -10,7 +10,7 @@ import {
     SampleDeclaration,
     ScriptCompiler,
     ScriptDeclaration
-} from "@moises-ai/studio-adapters"
+} from "@opendaw/studio-adapters"
 import {
     asInstanceOf,
     Color,
@@ -26,14 +26,15 @@ import {
     Subscription,
     Terminator,
     UUID
-} from "@moises-ai/lib-std"
-import {Promises} from "@moises-ai/lib-runtime"
-import {createElement} from "@moises-ai/lib-jsx"
-import {Colors, IconSymbol} from "@moises-ai/studio-enums"
+} from "@opendaw/lib-std"
+import {Promises} from "@opendaw/lib-runtime"
+import {createElement} from "@opendaw/lib-jsx"
+import {Colors, IconSymbol} from "@opendaw/studio-enums"
 import {DeviceEditor} from "@/ui/devices/DeviceEditor.tsx"
-import {Clipboard, Html} from "@moises-ai/lib-dom"
+import {Surface} from "@/ui/surface/Surface.tsx"
+import {Clipboard, Html} from "@opendaw/lib-dom"
 import {StudioService} from "@/service/StudioService"
-import {AudioFileBox, WerkstattParameterBox, WerkstattSampleBox} from "@moises-ai/studio-boxes"
+import {AudioFileBox, WerkstattParameterBox, WerkstattSampleBox} from "@opendaw/studio-boxes"
 import {ControlBuilder} from "@/ui/devices/ControlBuilder"
 import {Button} from "@/ui/components/Button"
 import {Checkbox} from "@/ui/components/Checkbox"
@@ -43,7 +44,7 @@ import {Column} from "@/ui/devices/Column"
 import {LKR} from "@/ui/devices/constants"
 import {CodeEditorExample} from "@/ui/code-editor/CodeEditorState"
 import {SampleSelector, SampleSelectStrategy} from "@/ui/devices/SampleSelector"
-import {MenuItem} from "@moises-ai/studio-core"
+import {MenuItem} from "@opendaw/studio-core"
 import {Dialogs} from "@/ui/components/dialogs"
 
 const className = Html.adoptStyleSheet(css, "ScriptDeviceEditor")
@@ -170,7 +171,9 @@ export const ScriptDeviceEditor = ({lifecycle, service, adapter, deviceHost, con
                  message: lastErrorMessage,
                  buttons: [{
                      text: "Copy to Clipboard",
-                     onClick: handler => Clipboard.writeText(lastErrorMessage).finally(() => handler.close())
+                     onClick: handler => Clipboard.writeText(lastErrorMessage)
+                         .then(() => Surface.get(errorIcon).toast("Error message copied to clipboard", IconSymbol.Copy))
+                         .finally(() => handler.close())
                  }]
              })}>
             <Icon symbol={IconSymbol.Bug}/>

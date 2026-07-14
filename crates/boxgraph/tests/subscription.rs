@@ -1,0 +1,236 @@
+//! Subscriptions: propagation filtering (This/Parent/Children), all-updates listeners, ordering,
+//! and removal — including proof that unsubscribe frees the observer's captured state. Plus one
+//! end-to-end check that `BoxGraph::transaction` dispatches to subscribers.
+
+use std::cell::RefCell;
+use std::rc::Rc;
+use boxgraph::address::Address;
+use boxgraph::boxes::{GraphBox, Registry};
+use boxgraph::field::{Fields, FieldValue};
+use boxgraph::graph::BoxGraph;
+use boxgraph::subscription::{HubEvent, Propagation, Subscriptions};
+use boxgraph::updates::Update;
+
+fn primitive_at(address: Address) -> Update {
+    Update::Primitive {address, old: FieldValue::Int32(0), new: FieldValue::Int32(1)}
+}
+
+fn graph_box(uuid: [u8; 16], name: &str, fields: &[(u16, FieldValue)]) -> GraphBox {
+    let mut map = Fields::new();
+    for (key, value) in fields {
+        map.insert(*key, value.clone());
+    }
+    GraphBox {creation_index: 0, name: name.to_string(), uuid, fields: map}
+}
+
+#[test]
+fn this_fires_only_on_the_exact_address() {
+    let uuid = [1u8; 16];
+    let target = Address::of(uuid, vec![10u16]);
+    let graph = BoxGraph::from_boxes(vec![]); // observers ignore it; dispatch needs a graph to hand them
+    let mut subscriptions = Subscriptions::new();
+    let hits = Rc::new(RefCell::new(0));
+    let recorder = hits.clone();
+    subscriptions.subscribe_vertex(Propagation::This, target.clone(), Box::new(move |_, _| *recorder.borrow_mut() += 1));
+    subscriptions.dispatch(&graph, &primitive_at(target.clone()));
+    subscriptions.dispatch(&graph, &primitive_at(Address::of(uuid, vec![10u16, 1]))); // child: no
+    subscriptions.dispatch(&graph, &primitive_at(Address::box_of(uuid))); // ancestor: no
+    assert_eq!(*hits.borrow(), 1);
+}
+
+#[test]
+fn parent_fires_on_self_and_descendants() {
+    let uuid = [2u8; 16];
+    let monitor = Address::of(uuid, vec![5u16]);
+    let graph = BoxGraph::from_boxes(vec![]);
+    let mut subscriptions = Subscriptions::new();
+    let hits = Rc::new(RefCell::new(0));
+    let recorder = hits.clone();
+    subscriptions.subscribe_vertex(Propagation::Parent, monitor.clone(), Box::new(move |_, _| *recorder.borrow_mut() += 1));
+    subscriptions.dispatch(&graph, &primitive_at(monitor.clone())); // self: yes
+    subscriptions.dispatch(&graph, &primitive_at(Address::of(uuid, vec![5u16, 7]))); // descendant: yes
+    subscriptions.dispatch(&graph, &primitive_at(Address::box_of(uuid))); // ancestor: no
+    subscriptions.dispatch(&graph, &primitive_at(Address::of(uuid, vec![6u16]))); // sibling: no
+    assert_eq!(*hits.borrow(), 2);
+}
+
+#[test]
+fn children_fires_on_self_and_ancestors() {
+    let uuid = [3u8; 16];
+    let monitor = Address::of(uuid, vec![5u16, 7]);
+    let graph = BoxGraph::from_boxes(vec![]);
+    let mut subscriptions = Subscriptions::new();
+    let hits = Rc::new(RefCell::new(0));
+    let recorder = hits.clone();
+    subscriptions.subscribe_vertex(Propagation::Children, monitor.clone(), Box::new(move |_, _| *recorder.borrow_mut() += 1));
+    subscriptions.dispatch(&graph, &primitive_at(monitor.clone())); // self: yes
+    subscriptions.dispatch(&graph, &primitive_at(Address::of(uuid, vec![5u16]))); // ancestor: yes
+    subscriptions.dispatch(&graph, &primitive_at(Address::box_of(uuid))); // ancestor (box): yes
+    subscriptions.dispatch(&graph, &primitive_at(Address::of(uuid, vec![5u16, 7, 9]))); // descendant: no
+    assert_eq!(*hits.borrow(), 3);
+}
+
+#[test]
+fn all_listener_fires_on_every_update_kind() {
+    let uuid = [4u8; 16];
+    let graph = BoxGraph::from_boxes(vec![]);
+    let mut subscriptions = Subscriptions::new();
+    let hits = Rc::new(RefCell::new(0));
+    let recorder = hits.clone();
+    subscriptions.subscribe_all(Box::new(move |_, _| *recorder.borrow_mut() += 1));
+    subscriptions.dispatch(&graph, &primitive_at(Address::of(uuid, vec![1u16])));
+    subscriptions.dispatch(&graph, &Update::Pointer {address: Address::of(uuid, vec![2u16]), old: None, new: None});
+    subscriptions.dispatch(&graph, &Update::New {uuid, name: "X".to_string(), settings: Vec::new()});
+    subscriptions.dispatch(&graph, &Update::Delete {uuid, name: "X".to_string(), settings: Vec::new()});
+    assert_eq!(*hits.borrow(), 4);
+}
+
+#[test]
+fn observers_fire_in_subscription_order() {
+    let uuid = [5u8; 16];
+    let address = Address::of(uuid, vec![1u16]);
+    let graph = BoxGraph::from_boxes(vec![]);
+    let mut subscriptions = Subscriptions::new();
+    let log = Rc::new(RefCell::new(Vec::<u8>::new()));
+    for tag in [1u8, 2, 3] {
+        let recorder = log.clone();
+        subscriptions.subscribe_vertex(Propagation::This, address.clone(), Box::new(move |_, _| recorder.borrow_mut().push(tag)));
+    }
+    subscriptions.dispatch(&graph, &primitive_at(address));
+    assert_eq!(*log.borrow(), vec![1, 2, 3]);
+}
+
+#[test]
+fn indexed_dispatch_picks_only_matches_in_subscription_order() {
+    // Many monitors at different addresses, subscribed OUT of address order: a dispatch must fire only
+    // the exact-address matches, and in subscription (id) order, regardless of the sorted index layout.
+    let uuid = [7u8; 16];
+    let graph = BoxGraph::from_boxes(vec![]);
+    let mut subscriptions = Subscriptions::new();
+    let log = Rc::new(RefCell::new(Vec::<u16>::new()));
+    // Subscribe addresses 5,1,3,1,9,1 in that order (note three monitors at key 1, ids 1,3,5 below).
+    for (tag, key) in [(0u16, 5u16), (1, 1), (2, 3), (3, 1), (4, 9), (5, 1)] {
+        let recorder = log.clone();
+        subscriptions.subscribe_vertex(Propagation::This, Address::of(uuid, vec![key]),
+            Box::new(move |_, _| recorder.borrow_mut().push(tag)));
+    }
+    subscriptions.dispatch(&graph, &primitive_at(Address::of(uuid, vec![1u16])));
+    assert_eq!(*log.borrow(), vec![1, 3, 5]); // only key-1 monitors, in subscription order
+    log.borrow_mut().clear();
+    subscriptions.dispatch(&graph, &primitive_at(Address::of(uuid, vec![5u16])));
+    assert_eq!(*log.borrow(), vec![0]);
+    log.borrow_mut().clear();
+    subscriptions.dispatch(&graph, &primitive_at(Address::of(uuid, vec![7u16]))); // no monitor
+    assert!(log.borrow().is_empty());
+}
+
+#[test]
+fn deferred_subscription_applies_after_dispatch_not_during() {
+    // An observer that, when it fires, queues a NEW targeted subscription via the deferred handle. The new
+    // monitor must NOT fire for the current transaction (it did not exist when dispatch began) but MUST fire
+    // on the next one — mirroring lib-box deferred monitors. Driven through real transactions so the graph
+    // applies the deferred op after each dispatch.
+    let uuid = [8u8; 16];
+    let mut fields = Fields::new();
+    fields.insert(1u16, FieldValue::Int32(0));
+    fields.insert(2u16, FieldValue::Int32(0));
+    let mut graph = BoxGraph::from_boxes(vec![GraphBox {creation_index: 0, name: "Test".to_string(), uuid, fields}]);
+    let trigger = Address::of(uuid, vec![1u16]);
+    let late = Address::of(uuid, vec![2u16]);
+    let registry = Registry::new();
+    let deferred = graph.deferred();
+    let hits = Rc::new(RefCell::new(0));
+    let recorder = hits.clone();
+    let late_addr = late.clone();
+    graph.subscribe_vertex(Propagation::This, trigger.clone(), Box::new(move |_, _| {
+        let recorder = recorder.clone();
+        deferred.subscribe_vertex(Propagation::This, late_addr.clone(), Box::new(move |_, _| *recorder.borrow_mut() += 1));
+    }));
+    // Edit `trigger`: fires the trigger observer, which queues the late monitor; the graph applies it after
+    // dispatch — so it does NOT fire for this transaction.
+    graph.transaction(&[primitive_at(trigger)], &registry).unwrap();
+    assert_eq!(*hits.borrow(), 0);
+    // Now editing `late` fires the newly-registered monitor.
+    graph.transaction(&[primitive_at(late)], &registry).unwrap();
+    assert_eq!(*hits.borrow(), 1);
+}
+
+#[test]
+fn unsubscribe_stops_notifications_and_frees_the_observer() {
+    let uuid = [6u8; 16];
+    let address = Address::of(uuid, vec![1u16]);
+    let graph = BoxGraph::from_boxes(vec![]);
+    let mut subscriptions = Subscriptions::new();
+    let hits = Rc::new(RefCell::new(0));
+    let recorder = hits.clone();
+    let id = subscriptions.subscribe_vertex(Propagation::This, address.clone(), Box::new(move |_, _| *recorder.borrow_mut() += 1));
+    assert_eq!(subscriptions.count(), 1);
+    assert_eq!(Rc::strong_count(&hits), 2); // test + observer
+    subscriptions.dispatch(&graph, &primitive_at(address.clone()));
+    assert!(subscriptions.unsubscribe(id));
+    assert_eq!(subscriptions.count(), 0);
+    assert!(!subscriptions.unsubscribe(id)); // already removed
+    subscriptions.dispatch(&graph, &primitive_at(address));
+    assert_eq!(*hits.borrow(), 1); // not notified after unsubscribe
+    assert_eq!(Rc::strong_count(&hits), 1); // observer dropped -> captured state freed
+}
+
+#[test]
+fn transaction_dispatches_to_subscribers_and_applies_the_value() {
+    let uuid = [7u8; 16];
+    let mut fields = Fields::new();
+    fields.insert(1u16, FieldValue::Int32(5));
+    let mut graph = BoxGraph::from_boxes(vec![GraphBox {creation_index: 0, name: "Test".to_string(), uuid, fields}]);
+    let address = Address::of(uuid, vec![1u16]);
+    let hits = Rc::new(RefCell::new(0));
+    let recorder = hits.clone();
+    graph.subscribe_vertex(Propagation::This, address.clone(), Box::new(move |_, _| *recorder.borrow_mut() += 1));
+    let registry = Registry::new(); // a primitive update needs no schema lookup
+    graph.transaction(
+        &[Update::Primitive {address: address.clone(), old: FieldValue::Int32(5), new: FieldValue::Int32(9)}],
+        &registry).unwrap();
+    assert_eq!(*hits.borrow(), 1);
+    assert_eq!(graph.find_box(&uuid).unwrap().fields.get(&1u16), Some(&FieldValue::Int32(9)));
+}
+
+// --- pointer-hub subscription (membership of pointer-built collections) ---
+
+#[test]
+fn pointer_hub_emits_added_then_removed() {
+    let target = [10u8; 16];
+    let source = [11u8; 16];
+    let hub = Address::of(target, vec![1u16]);
+    let pointer = Address::of(source, vec![1u16]);
+    let mut graph = BoxGraph::from_boxes(vec![
+        graph_box(target, "Target", &[(1, FieldValue::Hook)]),
+        graph_box(source, "Source", &[(1, FieldValue::Pointer(None))])
+    ]);
+    let events = Rc::new(RefCell::new(Vec::<HubEvent>::new()));
+    let recorder = events.clone();
+    graph.subscribe_pointer_hub(hub.clone(), Box::new(move |_graph, event| recorder.borrow_mut().push(event.clone())));
+    assert!(events.borrow().is_empty(), "no members yet, nothing to catch up");
+
+    let registry = Registry::new();
+    graph.transaction(&[Update::Pointer {address: pointer.clone(), old: None, new: Some(hub.clone())}], &registry).unwrap();
+    assert_eq!(*events.borrow(), vec![HubEvent::Added(pointer.clone())], "connecting a pointer adds a member");
+
+    events.borrow_mut().clear();
+    graph.transaction(&[Update::Pointer {address: pointer.clone(), old: Some(hub.clone()), new: None}], &registry).unwrap();
+    assert_eq!(*events.borrow(), vec![HubEvent::Removed(pointer)], "disconnecting removes the member");
+}
+
+#[test]
+fn pointer_hub_catches_up_to_existing_members() {
+    let target = [12u8; 16];
+    let source = [13u8; 16];
+    let hub = Address::of(target, vec![1u16]);
+    let pointer = Address::of(source, vec![1u16]);
+    let mut graph = BoxGraph::from_boxes(vec![
+        graph_box(target, "Target", &[(1, FieldValue::Hook)]),
+        graph_box(source, "Source", &[(1, FieldValue::Pointer(Some(hub.clone())))])
+    ]);
+    let events = Rc::new(RefCell::new(Vec::<HubEvent>::new()));
+    let recorder = events.clone();
+    graph.subscribe_pointer_hub(hub, Box::new(move |_graph, event| recorder.borrow_mut().push(event.clone())));
+    assert_eq!(*events.borrow(), vec![HubEvent::Added(pointer)], "subscribing catches up to the existing member");
+}

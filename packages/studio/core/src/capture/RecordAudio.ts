@@ -68,7 +68,7 @@ export namespace RecordAudio {
             const trackBox = RecordTrack.findOrCreate(editing, capture.audioUnitBox, TrackType.Audio, excludeTrack)
             const collectionBox = ValueEventCollectionBox.create(boxGraph, UUID.generate())
             const regionBox = AudioRegionBox.create(boxGraph, UUID.generate(), box => {
-                box.file.refer(fileBox.unwrap())
+                box.file.refer(fileBox.unwrap("fileBox"))
                 box.events.refer(collectionBox.owners)
                 box.regions.refer(trackBox.regions)
                 box.position.setValue(position)
@@ -86,6 +86,14 @@ export namespace RecordAudio {
             console.debug("[RecordAudio] finalizeTake", {durationInSeconds})
             const {trackBox, regionBox} = take
             if (regionBox.isAttached()) {
+                // The finalized length is recomputed (loop boundary), so unlike the live update it can be
+                // non-positive for a take that started at/after loopTo. Never persist a zero/negative
+                // duration region (it later trips validateTrack "duration must be positive") — drop it.
+                if (durationInSeconds <= 0) {
+                    console.debug("[RecordAudio] finalizeTake: dropping non-positive take", {durationInSeconds})
+                    regionBox.delete()
+                    return
+                }
                 regionBox.duration.setValue(durationInSeconds)
                 regionBox.loopDuration.setValue(durationInSeconds)
             }

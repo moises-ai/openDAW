@@ -207,26 +207,31 @@ export const fetchErrorStats = async (): Promise<ErrorStats> => {
     return stats
 }
 
-export type LatencyStats = { distribution: DailySeries, unsupported: number, outliers: number }
+export type LatencyStats = { distribution: DailySeries, unsupported: number, total: number }
+
+const LATENCY_OVERFLOW_MS = 50
 
 export const fetchLatencyStats = async (): Promise<LatencyStats> => {
     const data = await fetchJson<Record<string, number>>(
         "https://api.opendaw.studio/latency/latency.json", {mode: "cors"})
     const unsupported = data["-1"] ?? 0
-    const outliers = data["500"] ?? 0
     const buckets = new Map<number, number>()
+    let overflow = 0
     for (const [key, count] of Object.entries(data)) {
         const ms = parseInt(key, 10)
-        if (ms > 0 && ms !== 500) buckets.set(ms, count)
+        if (!(ms > 0)) continue
+        if (ms >= LATENCY_OVERFLOW_MS) {overflow += count} else {buckets.set(ms, count)}
     }
-    if (buckets.size === 0) return {distribution: [], unsupported, outliers}
-    const minMs = Math.min(...buckets.keys())
-    const maxMs = Math.max(...buckets.keys())
-    const distribution: Array<readonly [string, number]> = []
-    for (let ms = minMs; ms <= maxMs; ms++) {
-        distribution.push([`${ms}`, buckets.get(ms) ?? 0] as const)
+    const total = overflow + [...buckets.values()].reduce((sum, count) => sum + count, 0)
+    if (total === 0) return {distribution: [], unsupported, total: 0}
+    const minMs = buckets.size === 0 ? 1 : Math.min(...buckets.keys())
+    const counts: Array<readonly [string, number]> = []
+    for (let ms = minMs; ms < LATENCY_OVERFLOW_MS; ms++) {
+        counts.push([`${ms}`, buckets.get(ms) ?? 0] as const)
     }
-    return {distribution, unsupported, outliers}
+    counts.push([`${LATENCY_OVERFLOW_MS}+`, overflow] as const)
+    const distribution = counts.map(([label, count]) => [label, (count / total) * 100] as const)
+    return {distribution, unsupported, total}
 }
 
 export const fetchVisitorStats = async (): Promise<DailySeries> => {

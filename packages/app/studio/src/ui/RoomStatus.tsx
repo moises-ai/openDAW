@@ -1,12 +1,13 @@
 import css from "./RoomStatus.sass?inline"
-import {createElement, replaceChildren} from "@moises-ai/lib-jsx"
-import {isDefined, Lifecycle, Nullable, Optional, RuntimeNotifier, Terminator} from "@moises-ai/lib-std"
-import {Clipboard, Html} from "@moises-ai/lib-dom"
+import {createElement, replaceChildren} from "@opendaw/lib-jsx"
+import {isDefined, Lifecycle, Nullable, Optional, Terminator} from "@opendaw/lib-std"
+import {Clipboard, Html} from "@opendaw/lib-dom"
+import {Surface} from "@/ui/surface/Surface"
 import {StudioService} from "@/service/StudioService"
 import {AwarenessUserState, RoomAwareness} from "@/service/RoomAwareness"
-import {Promises} from "@moises-ai/lib-runtime"
+import {Promises} from "@opendaw/lib-runtime"
 import {Icon} from "@/ui/components/Icon"
-import {IconSymbol} from "@moises-ai/studio-enums"
+import {IconSymbol} from "@opendaw/studio-enums"
 import {TrafficWatch} from "@/ui/TrafficWatch"
 
 const className = Html.adoptStyleSheet(css, "room-status")
@@ -23,17 +24,14 @@ export const RoomStatus = ({lifecycle, service}: Construct) => {
             element.style.display = ""
             const roomLabel: HTMLElement = (
                 <div className="room-label">
-                    <Icon symbol={IconSymbol.Copy}/>
+                    <Icon symbol={IconSymbol.Share}/>
                     <span className="room-name"
                           title="Click to copy join link"
                           onclick={async () => {
                               const joinUrl = `${location.origin}/join/${awareness.roomName}`
                               const {status} = await Promises.tryCatch(Clipboard.writeText(joinUrl))
                               if (status === "resolved") {
-                                  await RuntimeNotifier.info({
-                                      headline: "Clipboard",
-                                      message: `Join link copied to clipboard.`
-                                  })
+                                  Surface.get(element).toast("Join link copied to clipboard", IconSymbol.Copy)
                               }
                           }}>{`Room '${awareness.roomName}'`}</span>
                 </div>

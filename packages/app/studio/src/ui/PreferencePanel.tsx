@@ -1,13 +1,14 @@
 import css from "./PreferencePanel.sass?inline"
-import {Html} from "@moises-ai/lib-dom"
-import {Lifecycle, Optional} from "@moises-ai/lib-std"
-import {createElement, Frag} from "@moises-ai/lib-jsx"
-import {Colors, IconSymbol} from "@moises-ai/studio-enums"
+import {Html} from "@opendaw/lib-dom"
+import {Lifecycle, Optional} from "@opendaw/lib-std"
+import {createElement, Frag} from "@opendaw/lib-jsx"
+import {Colors, IconSymbol} from "@opendaw/studio-enums"
 import {Checkbox} from "@/ui/components/Checkbox"
 import {Icon} from "@/ui/components/Icon"
 import {NumberInput} from "@/ui/components/NumberInput"
 import {RadioGroup} from "@/ui/components/RadioGroup"
-import {Preferences} from "@moises-ai/lib-fusion"
+import {Preferences} from "@opendaw/lib-fusion"
+import {installScrollbars} from "@/ui/components/Scrollbars"
 
 const className = Html.adoptStyleSheet(css, "PreferencePanel")
 
@@ -46,7 +47,8 @@ export const PreferencePanel = <ROOT_SETTINGS, SETTINGS = ROOT_SETTINGS>(
     ) as SETTINGS
 
     return (
-        <div className={className}>
+        <div className={className}
+             onConnect={element => {if (pathPrefix.length === 0) {lifecycle.own(installScrollbars(element))}}}>
             {Object.keys(labels).map(key => {
                 const pKey = key as keyof SETTINGS & string
                 const setting = settings[pKey]

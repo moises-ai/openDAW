@@ -120,7 +120,6 @@ export const Header = ({lifecycle, service}: Construct) => {
                 location.origin.includes("dev.opendaw.studio")
                 && (<h5 style={{color: Colors.cream.toString()}}>DEV VERSION (UNSTABLE)</h5>)}
             <div style={{flex: "2 0 0"}}/>
-            <hr/>
             <HorizontalPeakMeter lifecycle={lifecycle} peaksInDb={peaksInDb} width="4em"/>
             <hr/>
             <div className="panel-selector">

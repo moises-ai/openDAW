@@ -1,8 +1,12 @@
-import {LoopableRegion, ValueEvent} from "@moises-ai/lib-dsp"
-import {asDefined, assert, Curve, Func, unitValue} from "@moises-ai/lib-std"
+import {LoopableRegion, ValueEvent} from "@opendaw/lib-dsp"
+import {asDefined, assert, clamp, Curve, Func, unitValue} from "@opendaw/lib-std"
 import {TimelineRange} from "../../index"
 
 export namespace ValueStreamRenderer {
+    // Curve.coefficients builds an IIR recurrence whose factor m = (f2 - f1) / (f1 - y0) collapses to
+    // NaN at slope 0 (the tiny normalized term cancels against y0) and diverges as slope nears 0/1.
+    // Squeeze the slope into a range where the recurrence stays finite and matches the closed form.
+    const SLOPE_SAFE_MARGIN = 1.0e-4 as const
     export const render = (context: CanvasRenderingContext2D,
                            range: TimelineRange,
                            generator: IterableIterator<ValueEvent>,
@@ -45,21 +49,24 @@ export namespace ValueStreamRenderer {
                 path.lineTo(x1, y0) // hold value to the next event
                 path.lineTo(x1, y1) // jump to the next event value
             } else if (type === "linear") {
-                const ratio = (v1 - v0) / (p1 - p0)
+                const slope = (y1 - y0) / (x1 - x0)
                 if (notMoved) {
-                    path.moveTo(xMin, valueToY(p0 < windowMin ? v0 + ratio * (windowMin - p0) : v0)) // move pen to window min
+                    path.moveTo(xMin, p0 < windowMin ? y0 + slope * (xMin - x0) : y0) // move pen to window min
                     if (p0 > windowMin) {path.lineTo(x0, y0)} // line to first event
                     notMoved = false
                 }
                 if (p1 > windowMax) {
-                    path.lineTo(xMax, valueToY(v0 + ratio * (windowMax - p0))) // line to window max
+                    path.lineTo(xMax, y0 + slope * (xMax - x0)) // line to window max
                 } else {
                     path.lineTo(x1, y1) // line to next event
                 }
             } else if (type === "curve") {
                 const cx0 = Math.max(x0, xMin)
                 const cx1 = Math.min(x1, xMax)
-                const definition: Curve.Definition = {slope: interpolation.slope, steps: x1 - x0, y0, y1}
+                const definition: Curve.Definition = {
+                    slope: clamp(interpolation.slope, SLOPE_SAFE_MARGIN, 1.0 - SLOPE_SAFE_MARGIN),
+                    steps: x1 - x0, y0, y1
+                }
                 if (notMoved) {
                     if (p0 > windowMin) {
                         path.moveTo(xMin, y0) // move to window edge
@@ -69,9 +76,11 @@ export namespace ValueStreamRenderer {
                     }
                     notMoved = false
                 }
-                // TODO We can optimise this by walking the Curve.coefficients
-                for (let x = cx0; x <= cx1; x += 4) {
-                    path.lineTo(x, Curve.valueAt(definition, x - x0))
+                const {m, q} = Curve.coefficients(definition)
+                let value = Curve.valueAt(definition, cx0 - x0)
+                for (let x = cx0; x <= cx1; x++) {
+                    path.lineTo(x, value)
+                    value = m * value + q
                 }
                 path.lineTo(cx1, Curve.valueAt(definition, cx1 - x0))
             }

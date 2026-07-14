@@ -2,6 +2,7 @@ import css from "./ProjectBrowser.sass?inline"
 import {StudioService} from "@/service/StudioService"
 import {
     DefaultObservableValue,
+    Errors,
     Lifecycle,
     Procedure,
     RuntimeNotifier,
@@ -9,15 +10,24 @@ import {
     StringComparator,
     TimeSpan,
     UUID
-} from "@moises-ai/lib-std"
+} from "@opendaw/lib-std"
 import {Icon} from "@/ui/components/Icon"
-import {IconSymbol} from "@moises-ai/studio-enums"
+import {IconSymbol} from "@opendaw/studio-enums"
 import {Dialogs} from "@/ui/components/dialogs"
-import {Await, createElement, DomElement, Frag, Group} from "@moises-ai/lib-jsx"
-import {Html} from "@moises-ai/lib-dom"
-import {ContextMenu, MenuItem, ProjectMeta, ProjectSignals, ProjectStorage} from "@moises-ai/studio-core"
+import {Await, createElement, DomElement, Frag, Group} from "@opendaw/lib-jsx"
+import {Files, Html} from "@opendaw/lib-dom"
+import {Promises} from "@opendaw/lib-runtime"
+import {
+    ContextMenu,
+    FilePickerAcceptTypes,
+    MenuItem,
+    ProjectMeta,
+    ProjectSignals,
+    ProjectStorage
+} from "@opendaw/studio-core"
 import {SearchInput} from "@/ui/components/SearchInput"
 import {ThreeDots} from "@/ui/spinner/ThreeDots"
+import {installScrollbars} from "@/ui/components/Scrollbars"
 
 const className = Html.adoptStyleSheet(css, "ProjectBrowser")
 
@@ -52,7 +62,8 @@ export const ProjectBrowser = ({service, lifecycle, select}: Construct) => {
                    success={projects => (
                        <Frag>
                            <div className="content">
-                               <div className="list">
+                               <div className="list"
+                                    onConnect={list => lifecycle.own(installScrollbars(list))}>
                                    {projects
                                        .toSorted((a, b) => -StringComparator(a.meta.modified, b.meta.modified))
                                        .map(({uuid, meta}) => {
@@ -68,12 +79,25 @@ export const ProjectBrowser = ({service, lifecycle, select}: Construct) => {
                                                    <div className="labels"
                                                         onclick={() => select([uuid, meta])}
                                                         onInit={element => lifecycle.own(ContextMenu.subscribe(element,
-                                                            collector => collector.addItems(MenuItem.default({
-                                                                label: "Show UUID"
-                                                            }).setTriggerProcedure(() => RuntimeNotifier.info({
-                                                                headline: meta.name,
-                                                                message: UUID.toString(uuid)
-                                                            })))))}>
+                                                            collector => collector.addItems(
+                                                                MenuItem.default({label: "Show UUID"})
+                                                                    .setTriggerProcedure(() => RuntimeNotifier.info({
+                                                                        headline: meta.name,
+                                                                        message: UUID.toString(uuid)
+                                                                    })),
+                                                                MenuItem.default({label: "Download File"})
+                                                                    .setTriggerProcedure(async () => {
+                                                                        const {status, error} = await Promises.tryCatch(
+                                                                            ProjectStorage.loadProject(uuid).then(arrayBuffer =>
+                                                                                Files.save(arrayBuffer, {
+                                                                                    suggestedName: `${meta.name}.od`,
+                                                                                    types: [FilePickerAcceptTypes.ProjectFileType]
+                                                                                })))
+                                                                        if (status === "rejected" && !Errors.isAbort(error)) {
+                                                                            console.warn(error)
+                                                                            RuntimeNotifier.notify({message: "Download failed.", icon: "Warning"})
+                                                                        }
+                                                                    }))))}>
                                                        <div className="name">{meta.name}</div>
                                                        <div className="time">{timeString}</div>
                                                    </div>

@@ -16,15 +16,17 @@ import {
     TerminableOwner,
     Terminator,
     tryCatch
-} from "@moises-ai/lib-std"
-import {createElement, DomElement} from "@moises-ai/lib-jsx"
+} from "@opendaw/lib-std"
+import {createElement, DomElement} from "@opendaw/lib-jsx"
 import {IconLibrary} from "@/ui/IconLibrary.tsx"
 import {ErrorHandler} from "@/errors/ErrorHandler.ts"
 import {ValueTooltip} from "@/ui/surface/ValueTooltip.tsx"
 import {TextTooltip} from "./TextTooltip"
 import {FloatingTextInput} from "@/ui/components/FloatingTextInput.tsx"
-import {AnimationFrame, CssUtils, Events, Html, Keyboard} from "@moises-ai/lib-dom"
-import {initializeColors} from "@moises-ai/studio-enums"
+import {AnimationFrame, CssUtils, Events, Html, Keyboard} from "@opendaw/lib-dom"
+import {IconSymbol, initializeColors} from "@opendaw/studio-enums"
+import {StudioPreferences} from "@opendaw/studio-core"
+import {Toast} from "./Toast"
 
 const className = Html.adoptStyleSheet(css, "Surface")
 
@@ -119,6 +121,7 @@ export class Surface implements TerminableOwner {
     readonly #ground: DomElement
     readonly #flyout: DomElement
     readonly #floating: DomElement
+    readonly #toasts: DomElement
     readonly #textTooltip: TextTooltip
     readonly #valueTooltip: ValueTooltip
     readonly #pointer: Point
@@ -134,6 +137,7 @@ export class Surface implements TerminableOwner {
         this.#ground = <div className="ground"/>
         this.#flyout = <div className="flyout"/>
         this.#floating = <div className="flyout"/>
+        this.#toasts = <div className="toasts"/>
         this.#textTooltip = new TextTooltip(this)
         this.#valueTooltip = new ValueTooltip(this)
         this.#pointer = Point.zero()
@@ -144,6 +148,7 @@ export class Surface implements TerminableOwner {
                 {this.#ground}
                 {this.#flyout}
                 {this.#floating}
+                {this.#toasts}
             </div>
         )
 
@@ -222,6 +227,11 @@ export class Surface implements TerminableOwner {
         } while (true)
     }
 
+    toast(text: string, icon: IconSymbol = IconSymbol.Notification): void {
+        if (!StudioPreferences.settings.visibility["toasts"]) {return}
+        this.#toasts.prepend(Toast({text, icon}))
+    }
+
     async requestFloatingTextInput(client: Client, value?: string): Promise<string> {
         const resolvers = Promise.withResolvers<string>()
         this.flyout.appendChild(FloatingTextInput({
@@ -280,6 +290,12 @@ export class Surface implements TerminableOwner {
                 this.#pointer.y = event.clientY
             }, {capture: true}),
             Events.subscribe(this.#owner, "pointerup", (_event: PointerEvent) => {
+                pointerDown = Option.None
+            }, {capture: true}),
+            // A pointerdown concludes with either pointerup or pointercancel (e.g. touch gestures
+            // taken over by the browser). Without this, the tracking goes stale and the workaround
+            // above dispatches a fabricated pointerup to the previous target, re-triggering it.
+            Events.subscribe(this.#owner, "pointercancel", (_event: PointerEvent) => {
                 pointerDown = Option.None
             }, {capture: true}),
             Events.subscribe(this.#owner, "dragover", (event: DragEvent) => {

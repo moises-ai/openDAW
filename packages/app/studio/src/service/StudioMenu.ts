@@ -10,6 +10,7 @@ import {VideoRenderer} from "@/video/VideoRenderer"
 import {createDebugMenu} from "@/service/DebugMenu"
 import {connectRoom} from "@/service/StudioLiveRoomConnect"
 import {AiDemux} from "@/service/AiDemux.tsx"
+import {NextcloudDialogs} from "@/project/NextcloudDialogs"
 
 export const populateStudioMenu = (service: StudioService) => {
     const Global = GlobalShortcuts
@@ -39,6 +40,10 @@ export const populateStudioMenu = (service: StudioService) => {
                         shortcut: Global["project-save-as"].shortcut.format(),
                         selectable: service.hasProfile
                     }).setTriggerProcedure(() => service.projectProfileService.saveAs()),
+                    MenuItem.default({
+                        label: "Save as Template...",
+                        selectable: service.hasProfile
+                    }).setTriggerProcedure(() => service.projectProfileService.saveAsTemplate()),
                     MenuItem.default({label: "Import", separatorBefore: true})
                         .setRuntimeChildrenProcedure(parent => parent.addMenuItem(
                             MenuItem.default({label: "Audio Files..."})
@@ -51,10 +56,10 @@ export const populateStudioMenu = (service: StudioService) => {
                                 .setTriggerProcedure(() => service.soundfontService.browse(true)),
                             MenuItem.default({label: "Project Bundle..."})
                                 .setTriggerProcedure(() => service.importBundle()),
+                            MenuItem.default({label: "Preset Bundle..."})
+                                .setTriggerProcedure(() => service.importPreset().then(EmptyExec)),
                             MenuItem.default({label: "DAWproject..."})
-                                .setTriggerProcedure(() => service.importDawproject().then(EmptyExec, EmptyExec)),
-                            MenuItem.default({label: "Preset..."})
-                                .setTriggerProcedure(() => service.importPreset().then(EmptyExec))
+                                .setTriggerProcedure(() => service.importDawproject().then(EmptyExec, EmptyExec))
                         )),
                     MenuItem.default({label: "Export", selectable: service.hasProfile})
                         .setRuntimeChildrenProcedure(parent => parent.addMenuItem(
@@ -97,7 +102,7 @@ export const populateStudioMenu = (service: StudioService) => {
                         checked: service.isSoftwareKeyboardVisible()
                     }).setTriggerProcedure(() => service.toggleSoftwareKeyboard()),
                     MenuItem.default({
-                        label: "Cloud Backup",
+                        label: "Backup",
                         icon: IconSymbol.CloudFolder,
                         separatorBefore: true
                     }).setRuntimeChildrenProcedure(parent => {
@@ -114,6 +119,19 @@ export const populateStudioMenu = (service: StudioService) => {
                                 CloudBackup.backup(service.cloudAuthManager, "GoogleDrive").catch(EmptyExec)),
                             MenuItem.default({label: "Help", icon: IconSymbol.Help, separatorBefore: true})
                                 .setTriggerProcedure(() => RouteLocation.get().navigateTo("/manuals/cloud-backup"))
+                        )
+                    }),
+                    MenuItem.default({
+                        label: "Nextcloud",
+                        icon: IconSymbol.Nextcloud
+                    }).setRuntimeChildrenProcedure(parent => {
+                        parent.addMenuItem(
+                            MenuItem.default({label: "Browse projects..."})
+                                .setTriggerProcedure(() => NextcloudDialogs.browse(service)),
+                            MenuItem.default({label: "Upload project...", selectable: service.hasProfile})
+                                .setTriggerProcedure(() => NextcloudDialogs.save(service)),
+                            MenuItem.default({label: "Help", icon: IconSymbol.Help, separatorBefore: true})
+                                .setTriggerProcedure(() => RouteLocation.get().navigateTo("/manuals/nextcloud"))
                         )
                     }),
                     MenuItem.default({

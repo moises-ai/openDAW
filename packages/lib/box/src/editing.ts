@@ -11,38 +11,11 @@ import {
     RuntimeNotifier,
     Subscription,
     SyncProvider,
-    tryCatch,
-    UUID
-} from "@moises-ai/lib-std"
-import {DeleteUpdate, NewUpdate, PointerUpdate, PrimitiveUpdate, Update} from "./updates"
+    tryCatch
+} from "@opendaw/lib-std"
+import {optimizeUpdates, Update} from "./updates"
 
-// Removes updates for boxes that were created AND deleted in the same transaction.
-export const optimizeUpdates = (updates: ReadonlyArray<Update>): ReadonlyArray<Update> => {
-    const createdUuids = UUID.newSet<UUID.Bytes>(uuid => uuid)
-    const deletedUuids = UUID.newSet<UUID.Bytes>(uuid => uuid)
-    for (const update of updates) {
-        if (update instanceof NewUpdate) {
-            createdUuids.add(update.uuid)
-        } else if (update instanceof DeleteUpdate) {
-            deletedUuids.add(update.uuid)
-        }
-    }
-    const phantomUuids = UUID.newSet<UUID.Bytes>(uuid => uuid)
-    for (const uuid of createdUuids.values()) {
-        if (deletedUuids.hasKey(uuid)) {
-            phantomUuids.add(uuid)
-        }
-    }
-    if (phantomUuids.isEmpty()) {return updates}
-    return updates.filter(update => {
-        if (update instanceof NewUpdate || update instanceof DeleteUpdate) {
-            return !phantomUuids.hasKey(update.uuid)
-        } else if (update instanceof PointerUpdate || update instanceof PrimitiveUpdate) {
-            return !phantomUuids.hasKey(update.address.uuid)
-        }
-        return true
-    })
-}
+export {optimizeUpdates}
 
 class Modification {
     readonly #updates: ReadonlyArray<Update>
@@ -126,7 +99,7 @@ export class BoxEditing implements Editing {
                 if (this.#graph.inTransaction()) {this.#graph.abortTransaction()}
                 applied.toReversed().forEach(completed => completed.forward(this.#graph))
                 this.#historyIndex++
-                RuntimeNotifier.info({headline: "Undo Failed", message: "This history step is no longer valid due to changes from other participants."})
+                RuntimeNotifier.notify({message: "History changed by another participant.", icon: "Info"})
                 return false
             }
             applied.push(step)
@@ -146,7 +119,7 @@ export class BoxEditing implements Editing {
                 if (this.#graph.inTransaction()) {this.#graph.abortTransaction()}
                 applied.toReversed().forEach(completed => completed.inverse(this.#graph))
                 this.#historyIndex--
-                RuntimeNotifier.info({headline: "Redo Failed", message: "This history step is no longer valid due to changes from other participants."})
+                RuntimeNotifier.notify({message: "History changed by another participant.", icon: "Info"})
                 return false
             }
             applied.push(step)
@@ -172,7 +145,12 @@ export class BoxEditing implements Editing {
             this.#notifier.notify()
             return Option.wrap(modifier())
         }
-        if (mark && this.#pending.length > 0) {this.mark()}
+        // No pre-flush: a marked modify FOLDS any leftover unmarked pending into its own history entry (sealed by
+        // the `if (mark) {this.mark()}` below) instead of sealing that pending as a separate step first. The only
+        // thing ever left unmarked in `#pending` is UI-state (selection, edit pointers) or a gesture still building
+        // its step; both belong WITH the edit they precede, not as their own phantom undo entry. Gestures that must
+        // stay a distinct step already self-seal with an explicit `mark()` at their boundaries (knob/slider drags,
+        // recording), so they never depend on this. A prior marked action is already sealed by its own `mark()`.
         this.#modifying = true
         const updates: Array<Update> = []
         const subscription = this.#graph.subscribeToAllUpdates({

@@ -1,0 +1,10 @@
+{
+  "extends": "@opendaw/typescript-config/vite.json",
+  "include": [
+    "src",
+    "../../studio/core-wasm/src/worklet.d.ts"
+  ],
+  "compilerOptions": {
+    "allowImportingTsExtensions": true
+  }
+}

@@ -1,10 +1,11 @@
 import css from "./SampleUploadPage.sass?inline"
-import {createElement, PageContext, PageFactory} from "@moises-ai/lib-jsx"
+import {createElement, PageContext, PageFactory} from "@opendaw/lib-jsx"
 import {StudioService} from "@/service/StudioService.ts"
-import {Files, Html} from "@moises-ai/lib-dom"
+import {Files, Html} from "@opendaw/lib-dom"
 import {Dialogs} from "@/ui/components/dialogs.tsx"
-import {estimateBpm, WavFile} from "@moises-ai/lib-dsp"
-import {FilePickerAcceptTypes, OpenSampleAPI} from "@moises-ai/studio-core"
+import {estimateBpm, WavFile} from "@opendaw/lib-dsp"
+import {FilePickerAcceptTypes} from "@opendaw/studio-core"
+import {OpenSampleAPI} from "@/opendaw-api"
 
 const className = Html.adoptStyleSheet(css, "SampleUploadPage")
 

@@ -29,12 +29,15 @@ export namespace ProjectStorage {
                     const array = await Workers.Opfs.read(ProjectPaths.projectMeta(uuid))
                     return ({
                         uuid,
-                        meta: JSON.parse(new TextDecoder().decode(array)) as ProjectMeta,
+                        meta: ProjectMeta.fromJSON(JSON.parse(new TextDecoder().decode(array))),
                         cover: includeCover ? (await loadCover(uuid)).unwrapOrUndefined() : undefined,
                         project: includeProject ? await loadProject(uuid) : undefined
                     } satisfies ListEntry)
                 })))
     }
+
+    export const exists = async (uuid: UUID.Bytes): Promise<boolean> =>
+        (await Promises.tryCatch(Workers.Opfs.read(ProjectPaths.projectMeta(uuid)))).status === "resolved"
 
     export const loadProject = async (uuid: UUID.Bytes): Promise<ArrayBuffer> => {
         return Workers.Opfs.read(ProjectPaths.projectFile(uuid)).then(array => array.buffer as ArrayBuffer)
@@ -63,7 +66,7 @@ export namespace ProjectStorage {
             if (projectBytes.status === "rejected") {continue}
             const metaBytes = await Promises.tryCatch(Workers.Opfs.read(ProjectPaths.projectMeta(uuid)))
             const projectName = metaBytes.status === "rejected" ? folder
-                : (JSON.parse(new TextDecoder().decode(metaBytes.value)) as ProjectMeta).name
+                : ProjectMeta.fromJSON(JSON.parse(new TextDecoder().decode(metaBytes.value))).name
             const decoded = tryCatch(() => ProjectSkeleton.decode(exactBuffer(projectBytes.value)))
             if (decoded.status === "failure") {
                 console.warn(`listUsedAssets: failed to decode project '${projectName}'`, decoded.error)

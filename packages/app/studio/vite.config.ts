@@ -1,4 +1,4 @@
-import {readFileSync, writeFileSync} from "fs"
+import {readdirSync, readFileSync, writeFileSync} from "fs"
 import {resolve} from "path"
 import {defineConfig} from "vite"
 import crossOriginIsolation from "vite-plugin-cross-origin-isolation"
@@ -103,6 +103,39 @@ export default defineConfig(({command}) => {
                 }
             },
             {
+                // The WASM engine binaries (built by @opendaw/studio-core-wasm's build-wasm.sh into its
+                // dist/wasm/) served under /wasm-engine/: live from the package dist in dev (so a Rust rebuild
+                // is picked up without restarting), copied into the bundle at build. When they are absent
+                // (e.g. a CI runner without the Rust toolchain) the studio still builds; the engine toggle
+                // then reports the WASM engine as unavailable.
+                name: "wasm-engine-assets",
+                configureServer(server) {
+                    const sourceDir = resolve(__dirname, "../../studio/core-wasm/dist")
+                    server.middlewares.use("/wasm-engine", (req, res, next) => {
+                        const name = (req.url ?? "").split("?")[0].replace(/^\//, "")
+                        const file = resolve(sourceDir, name)
+                        if (!isWasmEngineAsset(name) || !existsSync(file)) {return next()}
+                        res.setHeader("Content-Type", "application/wasm")
+                        res.end(readFileSync(file))
+                    })
+                },
+                generateBundle() {
+                    const sourceDir = resolve(__dirname, "../../studio/core-wasm/dist")
+                    if (!existsSync(resolve(sourceDir, "wasm"))) {
+                        console.warn("wasm-engine-assets: no artifacts found, skipping")
+                        return
+                    }
+                    const walk = (relative: string): ReadonlyArray<string> =>
+                        readdirSync(resolve(sourceDir, relative), {withFileTypes: true}).flatMap(entry =>
+                            entry.isDirectory() ? walk(`${relative}/${entry.name}`) : [`${relative}/${entry.name}`])
+                    walk("wasm").filter(isWasmEngineAsset).forEach(name => this.emitFile({
+                        type: "asset",
+                        fileName: `wasm-engine/${name}`,
+                        source: readFileSync(resolve(sourceDir, name))
+                    }))
+                }
+            },
+            {
                 name: "spa",
                 configureServer(server) {
                     server.middlewares.use((req, res, next) => {
@@ -124,6 +157,10 @@ export default defineConfig(({command}) => {
         ]
     }
 })
+
+// The artifacts live under public/wasm/ (engine.wasm + sine.wasm) and public/wasm/plugins/ (device_*.wasm).
+const isWasmEngineAsset = (name: string): boolean =>
+    name.startsWith("wasm/") && name.endsWith(".wasm") && !name.includes("..")
 
 const generateUUID = () => {
     const format = crypto.getRandomValues(new Uint8Array(16))

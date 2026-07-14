@@ -8,6 +8,7 @@ import {StudioService} from "@/service/StudioService"
 import {IconSymbol} from "@moises-ai/studio-enums"
 import {SyncLogService} from "@/service/SyncLogService"
 import {Dialogs} from "@/ui/components/dialogs"
+import {NextcloudDebug} from "@/service/NextcloudDebug"
 
 export const createDebugMenu = (service: StudioService) => MenuItem.default({
     label: "Debug",
@@ -64,6 +65,29 @@ export const createDebugMenu = (service: StudioService) => MenuItem.default({
     }).setTriggerProcedure(() => service.panicEngine()),
     MenuItem.default({label: "List Supported Codecs...", separatorBefore: true})
         .setTriggerProcedure(() => CodecsUtils.listSupportedCodecs()),
+    MenuItem.default({label: "Show Playbackstats..."})
+        .setTriggerProcedure(() => {
+            const context = service.audioContext
+            const stats = context.playbackStats
+            if (!isDefined(stats)) {
+                RuntimeNotifier.info({
+                    headline: "Playback Stats",
+                    message: "AudioContext.playbackStats is not available in this browser."
+                }).finally()
+                return
+            }
+            const message = [
+                `context.state: ${context.state}`,
+                `sampleRate: ${context.sampleRate}`,
+                `baseLatency: ${context.baseLatency}`,
+                `outputLatency: ${context.outputLatency}`,
+                "",
+                JSON.stringify(stats.toJSON(), null, 2)
+            ].join("\n")
+            RuntimeNotifier.info({headline: "Playback Stats", message}).finally()
+        }),
+    MenuItem.default({label: "Validate Nextcloud Access...", separatorBefore: true})
+        .setTriggerProcedure(() => NextcloudDebug.validateAccess()),
     MenuItem.default({label: "Clear Local Storage", separatorBefore: true})
         .setTriggerProcedure(async () => {
             const approved = await RuntimeNotifier.approve({
@@ -75,15 +99,10 @@ export const createDebugMenu = (service: StudioService) => MenuItem.default({
                     await Promises.tryCatch(Workers.Opfs.delete(""))
                 if (status === "resolved") {
                     RuntimeSignal.dispatch(ProjectSignals.StorageUpdated)
-                    await RuntimeNotifier.info({
-                        headline: "Clear Local Storage",
-                        message: "Your Local Storage is cleared"
-                    })
+                    RuntimeNotifier.notify({message: "Local storage cleared", icon: "Checkbox"})
                 } else {
-                    await RuntimeNotifier.info({
-                        headline: "Clear Local Storage",
-                        message: String(error)
-                    })
+                    console.warn(error)
+                    RuntimeNotifier.notify({message: "Could not clear storage.", icon: "Warning"})
                 }
             }
         })

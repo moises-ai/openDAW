@@ -1,0 +1,12 @@
+[package]
+name = "dsp"
+version = "0.0.0"
+edition = "2021"
+publish = false
+
+[lib]
+crate-type = ["lib"]
+
+[dependencies]
+math = {path = "../math"}
+libm = "0.2"

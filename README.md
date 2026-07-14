@@ -97,24 +97,32 @@ skyboundzoo, JHINZ, Mark Dammer, fork-kun, Martin Eigel
 
 #### Stock Plugins
 
-* Vaporisateur (subtractive synth with classical waveforms)
-* Playfield (sample drum computer with individual effect chains)
-* Nano (nano sampler for a single audio file)
-* Tape (playback device for audio regions and clips)
-* Soundfont (soundfont player)
-* MIDI Output (sends MIDI messages to other devices)
-* Stereo Tool (volume, panning and invert the stereo signal)
-* Delay (stereo delay with cross and filter options)
-* Crusher (degenerates audio signal)
-* Cheap Reverb (FreeVerb variation)
-* Revamp (graphical equalizer with spectrum analyser)
+* Apparat (programmable instrument scripted in JavaScript)
 * Arpeggio (plays the notes of a chord one after another)
-* Pitch (offsets midi note pitches)
-* Zeitgeist (transforms time)
-* Velocity (manipulates velocities of incoming notes)
-* Fold (waveform folding algorithm with oversampling)
-* Tidal (shapes rhythm and space through volume and pan)
+* Cheap Reverb (FreeVerb variation)
+* Crusher (degenerates audio signal)
 * Dattorro Reverb (dense algorithmic reverb based on Dattorro's design)
+* Delay (stereo delay with cross and filter options)
+* Fold (waveform folding algorithm with oversampling)
+* Gate (noise gate with sidechain support)
+* Maximizer (brickwall limiter with automatic makeup gain)
+* MIDI Output (sends MIDI messages to other devices)
+* Nano (nano sampler for a single audio file)
+* Pitch (offsets midi note pitches)
+* Playfield (sample drum computer with individual effect chains)
+* Revamp (graphical equalizer with spectrum analyser)
+* Soundfont (soundfont player)
+* Spielwerk (programmable MIDI effect scripted in JavaScript)
+* Stereo Tool (volume, panning and invert the stereo signal)
+* Tape (playback device for audio regions and clips)
+* Tidal (shapes rhythm and space through volume and pan)
+* Tone3000 (amplifier and effects modeling via Neural Amp Modeler)
+* Vaporisateur (subtractive synth with classical waveforms)
+* Velocity (manipulates velocities of incoming notes)
+* Vocoder (analysis/synthesis vocoder)
+* Waveshaper (nonlinear waveshaping distortion)
+* Werkstatt (programmable audio effect scripted in JavaScript)
+* Zeitgeist (transforms time)
 
 #### Ported Plugins (Excluded in commercial license)
 
@@ -147,21 +155,15 @@ evolves.
 
 #### 2026/Q2
 
-- [ ] Fine-tune timeline clips (recording, switch times)
-- [ ] Fine-tune MIDI effects
-- [X] Implement missing region actions like flatten
+- [X] WASM Audio-Engine
 - [ ] Polish UI
 
 #### 2026/Q3
 
 - [ ] Testing & QA
-- [ ] Launch 1.0
+- [ ] [Launch 1.0](https://opendaw.org/release26/)
 
-#### Future
-
-- [ ] Start Modular System
-- [ ] Add more synthesizers
-- [ ] Add more effect devices
+For more issues and feature requests, visit [github.com/andremichelle/opendaw/issues/](https://github.com/andremichelle/opendaw/issues/)
 
 ### Prepare, Clone, Installation, and Run
 
@@ -190,6 +192,16 @@ Before starting, ensure you have the following installed on your system:
 - [OpenSSL](https://openssl-library.org/) For generating local development certificates (), OpenSSL needs to be
   installed on
   your system. Most Linux/macOS systems have OpenSSL pre-installed.
+- [Rust](https://www.rust-lang.org/tools/install) (via `rustup`, **>= 1.82**) is required to build the WASM
+  audio engine (`@opendaw/studio-core-wasm`). Without it, `npm run build` / `npm run dev:studio` fails to
+  resolve that package (a Vite pre-transform error), because `packages/studio/core-wasm/dist` never gets built.
+  You need:
+    - the `wasm32-unknown-unknown` target — `rustup target add wasm32-unknown-unknown`
+    - a **nightly** toolchain with the `rust-src` component (the device crates build with `-Zbuild-std=core`) —
+      `rustup toolchain install nightly && rustup component add rust-src --toolchain nightly`
+- [binaryen](https://github.com/WebAssembly/binaryen) *(optional)* provides `wasm-opt`, used to size-optimise
+  the WASM modules (`brew install binaryen`, or `apt install binaryen`). If it is missing, the build still
+  succeeds and ships unoptimised modules.
 
 ### Clone
 

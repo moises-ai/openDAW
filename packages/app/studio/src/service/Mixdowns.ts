@@ -12,6 +12,7 @@ import {Files} from "@moises-ai/lib-dom"
 import {Promises} from "@moises-ai/lib-runtime"
 import {ExportConfiguration} from "@moises-ai/studio-adapters"
 import {Dialogs} from "@/ui/components/dialogs"
+import {WasmEngine} from "@opendaw/studio-core-wasm"
 
 export namespace Mixdowns {
     export const exportMixdown = async ({project: source, meta}: ProjectProfile): Promise<void> => {
@@ -24,7 +25,7 @@ export namespace Mixdowns {
             cancel: () => abortController.abort()
         })
         const result = await Promises.tryCatch(OfflineEngineRenderer
-            .start(project, Option.None, progress, abortController.signal))
+            .start(project, Option.None, progress, abortController.signal, 48_000, WasmEngine.useForExports()))
         dialog.terminate()
         if (result.status === "rejected") {
             if (!Errors.isAbort(result.error)) {
@@ -75,17 +76,19 @@ export namespace Mixdowns {
             cancel: () => abortController.abort()
         })
         const {status, value, error: renderError} = await Promises.tryCatch(OfflineEngineRenderer
-            .start(project, Option.wrap(config), progress, abortController.signal))
+            .start(project, Option.wrap(config), progress, abortController.signal, 48_000, WasmEngine.useForExports()))
         dialog.terminate()
         if (status === "rejected") {
             if (Errors.isAbort(renderError)) {return}
-            await RuntimeNotifier.info({headline: "Export Failed", message: String(renderError)})
+            console.warn(renderError)
+            RuntimeNotifier.notify({message: "Export failed.", icon: "Warning"})
             return
         }
         const {status: zipStatus, error: zipError} = await Promises.tryCatch(
             saveZipFile(value, meta, Object.values(config.stems ?? {}).map(({fileName}) => fileName)))
         if (zipStatus === "rejected") {
-            await RuntimeNotifier.info({headline: "Export Failed", message: String(zipError)})
+            console.warn(zipError)
+            RuntimeNotifier.notify({message: "Export failed.", icon: "Warning"})
             return
         }
     }
@@ -142,10 +145,8 @@ export namespace Mixdowns {
     const saveZipFile = async (audioData: AudioData, meta: ProjectMeta, trackNames: ReadonlyArray<string>) => {
         const libResult = await ExternalLib.JSZip()
         if (libResult.status === "rejected") {
-            await RuntimeNotifier.info({
-                headline: "Error",
-                message: `Could not load JSZip: ${String(libResult.error)}`
-            })
+            console.warn(libResult.error)
+            RuntimeNotifier.notify({message: "Could not load JSZip.", icon: "Warning"})
             return Promise.reject(libResult.error)
         }
         const dialog = RuntimeNotifier.progress({headline: "Creating Zip File..."})
@@ -167,10 +168,8 @@ export namespace Mixdowns {
         }))
         dialog.terminate()
         if (status === "rejected") {
-            await RuntimeNotifier.info({
-                headline: "Error",
-                message: `Could not create zip file: ${String(error)}`
-            })
+            console.warn(error)
+            RuntimeNotifier.notify({message: "Could not create zip.", icon: "Warning"})
             return
         }
         return saveFileAfterAsync({
@@ -189,10 +188,8 @@ export namespace Mixdowns {
         const {status, value, error} = await Promises.tryCatch(FFmpegWorker.load(value => progress.setValue(value)))
         progressDialog.terminate()
         if (status === "rejected") {
-            await RuntimeNotifier.info({
-                headline: "Error",
-                message: `Could not load FFmpeg: ${String(error)}`
-            })
+            console.warn(error)
+            RuntimeNotifier.notify({message: "Could not load FFmpeg.", icon: "Warning"})
             throw error
         }
         return value

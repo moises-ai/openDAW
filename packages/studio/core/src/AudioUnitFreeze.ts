@@ -1,9 +1,10 @@
-import {DefaultObservableValue, Errors, Notifier, Observer, Option, RuntimeNotifier, Subscription, Terminable, Terminator, UUID} from "@moises-ai/lib-std"
-import {AudioData} from "@moises-ai/lib-dsp"
-import {Promises} from "@moises-ai/lib-runtime"
-import {AudioUnitBoxAdapter, ExportConfiguration} from "@moises-ai/studio-adapters"
+import {DefaultObservableValue, Errors, Notifier, Observer, Option, RuntimeNotifier, Subscription, Terminable, Terminator, UUID} from "@opendaw/lib-std"
+import {AudioData} from "@opendaw/lib-dsp"
+import {Promises} from "@opendaw/lib-runtime"
+import {AudioUnitBoxAdapter, ExportConfiguration} from "@opendaw/studio-adapters"
+import {Engine} from "./Engine"
 import {OfflineEngineRenderer} from "./OfflineEngineRenderer"
-import {Address} from "@moises-ai/lib-box"
+import {Address} from "@opendaw/lib-box"
 
 import type {Project} from "./project"
 
@@ -34,6 +35,14 @@ export class AudioUnitFreeze implements Terminable {
     }
 
     subscribe(observer: Observer<UUID.Bytes>): Subscription {return this.#notifier.subscribe(observer)}
+
+    // A rebooted worklet (engine error restart, TS/WASM toggle) starts with no frozen entries: replay every
+    // frozen unit's PCM so it keeps playing frozen instead of silently rewiring its live chain.
+    replay(engine: Engine): void {
+        for (const [key, entry] of this.#frozenAudioUnits) {
+            engine.setFrozenAudio(UUID.parse(key), entry.audioData)
+        }
+    }
 
     hasSidechainDependents(audioUnitBoxAdapter: AudioUnitBoxAdapter): boolean {
         const targetAddresses: Array<Address> = []
@@ -95,7 +104,8 @@ export class AudioUnitFreeze implements Terminable {
         if (renderResult.status === "rejected") {
             dialog.terminate()
             if (!Errors.isAbort(renderResult.error)) {
-                await RuntimeNotifier.info({headline: "Freeze Failed", message: String(renderResult.error)})
+                console.warn(renderResult.error)
+                RuntimeNotifier.notify({message: "Freeze failed.", icon: "Warning"})
             }
             return
         }

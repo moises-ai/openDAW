@@ -1,6 +1,6 @@
-import {Arrays, asInstanceOf, byte, int, Option, Terminable, UUID} from "@moises-ai/lib-std"
-import {AudioBuffer, Event, PPQN} from "@moises-ai/lib-dsp"
-import {MIDIOutputDeviceBoxAdapter} from "@moises-ai/studio-adapters"
+import {Arrays, asInstanceOf, byte, int, Option, Terminable, UUID} from "@opendaw/lib-std"
+import {AudioBuffer, Event, PPQN} from "@opendaw/lib-dsp"
+import {MIDIOutputDeviceBoxAdapter, NoteBroadcaster} from "@opendaw/studio-adapters"
 import {EngineContext} from "../../EngineContext"
 import {AudioProcessor} from "../../AudioProcessor"
 import {Block, Processor} from "../../processing"
@@ -8,13 +8,14 @@ import {AutomatableParameter} from "../../AutomatableParameter"
 import {NoteEventSource, NoteEventTarget, NoteLifecycleEvent} from "../../NoteEventSource"
 import {DeviceProcessor} from "../../DeviceProcessor"
 import {InstrumentDeviceProcessor} from "../../InstrumentDeviceProcessor"
-import {MidiData} from "@moises-ai/lib-midi"
-import {MIDIOutputBox, MIDIOutputParameterBox} from "@moises-ai/studio-boxes"
+import {MidiData} from "@opendaw/lib-midi"
+import {MIDIOutputBox, MIDIOutputParameterBox} from "@opendaw/studio-boxes"
 
 export class MIDIOutputDeviceProcessor extends AudioProcessor implements InstrumentDeviceProcessor, NoteEventTarget {
     readonly #adapter: MIDIOutputDeviceBoxAdapter
 
     readonly #audioOutput: AudioBuffer
+    readonly #noteBroadcaster: NoteBroadcaster
 
     readonly #activeNotes: Array<byte> = []
 
@@ -29,6 +30,7 @@ export class MIDIOutputDeviceProcessor extends AudioProcessor implements Instrum
 
         this.#adapter = adapter
         this.#audioOutput = new AudioBuffer()
+        this.#noteBroadcaster = new NoteBroadcaster(context.broadcaster, adapter.audioUnitBoxAdapter().address)
         this.#parameters = []
 
         const {midiDevice, box, parameters} = adapter
@@ -36,6 +38,7 @@ export class MIDIOutputDeviceProcessor extends AudioProcessor implements Instrum
         this.#lastChannel = box.channel.getValue()
 
         this.ownAll(
+            this.#noteBroadcaster,
             box.enabled.catchupAndSubscribe(owner => {
                 this.#enabled = owner.getValue()
                 if (!this.#enabled) {this.reset()}
@@ -79,11 +82,13 @@ export class MIDIOutputDeviceProcessor extends AudioProcessor implements Instrum
                 if (NoteLifecycleEvent.isStart(event)) {
                     const velocityAsByte = Math.round(event.velocity * 127)
                     this.#activeNotes.push(event.pitch)
+                    this.#noteBroadcaster.noteOn(event.pitch)
                     optDevice.ifSome(device => this.context.sendMIDIData(device.id.getValue(),
                         MidiData.noteOn(channelIndex, event.pitch, velocityAsByte), relativeTimeInMs))
                 } else if (NoteLifecycleEvent.isStop(event)) {
                     const deleteIndex = this.#activeNotes.indexOf(event.pitch)
                     if (deleteIndex > -1) {this.#activeNotes.splice(deleteIndex, 1)}
+                    this.#noteBroadcaster.noteOff(event.pitch)
                     optDevice.ifSome(optDevice => this.context.sendMIDIData(optDevice.id.getValue(),
                         MidiData.noteOff(channelIndex, event.pitch), relativeTimeInMs))
                 }
@@ -93,13 +98,16 @@ export class MIDIOutputDeviceProcessor extends AudioProcessor implements Instrum
 
     setNoteEventSource(source: NoteEventSource): Terminable {
         this.#source = Option.wrap(source)
-        return Terminable.create(() => this.#source = Option.None)
+        return Terminable.create(() => {
+            this.#source = Option.None
+            this.#noteBroadcaster.clear()
+        })
     }
 
     get incoming(): Processor {return this}
     get outgoing(): Processor {return this}
 
-    reset(): void {}
+    reset(): void {this.#noteBroadcaster.clear()}
 
     get uuid(): UUID.Bytes {return this.#adapter.uuid}
     get audioOutput(): AudioBuffer {return this.#audioOutput}
@@ -111,7 +119,7 @@ export class MIDIOutputDeviceProcessor extends AudioProcessor implements Instrum
     parameterChanged(parameter: AutomatableParameter, relativeBlockTime: number = 0.0): void {
         const {box: {channel, device}} = this.#adapter
         if (device.isEmpty() || !this.#enabled) {return}
-        const {id, delayInMs} = asInstanceOf(device.targetVertex.unwrap().box, MIDIOutputBox)
+        const {id, delayInMs} = asInstanceOf(device.targetVertex.unwrap("device.target").box, MIDIOutputBox)
         const relativeTimeInMs = relativeBlockTime * 1000.0 * delayInMs.getValue()
         const controllerId = asInstanceOf(parameter.adapter.field.box, MIDIOutputParameterBox).controller.getValue()
         const velocityAsByte = Math.round(parameter.getValue() * 127)

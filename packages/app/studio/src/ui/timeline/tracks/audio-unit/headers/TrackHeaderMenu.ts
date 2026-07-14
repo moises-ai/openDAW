@@ -1,17 +1,17 @@
-import {CaptureAudio, MenuItem, Project} from "@moises-ai/studio-core"
+import {CaptureAudio, MenuItem, Project} from "@opendaw/studio-core"
 import {MonitoringDialog} from "@/ui/monitoring/MonitoringDialog"
-import {Browser} from "@moises-ai/lib-dom"
-import {isInstanceOf, Procedure, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
+import {Browser} from "@opendaw/lib-dom"
+import {isInstanceOf, Option, Procedure, RuntimeNotifier, UUID} from "@opendaw/lib-std"
 import {
     AudioUnitBoxAdapter,
     DeviceAccepts,
     TrackBoxAdapter,
     TrackType,
     TransferAudioUnits
-} from "@moises-ai/studio-adapters"
+} from "@opendaw/studio-adapters"
 import {DebugMenus} from "@/ui/menu/debug"
 import {MidiImport} from "@/ui/timeline/MidiImport.ts"
-import {CaptureMidiBox, TrackBox} from "@moises-ai/studio-boxes"
+import {CaptureMidiBox, TrackBox} from "@opendaw/studio-boxes"
 import {StudioService} from "@/service/StudioService"
 import {MenuCapture} from "@/ui/timeline/tracks/audio-unit/menu/capture"
 import {GlobalShortcuts} from "@/ui/shortcuts/GlobalShortcuts"
@@ -71,15 +71,16 @@ export const installTrackHeaderMenu = (service: StudioService,
                 }
             })),
         MenuItem.default({
-            label: "Copy AudioUnit",
+            label: "Duplicate AudioUnit",
             shortcut: GlobalShortcuts["copy-device"].shortcut.format(),
-            separatorBefore: true
+            separatorBefore: true,
+            hidden: audioUnitBoxAdapter.isOutput
         }).setTriggerProcedure(() => {
             const copies = editing.modify(() => TransferAudioUnits
                 .transfer([trackBoxAdapter.audioUnit], project.skeleton, {
                     insertIndex: trackBoxAdapter.audioUnit.index.getValue() + 1
-                }), false).unwrap()
-            userEditingManager.audioUnit.edit(copies[0].editing)
+                }), false).unwrap("copyUnit")
+            Option.wrap(copies.at(0)).ifSome(copy => userEditingManager.audioUnit.edit(copy.editing))
         }),
         MenuItem.default({
             label: "Freeze AudioUnit",
@@ -90,7 +91,8 @@ export const installTrackHeaderMenu = (service: StudioService,
             hidden: !audioUnitBoxAdapter.isInstrument || !isFrozen
         }).setTriggerProcedure(() => project.audioUnitFreeze.unfreeze(audioUnitBoxAdapter)),
         MenuItem.default({
-            label: "Extract AudioUnit Into New Project"
+            label: "Extract AudioUnit Into New Project",
+            hidden: audioUnitBoxAdapter.isOutput
         }).setTriggerProcedure(async () => {
             if (service.hasProfile && !project.editing.hasNoChanges()) {
                 const approved = await RuntimeNotifier.approve({
@@ -118,12 +120,12 @@ export const installTrackHeaderMenu = (service: StudioService,
                 }).setTriggerProcedure(() => editing.modify(() => audioUnitBoxAdapter.moveTrack(trackBoxAdapter, 1))),
                 MenuItem.default({
                     label: "AudioUnit 1 Up",
-                    selectable: audioUnitBoxAdapter.indexField.getValue() > 0 && false
+                    selectable: audioUnitBoxAdapter.indexField.getValue() > 0
                 }).setTriggerProcedure(() => editing.modify(() => audioUnitBoxAdapter.move(-1))),
                 MenuItem.default({
                     label: "AudioUnit 1 Down",
                     selectable: audioUnitBoxAdapter.indexField.getValue() < project.rootBoxAdapter.audioUnits.adapters()
-                        .filter(adapter => !adapter.isOutput).length - 1 && false
+                        .filter(adapter => !adapter.isOutput).length - 1
                 }).setTriggerProcedure(() => editing.modify(() => audioUnitBoxAdapter.move(1)))
             )),
         MenuItem.default({

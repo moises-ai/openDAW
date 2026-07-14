@@ -1,11 +1,10 @@
 import css from "./Cover.sass?inline"
-import {Errors, isDefined, Lifecycle, MutableObservableOption, panic} from "@moises-ai/lib-std"
-import {createElement} from "@moises-ai/lib-jsx"
+import {Errors, isDefined, Lifecycle, MutableObservableOption, panic, RuntimeNotifier} from "@opendaw/lib-std"
+import {createElement} from "@opendaw/lib-jsx"
 import {Icon} from "../components/Icon"
-import {IconSymbol} from "@moises-ai/studio-enums"
-import {Dialogs} from "@/ui/components/dialogs"
-import {Events, Files, Html} from "@moises-ai/lib-dom"
-import {Promises} from "@moises-ai/lib-runtime"
+import {IconSymbol} from "@opendaw/studio-enums"
+import {Events, Files, Html} from "@opendaw/lib-dom"
+import {Promises} from "@opendaw/lib-runtime"
 import {encodeCover} from "./CoverImage"
 
 const className = Html.adoptStyleSheet(css, "Cover")
@@ -38,7 +37,7 @@ export const Cover = ({lifecycle, model}: Construct) => {
             const {status: encodeStatus, value: encoded} =
                 await Promises.tryCatch(encodeCover(await file.arrayBuffer()))
             if (encodeStatus === "rejected") {
-                Dialogs.info({headline: "Cover", message: `Unknown image format (${file.type}).`}).finally()
+                RuntimeNotifier.notify({message: `Unknown image format (${file.type}).`, icon: "Info"})
                 return
             }
             model.wrap(encoded)

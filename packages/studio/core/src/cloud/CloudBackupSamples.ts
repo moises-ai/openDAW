@@ -1,11 +1,12 @@
-import {Arrays, Errors, panic, Procedure, Progress, RuntimeNotifier, UUID} from "@moises-ai/lib-std"
-import {network, Promises} from "@moises-ai/lib-runtime"
-import {SamplePeaks} from "@moises-ai/lib-fusion"
-import {Sample} from "@moises-ai/studio-adapters"
-import {OpenSampleAPI, SampleStorage} from "../samples"
+import {Arrays, Errors, panic, Procedure, Progress, RuntimeNotifier, UUID} from "@opendaw/lib-std"
+import {network, Promises} from "@opendaw/lib-runtime"
+import {SamplePeaks} from "@opendaw/lib-fusion"
+import {Sample} from "@opendaw/studio-adapters"
+import {SampleStorage} from "../samples"
+import {FactoryCatalog} from "../FactoryCatalog"
 import {CloudHandler} from "./CloudHandler"
 import {Workers} from "../Workers"
-import {WavFile} from "@moises-ai/lib-dsp"
+import {WavFile} from "@opendaw/lib-dsp"
 
 type SampleDomains = Record<"stock" | "local" | "cloud", ReadonlyArray<Sample>>
 
@@ -21,7 +22,7 @@ export class CloudBackupSamples {
                        log: Procedure<string>) {
         log("Collecting all sample domains...")
         const [stock, local, cloud] = await Promise.all([
-            OpenSampleAPI.get().all(),
+            FactoryCatalog.get().samples(),
             SampleStorage.get().list(),
             cloudHandler.download(CloudBackupSamples.RemoteCatalogPath)
                 .then(json => JSON.parse(new TextDecoder().decode(json)))

@@ -87,7 +87,7 @@ export const ShadertoyEditor = ({service, lifecycle}: Construct) => {
                                 rootBox.shadertoy
                                     .refer(ShadertoyBox.create(boxGraph, UUID.generate(), box => box.shaderCode.setValue(code)))
                             } else {
-                                asInstanceOf(rootBox.shadertoy.targetVertex.unwrap(), ShadertoyBox).shaderCode.setValue(code)
+                                asInstanceOf(rootBox.shadertoy.targetVertex.unwrap("shadertoy.target"), ShadertoyBox).shaderCode.setValue(code)
                             }
                         })
                         ignoreBoxUpdate = false
@@ -95,7 +95,7 @@ export const ShadertoyEditor = ({service, lifecycle}: Construct) => {
                     const deleteShadertoyCode = () => {
                         editing.modify(() => {
                             if (rootBox.shadertoy.nonEmpty()) {
-                                asInstanceOf(rootBox.shadertoy.targetVertex.unwrap(), ShadertoyBox).delete()
+                                asInstanceOf(rootBox.shadertoy.targetVertex.unwrap("shadertoy.target"), ShadertoyBox).delete()
                             }
                         })
                     }
@@ -112,7 +112,7 @@ export const ShadertoyEditor = ({service, lifecycle}: Construct) => {
                             shadertoyLifecycle.terminate()
                             if (pointer.nonEmpty()) {
                                 const {shaderCode, highres} =
-                                    asInstanceOf(rootBox.shadertoy.targetVertex.unwrap(), ShadertoyBox)
+                                    asInstanceOf(rootBox.shadertoy.targetVertex.unwrap("shadertoy.target"), ShadertoyBox)
                                 shadertoyLifecycle.ownAll(
                                     shaderCode.catchupAndSubscribe(owner => {
                                         if (ignoreBoxUpdate) {return}
@@ -132,8 +132,8 @@ export const ShadertoyEditor = ({service, lifecycle}: Construct) => {
                                 const code = editor.getValue()
                                 const attempt = canCompile(code)
                                 if (attempt.isFailure()) {
-                                    RuntimeNotifier.info({headline: "Cannot Save", message: attempt.failureReason()})
-                                        .then(EmptyProcedure, EmptyProcedure)
+                                    console.warn(attempt.failureReason())
+                                    RuntimeNotifier.notify({message: "Cannot save.", icon: "Warning"})
                                 } else {
                                     saveShadertoyCode(code)
                                     service.projectProfileService.save().then(EmptyProcedure, EmptyProcedure)

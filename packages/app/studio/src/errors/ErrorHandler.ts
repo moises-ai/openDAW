@@ -17,6 +17,13 @@ const IgnoredErrors = [
 ]
 const BrowserInternalPatterns = ["feature named", "window.__firefox__"]
 const MonacoPatterns = ["monaco-editor", "vs/base/common/errors", "editor.main", "editor.worker"]
+// A lazily-loaded chunk could not be fetched (transient network / CDN / deploy hiccup), not a logic bug.
+// Cross-browser variants: Chrome/Edge, Firefox, Safari.
+const ChunkLoadPatterns = [
+    "Failed to fetch dynamically imported module",
+    "error loading dynamically imported module",
+    "Importing a module script failed"
+]
 const ThirdPartyAppPatterns = ["_callback_receiveMIDIMessage", "_callback_addSource"]
 const UrlPattern = /https?:\/\/[^\s)]+/g
 // A stack frame that belongs to our code references a script module file: a built ".js"/".mjs"
@@ -30,6 +37,8 @@ export class ErrorHandler {
     readonly #recover: Provider<Option<Provider<Promise<void>>>>
 
     #errorThrown: boolean = false
+    #rejectionReported: boolean = false
+    #chunkLoadDialogOpen: boolean = false
 
     constructor(buildInfo: BuildInfo, recover: Provider<Option<Provider<Promise<void>>>>) {
         this.#buildInfo = buildInfo
@@ -77,6 +86,19 @@ export class ErrorHandler {
         return MonacoPatterns.some(pattern => sources.includes(pattern))
     }
 
+    // A lazy chunk (e.g. the code editor) failed to fetch. Only that component didn't open; the project
+    // and the rest of the app are intact. Do NOT reload (that would discard unsaved work). Inform the user;
+    // reopening the component retries the import. The guard only avoids STACKING duplicate dialogs from a
+    // burst — it resets on dismiss, so a later failure notifies again.
+    #notifyChunkLoadFailure(): void {
+        if (this.#chunkLoadDialogOpen) {return}
+        this.#chunkLoadDialogOpen = true
+        Dialogs.info({
+            headline: "Couldn't Load Component",
+            message: "A part of openDAW failed to load, usually a temporary network issue. Your project is unaffected — please try again."
+        }).finally(() => {this.#chunkLoadDialogOpen = false})
+    }
+
     #tryIgnore(event: Event): boolean {
         if (event instanceof ErrorEvent && IgnoredErrors.includes(event.message)) {
             console.warn(event.message)
@@ -114,6 +136,14 @@ export class ErrorHandler {
             event.preventDefault()
             return true
         }
+        // A lazily-loaded chunk failed to fetch (transient network / CDN / deploy). Not a crash: a page
+        // reload re-fetches it (and clears the browser's poisoned module map). Prompt instead of reporting.
+        if (isDefined(reasonMessage) && ChunkLoadPatterns.some(pattern => reasonMessage.includes(pattern))) {
+            console.warn(`Chunk load failed: ${reasonMessage}`)
+            event.preventDefault()
+            this.#notifyChunkLoadFailure()
+            return true
+        }
         if (Errors.isAbort(reason)) {
             console.debug(`Abort '${reason.message}'`)
             event.preventDefault()
@@ -133,6 +163,27 @@ export class ErrorHandler {
             Dialogs.info({
                 headline: "Access Denied",
                 message: "The browser blocked access to the file system."
+            }).then(EmptyExec)
+            return true
+        }
+        // Storage full: an OPFS write exceeded the browser storage quota / the disk is full.
+        // Environmental (not a logic bug); surface a friendly message instead of crashing.
+        if (reason instanceof DOMException && reason.name === "QuotaExceededError") {
+            console.warn(`QuotaExceededError: ${reason.message}`)
+            event.preventDefault()
+            Dialogs.info({
+                headline: "Storage Full",
+                message: "Your browser ran out of storage. Free up disk space or delete projects/samples, then try again."
+            }).then(EmptyExec)
+            return true
+        }
+        // Storage read failed: a transient OPFS/disk I/O read error. Environmental, not a logic bug.
+        if (reason instanceof DOMException && reason.name === "NotReadableError") {
+            console.warn(`NotReadableError: ${reason.message}`)
+            event.preventDefault()
+            Dialogs.info({
+                headline: "Storage Error",
+                message: "A storage read failed. This is usually a temporary disk or browser issue. Please try again."
             }).then(EmptyExec)
             return true
         }
@@ -184,6 +235,18 @@ export class ErrorHandler {
             return false
         }
         console.debug("processError", scope, event)
+        // An unhandled promise rejection means an async task failed; the main render loop is intact,
+        // so it must NOT terminate the whole app. Report it once for visibility, then keep the
+        // session alive (no AnimationFrame.terminate, no fatal recovery dialog). Synchronous "error"
+        // events fall through to the fatal path below, since they can indicate corrupted state.
+        if (event instanceof PromiseRejectionEvent) {
+            event.preventDefault()
+            if (!this.#rejectionReported) {
+                this.#rejectionReported = true
+                this.#report(scope, error)
+            }
+            return false
+        }
         if (this.#errorThrown) {return false}
         this.#errorThrown = true
         AnimationFrame.terminate()

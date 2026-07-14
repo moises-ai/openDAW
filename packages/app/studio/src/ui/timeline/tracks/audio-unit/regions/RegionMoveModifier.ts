@@ -1,11 +1,10 @@
-import {Arrays, clamp, int, Option, Selection} from "@moises-ai/lib-std"
-import {AnyLoopableRegionBoxAdapter, AnyRegionBoxAdapter, TrackBoxAdapter} from "@moises-ai/studio-adapters"
-import {ppqn, RegionCollection} from "@moises-ai/lib-dsp"
+import {Arrays, clamp, int, Option, RuntimeNotifier, Selection} from "@opendaw/lib-std"
+import {AnyLoopableRegionBoxAdapter, AnyRegionBoxAdapter, TrackBoxAdapter} from "@opendaw/studio-adapters"
+import {ppqn, RegionCollection} from "@opendaw/lib-dsp"
 import {Snapping} from "@/ui/timeline/Snapping.ts"
 import {TracksManager} from "@/ui/timeline/tracks/audio-unit/TracksManager.ts"
-import {Project, RegionModifyStrategy} from "@moises-ai/studio-core"
-import {Dialogs} from "@/ui/components/dialogs.tsx"
-import {Dragging} from "@moises-ai/lib-dom"
+import {Project, RegionModifyStrategy} from "@opendaw/studio-core"
+import {Dragging} from "@opendaw/lib-dom"
 import {RegionModifier} from "@/ui/timeline/tracks/audio-unit/regions/RegionModifier"
 
 class SelectedModifyStrategy implements RegionModifyStrategy {
@@ -150,32 +149,22 @@ export class RegionMoveModifier implements RegionModifier {
         if (adapters.length === 0) {return}
         if (!adapters.every(adapter => {
             const trackIndex = adapter.trackBoxAdapter.unwrap().listIndex + this.#deltaIndex
-            const trackAdapter = this.#manager.getByIndex(trackIndex).unwrap().trackBoxAdapter
+            const trackAdapter = this.#manager.getByIndex(trackIndex).unwrap("track@idx").trackBoxAdapter
             return trackAdapter.accepts(adapter)
         })) {
             this.cancel()
-            Dialogs.info({message: "Cannot move region to different track type."}).finally()
+            RuntimeNotifier.notify({message: "Cannot move region to different track type.", icon: "Info"})
             return
         }
         const modifiedTracks: ReadonlyArray<TrackBoxAdapter> = Arrays.removeDuplicates(adapters
             .map(adapter => adapter.trackBoxAdapter.unwrap().listIndex + this.#deltaIndex))
-            .map(index => this.#manager.getByIndex(index).unwrap().trackBoxAdapter)
-        const regionSnapshot = (region: AnyRegionBoxAdapter) =>
-            ({p: region.position, d: region.duration, c: region.complete, s: region.isSelected})
-        const trackSnapshots = modifiedTracks.map(track => ({
-            trackIndex: track.listIndex,
-            before: track.regions.collection.asArray().map(regionSnapshot)
-        }))
-        console.debug("[RegionMoveModifier.approve]", {
-            deltaIndex: this.#deltaIndex, deltaPosition: this.#deltaPosition, copy: this.#copy,
-            adapters: adapters.map(regionSnapshot), trackSnapshots
-        })
+            .map(index => this.#manager.getByIndex(index).unwrap("track@idx").trackBoxAdapter)
         this.#project.overlapResolver.apply(modifiedTracks, adapters, this, this.#deltaIndex, (trackResolver) => {
             if (this.#copy) {
                 const copies: ReadonlyArray<AnyRegionBoxAdapter> = adapters.map(original => {
                     const defaultTrack = this.#manager
                         .getByIndex(original.trackBoxAdapter.unwrap().listIndex + this.#deltaIndex)
-                        .unwrap().trackBoxAdapter
+                        .unwrap("track@idx").trackBoxAdapter
                     const targetTrack = trackResolver(original, defaultTrack)
                     return original.copyTo({
                         position: original.position + this.#deltaPosition,
@@ -190,19 +179,13 @@ export class RegionMoveModifier implements RegionModifier {
                     adapters.forEach(adapter => {
                         const defaultTrack = this.#manager
                             .getByIndex(adapter.trackBoxAdapter.unwrap().listIndex + this.#deltaIndex)
-                            .unwrap().trackBoxAdapter
+                            .unwrap("track@idx").trackBoxAdapter
                         const targetTrack = trackResolver(adapter, defaultTrack)
                         adapter.box.regions.refer(targetTrack.box.regions)
                     })
                 }
                 adapters.forEach((adapter) => adapter.position += this.#deltaPosition)
             }
-        })
-        console.debug("[RegionMoveModifier.approve] after", {
-            tracks: modifiedTracks.map(track => ({
-                trackIndex: track.listIndex,
-                regions: track.regions.collection.asArray().map(regionSnapshot)
-            }))
         })
     }
 
